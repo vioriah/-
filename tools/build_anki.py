@@ -228,25 +228,34 @@ def parse_extra(extra):
     return out
 
 
+def kanji_examples(row, textbook_words):
+    """Примеры к знаку: сначала слова из разделов 新しい漢字 (с уроком), затем дополнительные.
+    Возвращает список (слово, чтение, перевод, урок или None) и подсказку для карточки «Написание»."""
+    k = row["kanji"]
+    examples, seen = [], set()
+    for w, rd, ru, lesson in textbook_words:
+        if k in w and (w, rd) not in seen:
+            seen.add((w, rd))
+            examples.append((w, rd, ru, lesson))
+    for w, rd, ru in parse_extra(row["extra"]):
+        if (w, rd) not in seen and len(examples) < 7:
+            seen.add((w, rd))
+            examples.append((w, rd, ru, None))
+    cue = next(((rd, ru) for w, rd, ru, _ in textbook_words if k in w), ("", ""))
+    return examples, cue
+
+
 def build_kanji(deck, package_media):
     core = load_core()
     textbook_words = load_examples()
     for row in core:
         k = row["kanji"]
-        examples, seen = [], set()
-        for w, rd, ru, lesson in textbook_words:
-            if k in w and (w, rd) not in seen:
-                seen.add((w, rd))
-                examples.append(f'<li>{ruby(w, rd)} — {html.escape(ru)} <span class="tb">учебник, ур. {lesson}</span></li>')
-        for w, rd, ru in parse_extra(row["extra"]):
-            if (w, rd) not in seen and len(examples) < 7:
-                seen.add((w, rd))
-                examples.append(f"<li>{ruby(w, rd)} — {html.escape(ru)}</li>")
-        cue = ""
-        for w, rd, ru, _ in textbook_words:  # подсказка для написания: слово каной
-            if k in w:
-                cue = f"{html.escape(rd)} <span class='hint'>({html.escape(ru)})</span>" if ru else html.escape(rd)
-                break
+        examples, (cue_rd, cue_ru) = kanji_examples(row, textbook_words)
+        items = "".join(
+            f'<li>{ruby(w, rd)} — {html.escape(ru)}'
+            + (f' <span class="tb">учебник, ур. {lesson}</span>' if lesson else "") + "</li>"
+            for w, rd, ru, lesson in examples)
+        cue = html.escape(cue_rd) + (f" <span class='hint'>({html.escape(cue_ru)})</span>" if cue_ru else "")
         svg = ROOT / "data" / "kanjivg" / f"{ord(k):05x}.svg"
         strokes = ""
         if svg.exists():
@@ -256,7 +265,7 @@ def build_kanji(deck, package_media):
         note = genanki.Note(
             model=KANJI_MODEL,
             fields=[k, row["meaning"], "、".join(row["on"]) or "—", "、".join(kun_display(x) for x in row["kun"]) or "—",
-                    "".join(examples), cue, strokes, str(row["lesson"])],
+                    items, cue, strokes, str(row["lesson"])],
             tags=[lesson_tag(row["lesson"]), f"{DECK_ROOT}::кандзи"],
             guid=genanki.guid_for("kanji", k))
         deck.add_note(note)

@@ -1,0 +1,38 @@
+# Публикует тренажёр на GitHub Pages: https://vioriah.github.io/-/
+# Один раз включите Pages: Settings → Pages → Source: GitHub Actions.
+name: Сайт тренажёра
+
+on:
+  push:
+    branches: [claude/japanese-grammar-kanji-vocab-9acemd, main]
+    paths: [trainer/index.html, anki/nihongo_shoho.apkg, .github/workflows/pages.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Собрать сайт из готового тренажёра и колоды
+        run: |
+          mkdir _site
+          cp trainer/index.html anki/nihongo_shoho.apkg _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

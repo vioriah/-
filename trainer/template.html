@@ -120,6 +120,33 @@ details.settings .row { margin-top: 8px; }
 .map td:first-child { white-space: nowrap; }
 .toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
 .toc button { font-size: 13px; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.decks { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.deck { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; min-width: 0; align-content: start; }
+.deck-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.deck-head b { font-size: 17px; }
+.counts { font-variant-numeric: tabular-nums; font-size: 14px; display: flex; gap: 10px; color: var(--muted); }
+.counts b { font-weight: 600; } .counts .n { color: var(--ai); } .counts .lrn { color: var(--shu); } .counts .rev { color: var(--matcha); }
+.newlim { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.newlim input { width: 4.2em; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); padding: 2px 6px; font-variant-numeric: tabular-nums; }
+.face { display: grid; gap: 10px; justify-items: center; text-align: center; min-width: 0; }
+.face.back { border-top: 1px dashed var(--line); padding-top: 14px; }
+.reading { font-family: var(--f-jp); font-size: 22px; color: var(--ai); }
+.meaning { font-size: 20px; font-weight: 500; text-wrap: balance; }
+.readings { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.yomi-on { font-family: var(--f-jp); font-size: 20px; color: var(--shu); } .yomi-kun { font-family: var(--f-jp); font-size: 20px; color: var(--matcha); } .yomi-kun i { font-style: normal; opacity: .55; }
+.ex { list-style: none; padding: 0; margin: 0 auto; display: grid; gap: 4px; text-align: left; max-width: 34em; }
+.ex .jp { font-size: 19px; } .ex .tb { font-size: 12px; color: var(--ai); }
+.strokes { width: 150px; height: 150px; max-width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+.strokes path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.strokes text { font-size: 8px; fill: var(--shu); font-family: var(--f-ui); }
+.grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.grade { border: 1px solid var(--line); border-radius: 8px; background: var(--card); padding: 8px 4px; cursor: pointer; display: grid; gap: 2px; font-weight: 600; }
+.grade:hover { border-color: var(--ai); }
+.grade small { font-weight: 400; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.grade.g1 { color: var(--shu); } .grade.g3 { color: var(--matcha); } .grade.g4 { color: var(--ai); }
+.badge { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--chip); color: var(--muted); }
+.keyfield { flex: 1 1 260px; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: var(--card); font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
 @media (prefers-reduced-motion: no-preference) { .fb, .bubble { animation: rise .18s ease-out; } @keyframes rise { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } } }
 </style>
 
@@ -132,6 +159,7 @@ details.settings .row { margin-top: 8px; }
     <div class="stat" id="stat" aria-live="polite"></div>
   </div>
   <nav class="tabs" aria-label="Режимы">
+    <a href="#cards" data-mode="cards"><span>暗記</span>Карточки</a>
     <a href="#forms" data-mode="forms"><span>活用</span>Формы</a>
     <a href="#particles" data-mode="particles"><span>助詞</span>Частицы</a>
     <a href="#speak" data-mode="speak"><span>話す</span>Скажи</a>
@@ -143,6 +171,36 @@ details.settings .row { margin-top: 8px; }
 </header>
 
 <main>
+  <section class="mode" id="m-cards" hidden>
+    <p class="intro">Колода Anki прямо здесь: слова, кандзи и фразы с интервальным повторением. Новые карточки идут по порядку уроков из выбранного диапазона; повторения приходят, когда вы начинаете забывать. Отвечайте честно: «Снова», если не вспомнили.</p>
+    <p class="note" id="apkgLink" hidden>Та же колода для приложения Anki (телефон, компьютер): <a href="nihongo_shoho.apkg" download>скачать nihongo_shoho.apkg</a>. Прогресс в Anki и здесь ведётся отдельно — выберите что‑то одно.</p>
+    <div class="decks" id="deckList"></div>
+    <div class="row"><button class="btn primary" id="aStart">Начать</button><span class="note" id="aSummary"></span></div>
+    <div class="sheet" id="aStudy" hidden>
+      <div class="task" id="aTask"></div>
+      <div class="face" id="aFront"></div>
+      <div class="face back" id="aBack" hidden></div>
+      <div class="row" id="aShowRow"><button class="btn primary" id="aShow">Показать ответ</button><span class="kbd">пробел или Enter</span></div>
+      <div class="grades" id="aGrades" hidden>
+        <button class="grade g1" type="button" data-g="1">Снова<small></small></button>
+        <button class="grade g2" type="button" data-g="2">Трудно<small></small></button>
+        <button class="grade g3" type="button" data-g="3">Хорошо<small></small></button>
+        <button class="grade g4" type="button" data-g="4">Легко<small></small></button>
+      </div>
+      <div class="row"><button class="btn ghost" id="aEnd">Закончить</button><span class="note" id="aLeft"></span><span class="kbd">клавиши 1–4 — оценка</span></div>
+    </div>
+    <details class="settings">
+      <summary>Прогресс и резервная копия</summary>
+      <p class="note" id="aSync"></p>
+      <div class="row">
+        <button class="btn" id="aExport" type="button">Сохранить прогресс в файл</button>
+        <label class="btn" for="aImport">Загрузить из файла</label>
+        <input type="file" id="aImport" accept=".json,application/json" hidden>
+      </div>
+      <div class="fb info" id="aConfirm" hidden></div>
+    </details>
+  </section>
+
   <section class="mode" id="m-forms" hidden>
     <p class="intro">Поставьте слово в нужную форму и нажмите Enter. Глаголы и прилагательные — из словаря выбранных уроков, формы — только те, что уже пройдены. Цель — отвечать за 2–3 секунды, не вспоминая правило.</p>
     <div class="toggles" id="formGroups"></div>
@@ -233,6 +291,12 @@ details.settings .row { margin-top: 8px; }
       <label class="toggle" for="optAuto"><input type="checkbox" id="optAuto"> озвучивать правильный ответ</label>
     </div>
     <p class="note" id="voiceInfo"></p>
+    <div id="keyBox" hidden>
+      <p class="note">«Собеседник» и проверка переводов на этом сайте работают с вашим ключом Anthropic API (его создают на platform.claude.com). Ключ хранится только в этом браузере и отправляется только в Anthropic. Не сохраняйте его на чужом компьютере. Каждый запрос оплачивается с вашего аккаунта API.</p>
+      <div class="row"><input class="keyfield" id="optKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Ключ Anthropic API">
+        <button class="btn" id="keySave" type="button">Сохранить ключ</button><button class="btn ghost" id="keyDel" type="button">Удалить</button></div>
+      <p class="note" id="keyNote"></p>
+    </div>
   </details>
 </main>
 
@@ -588,15 +652,54 @@ function checkRead(giveUp) {
 
 // ---------- Claude: проверка перевода и собеседник ----------
 let sampleFn = null;
-const ERR = { rate_limited: 'Слишком много запросов — попробуйте чуть позже.', session_expired: 'Нужно заново войти в Claude.', refused: 'Claude не стал отвечать на это сообщение — переформулируйте.', empty_completion: 'Пустой ответ — попробуйте ещё раз.', invalid_json: 'Ответ пришёл в неожиданном виде — попробуйте ещё раз.', upstream_error: 'Связь прервалась — попробуйте ещё раз.' };
+const SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm';
+const MODEL = 'claude-opus-5-5';
+const inViewer = !!window.claude;
+const apiKey = () => store.get('key', '');
+const CHECK_SCHEMA = { type: 'object', additionalProperties: false, required: ['verdict', 'comment', 'fixed'],
+  properties: { verdict: { type: 'string', enum: ['верно', 'почти', 'неверно'] }, comment: { type: 'string' }, fixed: { type: 'string' } } };
+const CHAT_SCHEMA = { type: 'object', additionalProperties: false, required: ['fix', 'reply', 'reading', 'ru'],
+  properties: { fix: { type: 'string' }, reply: { type: 'string' }, reading: { type: 'string' }, ru: { type: 'string' } } };
+let sdkPromise = null;
+// Вне claude.ai: прямой вызов Claude API из браузера с ключом посетителя.
+async function keyJSON(input, o) {
+  sdkPromise ||= import(SDK_URL);
+  let mod;
+  try { mod = await sdkPromise; } catch { sdkPromise = null; throw { code: 'upstream_error' }; }
+  const client = new mod.default({ apiKey: apiKey(), dangerouslyAllowBrowser: true });
+  const messages = typeof input === 'string' ? [{ role: 'user', content: input }] : input;
+  try {
+    const res = await client.beta.messages.create({
+      model: MODEL, max_tokens: 16000, betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default',
+      output_config: { effort: o.effort, format: { type: 'json_schema', schema: o.schema } }, messages,
+    }, { signal: o.signal });
+    if (res.stop_reason === 'refusal') throw { code: 'refused' };
+    const text = res.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    try { return JSON.parse(text); } catch { throw { code: 'invalid_json' }; }
+  } catch (e) {
+    if (e && typeof e.code === 'string' && !(e instanceof Error)) throw e;
+    if (e instanceof mod.APIUserAbortError) throw { code: 'cancelled' };
+    if (e instanceof mod.AuthenticationError || e instanceof mod.PermissionDeniedError) throw { code: 'bad_key' };
+    if (e instanceof mod.RateLimitError) throw { code: 'rate_limited' };
+    if (e instanceof mod.BadRequestError) throw { code: 'bad_request' };
+    throw { code: 'upstream_error' };
+  }
+}
+const ERR = { bad_key: 'Ключ API не подошёл — проверьте его в «Настройках» внизу страницы.', bad_request: 'API отклонил запрос — попробуйте ещё раз.', rate_limited: 'Слишком много запросов — попробуйте чуть позже.', session_expired: 'Нужно заново войти в Claude.', refused: 'Claude не стал отвечать на это сообщение — переформулируйте.', empty_completion: 'Пустой ответ — попробуйте ещё раз.', invalid_json: 'Ответ пришёл в неожиданном виде — попробуйте ещё раз.', upstream_error: 'Связь прервалась — попробуйте ещё раз.' };
 const HIDE = new Set(['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed']);
 function claudeUnavailable() {
   sampleFn = null; $('#sClaude').hidden = true;
-  $('#chatState').textContent = 'Собеседник работает только в опубликованной версии тренажёра на claude.ai и с разрешением на использование Claude. Остальные режимы доступны всегда.';
+  $('#chatState').textContent = inViewer
+    ? 'Собеседнику нужно разрешение на использование Claude в этом окне. Остальные режимы доступны всегда.'
+    : 'Чтобы включить собеседника и проверку переводов, вставьте свой ключ Anthropic API в «Настройках» внизу страницы. Остальные режимы работают без него.';
   $('#chatBox').hidden = true; $('#scen').hidden = true;
 }
 async function initClaude() {
-  try { sampleFn = window.claude?.use ? await window.claude.use('sample') : null; } catch { sampleFn = null; }
+  let real = null;
+  try { real = window.claude?.use ? await window.claude.use('sample') : null; } catch { real = null; }
+  if (real) sampleFn = { json: (input, o) => real.json(input, { modelTier: o.tier, cache: o.cache, signal: o.signal }) };
+  else if (!inViewer && apiKey()) sampleFn = { json: keyJSON };
+  else sampleFn = null;
   if (!sampleFn) { claudeUnavailable(); return; }
   $('#sClaude').hidden = false; $('#chatBox').hidden = false; $('#scen').hidden = false;
   $('#chatState').textContent = 'Выберите тему — Claude начнёт разговор.';
@@ -614,7 +717,7 @@ async function checkWithClaude() {
 Оцени ответ. Другой вариант тоже верен, если он грамматически правилен, передаёт смысл и сохраняет стиль эталона (вежливый или простой). Мелочи вроде записи каной вместо кандзи ошибкой не считай.
 Ответь только JSON: {"verdict": "верно" | "почти" | "неверно", "comment": "1–2 коротких предложения по-русски: что не так и почему, или что всё хорошо", "fixed": "исправленный вариант ответа студента по-японски (если ошибок нет — сам ответ)"}`;
   try {
-    const r = await sampleFn.json(prompt, { modelTier: 'default' });
+    const r = await sampleFn.json(prompt, { tier: 'default', effort: 'medium', schema: CHECK_SCHEMA });
     const v = String(r?.verdict || ''), good = v.startsWith('верн');
     box.className = 'fb ' + (good ? 'good' : v.startsWith('почти') ? 'info' : 'bad');
     box.innerHTML = `<div class="verdict">Claude: ${esc(v || 'оценка')}</div><div>${esc(r?.comment || '')}</div>${r?.fixed ? `<div class="jpline">${esc(r.fixed)}</div>` : ''}`;
@@ -666,7 +769,7 @@ async function chatCall(userText) {
   const wait = document.createElement('div'); wait.className = 'note'; wait.textContent = 'Claude пишет…'; $('#chatLog').append(wait);
   C.ctl = new AbortController(); $('#cSend').disabled = true; $('#cStop').hidden = false;
   try {
-    const r = await sampleFn.json(input, { modelTier: 'quick', cache: false, signal: C.ctl.signal });
+    const r = await sampleFn.json(input, { tier: 'quick', effort: 'low', cache: false, signal: C.ctl.signal, schema: CHAT_SCHEMA });
     const reply = String(r?.reply || '').trim();
     if (!reply) throw { code: 'invalid_json' };
     addBubble('bot', { fix: String(r.fix || '').trim(), reply, reading: r.reading, ru: r.ru });
@@ -685,6 +788,253 @@ function startChat(i) {
   chatCall('');
 }
 
+// ---------- карточки (встроенная колода Anki) ----------
+const DAY = 86400000, ROLLOVER = 4 * 3600000, MIN = 60000;
+const dayNum = (t = Date.now()) => Math.floor((t - new Date(t).getTimezoneOffset() * MIN - ROLLOVER) / DAY);
+const dayStart = n => { const t = n * DAY + ROLLOVER; return t + new Date(t).getTimezoneOffset() * MIN; };
+const LEARN = [1, 10], RELEARN = [10];
+const DECKS = {
+  w: { name: 'Слова', tpl: ['Понимание (яп → рус)', 'Говорение (рус → яп)'], notes: words.filter(w => w.t !== 'name'), key: n => n.id },
+  k: { name: 'Кандзи', tpl: ['Узнавание', 'Написание'], notes: D.kanji, key: n => n.c },
+  s: { name: 'Фразы', tpl: ['Скажи по‑японски', 'Аудирование'], notes: D.sentences, key: n => n.id },
+};
+const NOTE = new Map();
+for (const [d, deck] of Object.entries(DECKS)) { deck.notes = [...deck.notes].sort((a, b) => a.l - b.l); deck.notes.forEach(n => NOTE.set(d + deck.key(n), { d, n })); }
+let CFG = store.get('srsCfg', { w: { t: [1], n: 20 }, k: { t: [1], n: 10 }, s: { t: [1, 2], n: 8 } });
+// Прогресс: c[id] = [тип 1 изучение / 2 повторение / 3 переучивание, срок (мс), интервал (дни), лёгкость, повторений, провалов, шаг]
+const Prog = {
+  data: null, docRef: null, timer: null, busy: false, again: false, status: 'local',
+  load() { const d = store.get('srs', null); this.data = d && d.v === 1 && d.c ? d : { v: 1, t: 0, c: {}, day: -1, nd: { w: 0, k: 0, s: 0 } }; },
+  today() { const t = dayNum(); if (this.data.day !== t) { this.data.day = t; this.data.nd = { w: 0, k: 0, s: 0 }; } return t; },
+  save() { this.data.t = Date.now(); store.set('srs', this.data); if (this.docRef) { clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), 3000); } },
+  async push() {
+    if (this.busy) { this.again = true; return; }
+    this.busy = true;
+    try { await this.docRef.set({ json: JSON.stringify(this.data) }); this.status = 'synced'; }
+    catch (e) { if (e?.code === 'invalid_argument' || e?.code === 'revoked' || e?.code === 'not_granted') { this.docRef = null; this.status = 'local'; } else this.status = 'pending'; }
+    finally { this.busy = false; renderSync(); if (this.again) { this.again = false; this.push(); } }
+  },
+  async connect() {
+    if (!window.claude?.use) return;
+    try {
+      const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      const id = db && user ? await user.id() : null;
+      if (!id) return;
+      this.docRef = db.doc('data/users/' + id + '/srs');
+      const snap = await this.docRef.get();
+      const remote = snap.exists ? JSON.parse(String(snap.data().json || 'null')) : null;
+      if (remote && remote.v === 1 && remote.t > this.data.t) { this.data = remote; store.set('srs', remote); renderDecks(); }
+      else if (this.data.t > (remote?.t || 0)) await this.push();
+      if (this.docRef) this.status = 'synced';
+    } catch { this.docRef = null; this.status = 'local'; }
+    renderSync();
+  },
+};
+function renderSync() {
+  const n = Object.keys(Prog.data.c).length;
+  $('#aSync').textContent = (Prog.status === 'synced'
+    ? 'Прогресс сохраняется в вашем аккаунте Claude и доступен на любом устройстве, где вы открываете этот тренажёр.'
+    : Prog.status === 'pending' ? 'Прогресс сохранён в браузере; синхронизация с аккаунтом повторится при следующем ответе.'
+    : 'Прогресс хранится в этом браузере. Время от времени сохраняйте его в файл — так его можно перенести на другое устройство.')
+    + ` Изучается карточек: ${n}.`;
+}
+const enabled = d => CFG[d].t;
+function newQueue(d, limit) {
+  const out = [], deck = DECKS[d], c = Prog.data.c;
+  for (const n of deck.notes) {
+    if (out.length >= limit) break;
+    if (!inRange(n.l)) continue;
+    const id = d + deck.key(n);
+    for (const t of enabled(d)) {
+      if (c[id + '.' + t]) continue;
+      if (t === 2 && enabled(d).includes(1) && c[id + '.1']?.[0] !== 2) continue; // вторую сторону — после того, как выучена первая
+      out.push(id + '.' + t); if (out.length >= limit) break;
+    }
+  }
+  return out;
+}
+function deckCounts(d) {
+  Prog.today();
+  const end = dayStart(dayNum() + 1), now = Date.now();
+  let rev = 0, lrn = 0;
+  for (const [id, st] of Object.entries(Prog.data.c)) {
+    if (id[0] !== d || !enabled(d).includes(+id.slice(-1)) || !NOTE.has(id.slice(0, -2))) continue;
+    if (st[0] === 2 && st[1] < end) rev++;
+    else if (st[0] !== 2 && st[1] < now + 20 * MIN) lrn++;
+  }
+  const left = Math.max(0, CFG[d].n - (Prog.data.nd[d] || 0));
+  return { rev, lrn, n: newQueue(d, left).length };
+}
+function renderDecks() {
+  let total = 0;
+  $('#deckList').innerHTML = Object.entries(DECKS).map(([d, deck]) => {
+    const c = deckCounts(d); total += c.rev + c.lrn + c.n;
+    return `<div class="deck"><div class="deck-head"><b>${deck.name}</b>
+      <span class="counts" title="новые · в изучении · к повторению"><span><b class="n">${c.n}</b> новых</span><span><b class="lrn">${c.lrn}</b> учу</span><span><b class="rev">${c.rev}</b> повторить</span></span></div>
+      <div class="toggles">${deck.tpl.map((name, i) => `<label class="toggle" for="t-${d}${i + 1}"><input type="checkbox" id="t-${d}${i + 1}" data-d="${d}" data-t="${i + 1}" ${enabled(d).includes(i + 1) ? 'checked' : ''}> ${name}</label>`).join('')}</div>
+      <label class="newlim" for="n-${d}">новых в день <input type="number" id="n-${d}" data-d="${d}" min="0" max="300" value="${CFG[d].n}"></label></div>`;
+  }).join('');
+  $$('#deckList input[type=checkbox]').forEach(el => el.onchange = () => {
+    const d = el.dataset.d; CFG[d].t = $$(`#deckList input[type=checkbox][data-d="${d}"]:checked`).map(x => +x.dataset.t);
+    store.set('srsCfg', CFG); renderDecks();
+  });
+  $$('#deckList input[type=number]').forEach(el => el.onchange = () => {
+    CFG[el.dataset.d].n = Math.max(0, Math.min(300, Math.round(+el.value || 0))); store.set('srsCfg', CFG); renderDecks();
+  });
+  $('#aSummary').textContent = total ? `на сегодня: ${total} карточек · уроки ${S.from}–${S.to}` : 'На сегодня всё. Новые карточки появятся завтра — или расширьте диапазон уроков и лимит новых.';
+  $('#aStart').disabled = !total;
+  renderSync();
+}
+function schedule(st, g, now = Date.now()) {
+  const today = dayNum(now);
+  let [type, due, ivl, ease, reps, lapses, step] = st || [1, now, 0, 2.5, 0, 0, 0];
+  const fuzz = d => d < 3 ? d : Math.max(1, Math.round(d * (0.95 + Math.random() * 0.1)));
+  const review = days => { ivl = days; return [2, dayStart(today + days), days, ease, reps + 1, lapses, 0]; };
+  if (type === 2) {
+    if (g === 1) { lapses++; ease = Math.max(1.3, ease - 0.2); ivl = Math.max(1, Math.round(ivl * 0.3)); return [3, now + RELEARN[0] * MIN, ivl, ease, reps + 1, lapses, 0]; }
+    if (g === 2) { ease = Math.max(1.3, ease - 0.15); return review(fuzz(Math.max(ivl + 1, Math.round(ivl * 1.2)))); }
+    if (g === 3) return review(fuzz(Math.max(ivl + 1, Math.round(ivl * ease))));
+    ease += 0.15; return review(fuzz(Math.max(ivl + 2, Math.round(ivl * ease * 1.3))));
+  }
+  const steps = type === 3 ? RELEARN : LEARN;
+  if (g === 1) return [type, now + steps[0] * MIN, ivl, ease, reps + 1, lapses, 0];
+  if (g === 2) return [type, now + (step === 0 && steps.length > 1 ? (steps[0] + steps[1]) / 2 : steps[step]) * MIN, ivl, ease, reps + 1, lapses, step];
+  if (g === 3 && step + 1 < steps.length) return [type, now + steps[step + 1] * MIN, ivl, ease, reps + 1, lapses, step + 1];
+  if (type === 3) return review(g === 4 ? ivl + 1 : ivl);
+  return review(g === 4 ? 4 : 1);
+}
+function fmtIvl(st, now) {
+  if (st[0] === 2) { const d = st[2]; return d < 30 ? `${d} дн` : d < 365 ? `${(d / 30).toFixed(1).replace('.0', '')} мес` : `${(d / 365).toFixed(1).replace('.0', '')} г`; }
+  const m = Math.round((st[1] - now) / MIN); return m < 1 ? '<1 мин' : m < 60 ? `${m} мин` : `${Math.round(m / 60)} ч`;
+}
+const A = { cur: null, shown: false, sinceNew: 0, done: 0 };
+function pickCard() {
+  const now = Date.now(), end = dayStart(dayNum() + 1), c = Prog.data.c;
+  let lrn = null, ahead = null, rev = [];
+  for (const [id, st] of Object.entries(c)) {
+    const d = id[0];
+    if (!enabled(d).includes(+id.slice(-1)) || !NOTE.has(id.slice(0, -2))) continue;
+    if (st[0] === 2) { if (st[1] < end) rev.push([id, st[1]]); }
+    else if (st[1] <= now) { if (!lrn || st[1] < c[lrn][1]) lrn = id; }
+    else if (st[1] < now + 20 * MIN && (!ahead || st[1] < c[ahead][1])) ahead = id;
+  }
+  if (lrn) return lrn;
+  let fresh = null, best = Infinity;
+  for (const d of Object.keys(DECKS)) { // новые карточки чередуются между колодами пропорционально лимитам
+    const done = Prog.data.nd[d] || 0;
+    if (done >= CFG[d].n) continue;
+    const share = done / CFG[d].n, cand = share < best ? newQueue(d, 1)[0] : null;
+    if (cand) { fresh = cand; best = share; }
+  }
+  if (rev.length && (!fresh || A.sinceNew < 3)) { rev.sort((a, b) => a[1] - b[1]); A.sinceNew++; return rev[0][0]; }
+  if (fresh) { A.sinceNew = 0; return fresh; }
+  return ahead;
+}
+function kunHTML(k) { const [stem, oku] = k.split('.'); return esc(stem) + (oku ? `<i>${esc(oku)}</i>` : ''); }
+function strokeSVG(ch) {
+  const s = D.strokes[ch]; if (!s) return '';
+  return `<svg class="strokes" viewBox="0 0 109 109" role="img" aria-label="Порядок черт ${esc(ch)}">${s[0].map(d => `<path d="${d}"></path>`).join('')}${s[1].map(([x, y], i) => `<text x="${x}" y="${y}">${i + 1}</text>`).join('')}</svg>
+    <button class="btn ghost" type="button" data-anim>Нарисовать по чертам</button>`;
+}
+function animateStrokes(svg) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ps = [...svg.querySelectorAll('path')];
+  ps.forEach(p => { const L = p.getTotalLength(); p.style.transition = 'none'; p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+  svg.getBoundingClientRect();
+  ps.forEach((p, i) => { p.style.transition = `stroke-dashoffset .45s ease ${i * 0.5}s`; p.style.strokeDashoffset = '0'; });
+}
+function faces(id) {
+  const { d, n } = NOTE.get(id.slice(0, -2)), t = +id.slice(-1);
+  const sayBtn = text => `<button class="btn speak ghost" type="button" data-say="${esc(text)}">Озвучить</button>`;
+  if (d === 'w') {
+    const reading = n.k.replace(/[()～〜]/g, ''), big = `<div class="prompt">${esc(n.e)}</div>`;
+    const info = `${n.k !== n.e ? `<div class="reading">${esc(n.k)}</div>` : ''}`;
+    const extra = `${n.s ? `<div class="meta">пишется также: ${esc(n.s)}</div>` : ''}${POS_RU[n.p] ? `<div class="meta">${POS_RU[n.p]}</div>` : ''}${n.kb ? `<div class="meta">${esc(n.kb)}</div>` : ''}${sayBtn(reading)}`;
+    if (t === 1) return { front: big, back: `${info}<div class="meaning">${esc(n.r)}</div>${extra}`, say: reading };
+    return { front: `<div class="meaning">${esc(n.r)}</div>${POS_RU[n.p] ? `<div class="meta">${POS_RU[n.p]}</div>` : ''}<div class="meta">скажите вслух по‑японски</div>`,
+      back: big + info + extra, say: reading };
+  }
+  if (d === 'k') {
+    const rd = `<div class="readings"><div><div class="lbl">он</div><div class="yomi-on">${esc(n.on.join('、') || '—')}</div></div><div><div class="lbl">кун</div><div class="yomi-kun">${n.kun.map(kunHTML).join('、') || '—'}</div></div></div>`;
+    const ex = `<ul class="ex">${n.ex.map(([w, r, ru, l]) => `<li><span class="jp"><ruby>${esc(w)}<rt>${esc(r)}</rt></ruby></span> — ${esc(ru)}${l ? ` <span class="tb">учебник, ур. ${l}</span>` : ''}</li>`).join('')}</ul>`;
+    if (t === 1) return { front: `<div class="prompt">${esc(n.c)}</div>`, back: `<div class="meaning">${esc(n.m)}</div>${rd}${ex}${strokeSVG(n.c)}` };
+    const cue = n.cue[0] ? `<div class="jpline jp">${esc(n.cue[0])}${n.cue[1] ? ` <span class="meta">(${esc(n.cue[1])})</span>` : ''}</div>` : '';
+    return { front: `<div class="meaning">${esc(n.m)}</div>${rd}${cue}<div class="meta">напишите иероглиф на бумаге или пальцем</div>`,
+      back: `<div class="prompt">${esc(n.c)}</div>${strokeSVG(n.c)}` };
+  }
+  const furi = `<div class="prompt sentence" style="text-align:center">${rubyAlways(n.f)}</div>`;
+  if (t === 1) return { front: `<div class="meaning">${esc(n.r)}</div><span class="chip">${esc(n.p)}</span><div class="meta">скажите вслух, потом откройте ответ</div>`,
+    back: `${furi}${sayBtn(n.j)}<div class="meta">повторите вслед за озвучкой</div>`, say: n.j };
+  return { front: `${sayBtn(n.j)}<div class="meta">послушайте и поймите фразу</div>`, back: `${furi}<div class="meaning">${esc(n.r)}</div><span class="chip">${esc(n.p)}</span>`, frontSay: n.j };
+}
+function wireFace(el) {
+  $$('[data-say]', el).forEach(b => b.onclick = () => tts.speak(b.dataset.say));
+  $$('[data-anim]', el).forEach(b => b.onclick = () => animateStrokes(b.previousElementSibling));
+}
+function nextCard() {
+  Prog.today();
+  const id = pickCard();
+  A.cur = id; A.shown = false;
+  if (!id) { endStudy(true); return; }
+  const { d } = NOTE.get(id.slice(0, -2)), t = +id.slice(-1), st = Prog.data.c[id];
+  const f = faces(id); A.face = f;
+  const kind = !st ? 'новая' : st[0] === 2 ? 'повторение' : 'изучение';
+  $('#aTask').innerHTML = `${DECKS[d].name} · ${DECKS[d].tpl[t - 1]} <span class="badge">${kind}</span> <span class="meta">· урок ${NOTE.get(id.slice(0, -2)).n.l}</span>`;
+  $('#aFront').innerHTML = f.front; wireFace($('#aFront'));
+  $('#aBack').hidden = true; $('#aGrades').hidden = true; $('#aShowRow').hidden = false;
+  const c = { rev: 0, lrn: 0, n: 0 }; for (const k of Object.keys(DECKS)) { const x = deckCounts(k); c.rev += x.rev; c.lrn += x.lrn; c.n += x.n; }
+  $('#aLeft').textContent = `осталось: ${c.n} новых · ${c.lrn} в изучении · ${c.rev} повторить`;
+  if (f.frontSay) tts.speak(f.frontSay);
+  if (fine) $('#aShow').focus();
+}
+function showAnswer() {
+  if (!A.cur || A.shown) return;
+  A.shown = true;
+  $('#aBack').innerHTML = A.face.back; wireFace($('#aBack')); $('#aBack').hidden = false;
+  $('#aShowRow').hidden = true; $('#aGrades').hidden = false;
+  const now = Date.now(), st = Prog.data.c[A.cur];
+  $$('#aGrades .grade').forEach(b => { b.querySelector('small').textContent = fmtIvl(schedule(st, +b.dataset.g, now), now); });
+  if (S.auto && A.face.say) tts.speak(A.face.say);
+}
+function grade(g) {
+  if (!A.cur || !A.shown) return;
+  const isNew = !Prog.data.c[A.cur];
+  Prog.data.c[A.cur] = schedule(Prog.data.c[A.cur], g);
+  if (isNew) { const d = A.cur[0]; Prog.data.nd[d] = (Prog.data.nd[d] || 0) + 1; }
+  Prog.save(); mark(g > 1); A.done++;
+  nextCard();
+}
+function startStudy() { A.done = 0; A.sinceNew = 0; $('#aStudy').hidden = false; $('#deckList').hidden = true; $('#aStart').parentElement.hidden = true; nextCard(); }
+function endStudy(finished) {
+  $('#aStudy').hidden = true; $('#deckList').hidden = false; $('#aStart').parentElement.hidden = false; A.cur = null;
+  renderDecks();
+  if (finished && A.done) $('#aSummary').textContent = `Готово: ${A.done} ответов. ` + $('#aSummary').textContent;
+}
+let downloadsCap = null;
+async function exportProgress() {
+  const name = `shoho-progress-${new Date().toISOString().slice(0, 10)}.json`, json = JSON.stringify(Prog.data);
+  if (inViewer) {
+    try { downloadsCap ||= await window.claude.use('downloads'); } catch { downloadsCap = null; }
+    if (!downloadsCap) { $('#aSync').textContent = 'Сохранение файла недоступно в этом окне.'; return; }
+    try { await downloadsCap.save({ filename: name, data: json }); } catch (e) { if (e?.code !== 'declined') $('#aSync').textContent = 'Не удалось сохранить файл.'; }
+    return;
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([json], { type: 'application/json' })); a.download = name;
+  document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function importProgress(file) {
+  const box = $('#aConfirm');
+  file.text().then(txt => {
+    let data = null; try { data = JSON.parse(txt); } catch { }
+    if (!data || data.v !== 1 || typeof data.c !== 'object') { box.hidden = false; box.textContent = 'Это не файл прогресса тренажёра.'; return; }
+    box.hidden = false;
+    box.innerHTML = `<div>В файле ${Object.keys(data.c).length} карточек. Заменить ими текущий прогресс (${Object.keys(Prog.data.c).length})?</div>
+      <div class="row"><button class="btn primary" type="button" id="aYes">Заменить</button><button class="btn ghost" type="button" id="aNo">Отмена</button></div>`;
+    $('#aYes').onclick = () => { Prog.data = data; Prog.save(); box.hidden = true; renderDecks(); };
+    $('#aNo').onclick = () => { box.hidden = true; };
+  });
+}
+
 // ---------- карта грамматики ----------
 function initMap() {
   const heads = $$('#grammar h2');
@@ -694,6 +1044,7 @@ function initMap() {
 
 // ---------- навигация ----------
 const INIT = {
+  cards() { renderDecks(); },
   forms() { buildGroupToggles(); nextForm(); },
   particles() { nextParticle(); }, speak() { nextSpeak(); }, listen() { nextListen(); }, read() { nextRead(); },
   chat() { $('#scen').innerHTML = SCEN.map((s, i) => `<button type="button" data-i="${i}" aria-pressed="false">${esc(s[0])}</button>`).join(''); $$('#scen button').forEach(b => b.onclick = () => startChat(+b.dataset.i)); },
@@ -702,13 +1053,13 @@ const INIT = {
 const started = {};
 const MODES = Object.keys(INIT);
 function show(mode) {
-  if (!MODES.includes(mode)) mode = 'forms';
+  if (!MODES.includes(mode)) mode = 'cards';
   $$('.mode').forEach(s => { s.hidden = s.id !== 'm-' + mode; });
   $$('.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.mode === mode ? 'page' : 'false'));
   if (!started[mode]) { started[mode] = true; INIT[mode](); }
   store.set('mode', mode);
 }
-function refreshAll() { for (const m of Object.keys(started)) if (m !== 'map' && m !== 'chat') ({ forms: nextForm, particles: nextParticle, speak: nextSpeak, listen: nextListen, read: nextRead })[m](); }
+function refreshAll() { for (const m of Object.keys(started)) if (m !== 'map' && m !== 'chat') ({ cards: () => { if (!A.cur) renderDecks(); }, forms: nextForm, particles: nextParticle, speak: nextSpeak, listen: nextListen, read: nextRead })[m](); }
 
 // ---------- события ----------
 function initRange() {
@@ -726,6 +1077,20 @@ function bind() {
   $('#fHint').onclick = () => { if (F.cur) { $('#fHint').textContent = POS_RU[F.cur.item.p] || ''; $('#fHint').disabled = true; } };
   onEnter($('#fInput'), () => checkForm(false));
   $('#pNext').onclick = nextParticle;
+  $('#aStart').onclick = startStudy; $('#aShow').onclick = showAnswer; $('#aEnd').onclick = () => endStudy(false);
+  $$('#aGrades .grade').forEach(b => b.onclick = () => grade(+b.dataset.g));
+  $('#aExport').onclick = exportProgress;
+  $('#aImport').onchange = e => { const f = e.target.files[0]; if (f) importProgress(f); e.target.value = ''; };
+  document.addEventListener('keydown', e => {
+    if ($('#m-cards').hidden || $('#aStudy').hidden || e.target.closest('input, textarea, select') || e.ctrlKey || e.metaKey) return;
+    if ((e.key === ' ' || e.key === 'Enter') && !A.shown) { e.preventDefault(); showAnswer(); }
+    else if (/^[1-4]$/.test(e.key) && A.shown) { e.preventDefault(); grade(+e.key); }
+  });
+  $('#keyBox').hidden = inViewer;
+  $('#apkgLink').hidden = inViewer || !location.protocol.startsWith('http');
+  $('#optKey').value = apiKey();
+  $('#keySave').onclick = () => { const k = $('#optKey').value.trim(); store.set('key', k); $('#keyNote').textContent = k ? 'Ключ сохранён в этом браузере.' : ''; initClaude(); };
+  $('#keyDel').onclick = () => { store.set('key', ''); $('#optKey').value = ''; $('#keyNote').textContent = 'Ключ удалён.'; initClaude(); };
   document.addEventListener('keydown', e => {
     if ($('#m-particles').hidden || e.target.closest('input, textarea, select')) return;
     if (/^[1-4]$/.test(e.key) && !P.done) { const b = $$('#pChoices .choice')[+e.key - 1]; if (b) answerParticle(b.dataset.p); }
@@ -761,7 +1126,9 @@ function initSpeechRecognition() {
 }
 
 renderStats(); initRange(); bind(); bindRomaji(); tts.init(); markRate();
-show(location.hash.slice(1) || store.get('mode', 'forms'));
+Prog.load(); Prog.today();
+show(location.hash.slice(1) || store.get('mode', 'cards'));
+Prog.connect();
 initClaude();
 window.addEventListener('load', bindRomaji);
 })();
