@@ -226,13 +226,14 @@ details.settings .row { margin-top: 8px; }
   </section>
 
   <section class="mode" id="m-speak" hidden>
-    <p class="intro">Переведите фразу <b>вслух</b>, затем откройте ответ и повторите за озвучкой. Можно напечатать или надиктовать ответ (на телефоне — микрофон на японской клавиатуре) и попросить Claude проверить его: другие верные варианты тоже засчитываются.</p>
+    <p class="intro">Переведите фразу <b>вслух</b>, затем откройте ответ и повторите за озвучкой. Можно напечатать ответ или сказать его кнопкой «Говорить» (если её нет — микрофоном японской клавиатуры телефона) и попросить Claude проверить его: другие верные варианты тоже засчитываются.</p>
     <div class="sheet">
       <div class="task" id="sTask"></div>
       <div class="prompt-ru" id="sRu"></div>
       <div><span class="chip" id="sPattern"></span></div>
       <textarea class="answer jp-input" id="sInput" rows="2" lang="ja" placeholder="ваш вариант (необязательно)" aria-label="Ваш перевод"></textarea>
-      <div class="row"><button class="btn primary" id="sShow">Показать ответ</button><button class="btn" id="sClaude" hidden>Проверить с Claude</button><button class="btn ghost" id="sMic" hidden>Сказать в микрофон</button></div>
+      <div class="row"><button class="btn primary" id="sShow">Показать ответ</button><button class="btn" id="sClaude" hidden>Проверить с Claude</button><button class="btn ghost mic" id="sMic" hidden>Говорить</button></div>
+      <div class="note" id="sMicNote" hidden></div>
       <div id="sFb" hidden></div>
       <div id="sClaudeFb" hidden></div>
       <div class="row" id="sGrade" hidden><button class="btn" id="sGood">Получилось</button><button class="btn" id="sBad">Повторить позже</button><button class="btn speak ghost" id="sSpeak">Озвучить</button></div>
@@ -265,13 +266,14 @@ details.settings .row { margin-top: 8px; }
   </section>
 
   <section class="mode" id="m-chat" hidden>
-    <p class="intro">Разговор с Claude по‑японски в пределах пройденной грамматики. Пишите (или диктуйте) по‑японски; ошибки Claude исправит одной строкой по‑русски. Застряли — напишите по‑русски, Claude подскажет, как это сказать.</p>
+    <p class="intro">Разговор с Claude по‑японски в пределах пройденной грамматики. Пишите или говорите (кнопка «Говорить») по‑японски; ошибки Claude исправит одной строкой по‑русски. Застряли — напишите по‑русски, Claude подскажет, как это сказать.</p>
     <div class="scen" id="scen" role="group" aria-label="Тема разговора"></div>
     <div class="note" id="chatState"></div>
     <div class="chat" id="chatLog" aria-live="polite"></div>
     <div class="sheet" id="chatBox">
       <textarea class="answer jp-input" id="cInput" rows="2" lang="ja" placeholder="ваша реплика" aria-label="Ваша реплика"></textarea>
-      <div class="row"><button class="btn primary" id="cSend">Отправить</button><button class="btn ghost" id="cStop" hidden>Остановить</button><button class="btn ghost" id="cReset">Новый разговор</button></div>
+      <div class="row"><button class="btn primary" id="cSend">Отправить</button><button class="btn ghost" id="cStop" hidden>Остановить</button><button class="btn ghost mic" id="cMic" hidden>Говорить</button><button class="btn ghost" id="cReset">Новый разговор</button></div>
+      <div class="note" id="cMicNote" hidden></div>
     </div>
   </section>
 
@@ -3046,14 +3048,32 @@ function bind() {
 function markRate() { $$('[data-rate]').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.rate - tts.rate) < .01)); }
 function initSpeechRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
-  const btn = $('#sMic'); btn.hidden = false; let rec = null;
+  micButton(SR, $('#sMic'), $('#sInput'), $('#sMicNote'));
+  micButton(SR, $('#cMic'), $('#cInput'), $('#cMicNote'));
+}
+// Кнопка «Говорить»: распознаёт японскую речь и дописывает текст в поле. Повторное нажатие — стоп.
+function micButton(SR, btn, input, note) {
+  const errors = {
+    'not-allowed': 'Браузер не дал доступ к микрофону. Разрешите его в настройках сайта (значок замка у адреса).',
+    'service-not-allowed': 'Распознавание речи здесь недоступно. На телефоне диктуйте через микрофон японской клавиатуры.',
+    'no-speech': 'Речь не услышана. Нажмите «Говорить» и начните фразу сразу.',
+    'audio-capture': 'Микрофон не найден.',
+    'network': 'Нет связи с сервисом распознавания (нужен интернет).',
+  };
+  const say = t => { note.textContent = t || ''; note.hidden = !t; };
+  btn.hidden = false; let rec = null;
   btn.onclick = () => {
     if (rec) { rec.stop(); return; }
+    const before = input.value.trim();
     rec = new SR(); rec.lang = 'ja-JP'; rec.interimResults = true;
-    rec.onresult = e => { $('#sInput').value = [...e.results].map(r => r[0].transcript).join(''); };
-    rec.onerror = e => { btn.hidden = e.error === 'not-allowed' || e.error === 'service-not-allowed'; if (btn.hidden) $('#sTask').insertAdjacentHTML('beforeend', ' <span class="note">· микрофон здесь недоступен — диктуйте через клавиатуру телефона</span>'); };
-    rec.onend = () => { rec = null; btn.textContent = 'Сказать в микрофон'; };
-    btn.textContent = 'Стоп'; try { rec.start(); } catch { rec = null; }
+    rec.onresult = e => { input.value = (before ? before + ' ' : '') + [...e.results].map(r => r[0].transcript).join(''); };
+    rec.onerror = e => {
+      say(errors[e.error] || (e.error === 'aborted' ? '' : 'Ошибка распознавания: ' + e.error));
+      if (e.error === 'service-not-allowed') btn.hidden = true;
+    };
+    rec.onend = () => { rec = null; btn.textContent = 'Говорить'; btn.classList.remove('on'); input.focus(); };
+    say(''); btn.textContent = 'Стоп'; btn.classList.add('on');
+    try { rec.start(); } catch { rec = null; btn.textContent = 'Говорить'; btn.classList.remove('on'); }
   };
 }
 
