@@ -83,6 +83,7 @@ textarea.answer { resize: vertical; letter-spacing: .12em; background-image: non
 .fb .verdict { font-weight: 600; } .fb.good .verdict { color: var(--matcha); } .fb.bad .verdict { color: var(--shu); }
 .fb .jpline { font-family: var(--f-jp); font-size: 22px; line-height: 1.7; }
 .toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle select { border: 0; background: transparent; padding: 0; }
 .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); cursor: pointer; user-select: none; }
 .toggle input { accent-color: var(--ai); margin: 0; }
 details.settings { font-size: 14px; color: var(--muted); }
@@ -2224,6 +2225,11 @@ Anki и раздел «Скажи по‑японски» в тренажёре)
       <label class="toggle" for="optFuri"><input type="checkbox" id="optFuri"> фуригана над кандзи</label>
       <label class="toggle" for="optAuto"><input type="checkbox" id="optAuto"> озвучивать правильный ответ</label>
     </div>
+    <div class="row" id="micBox" hidden>
+      <label class="toggle" for="optMic">распознавание речи:
+        <select id="optMic"><option value="browser">браузера (Siri / Google)</option><option value="whisper">на устройстве (Whisper)</option></select></label>
+    </div>
+    <p class="note" id="micInfo" hidden>«На устройстве» работает без Siri и диктовки: при первом нажатии «Говорить» загрузится модель (около 120 МБ, один раз), дальше распознаёт без интернета. Фраза — до 30 секунд.</p>
     <p class="note" id="voiceInfo"></p>
     <div id="keyBox" hidden>
       <p class="note">«Собеседник» и проверка переводов на этом сайте работают с вашим ключом Anthropic API (его создают на platform.claude.com). Ключ хранится только в этом браузере и отправляется только в Anthropic. Не сохраняйте его на чужом компьютере. Каждый запрос оплачивается с вашего аккаунта API.</p>
@@ -3046,34 +3052,101 @@ function bind() {
   initSpeechRecognition();
 }
 function markRate() { $$('[data-rate]').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.rate - tts.rate) < .01)); }
+// Два способа распознавания: встроенный в браузер (быстрый, но на iPhone/iPad требует включённых
+// Siri и диктовки) и Whisper прямо в браузере (работает везде, где есть микрофон).
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const canRecord = !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
 function initSpeechRecognition() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
-  micButton(SR, $('#sMic'), $('#sInput'), $('#sMicNote'));
-  micButton(SR, $('#cMic'), $('#cInput'), $('#cMicNote'));
+  if (!SR && !canRecord) return;
+  S.mic = store.get('mic', SR ? 'browser' : 'whisper');
+  const sel = $('#optMic');
+  $('#micBox').hidden = !(SR && canRecord); sel.value = S.mic; $('#micInfo').hidden = S.mic !== 'whisper';
+  sel.onchange = () => { S.mic = sel.value; store.set('mic', S.mic); $('#micInfo').hidden = S.mic !== 'whisper'; };
+  micButton($('#sMic'), $('#sInput'), $('#sMicNote'));
+  micButton($('#cMic'), $('#cInput'), $('#cMicNote'));
 }
+function useWhisper() { S.mic = 'whisper'; store.set('mic', 'whisper'); $('#optMic').value = 'whisper'; $('#micInfo').hidden = false; }
+
+const WHISPER_URL = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.1';
+const Whisper = {
+  p: null, onProgress: null,
+  load() {
+    return this.p ||= (async () => {
+      const { pipeline } = await import(WHISPER_URL);
+      const opts = { dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' },
+        progress_callback: e => { if (e.status === 'progress_total') this.onProgress?.(Math.round(e.progress)); } };
+      const model = 'onnx-community/whisper-base';
+      if (navigator.gpu) { try { return await pipeline('automatic-speech-recognition', model, { ...opts, device: 'webgpu' }); } catch { /* нет WebGPU — считаем на процессоре */ } }
+      return pipeline('automatic-speech-recognition', model, { ...opts, device: 'wasm' });
+    })().catch(e => { this.p = null; throw e; });
+  },
+  async transcribe(blob) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const decoded = await ctx.decodeAudioData(await blob.arrayBuffer()); ctx.close();
+    const off = new OfflineAudioContext(1, Math.max(1, Math.ceil(decoded.duration * 16000)), 16000);
+    const src = off.createBufferSource(); src.buffer = decoded; src.connect(off.destination); src.start();
+    const audio = (await off.startRendering()).getChannelData(0);
+    const asr = await this.load();
+    return (await asr(audio, { language: 'japanese', task: 'transcribe' })).text.trim();
+  },
+};
+
 // Кнопка «Говорить»: распознаёт японскую речь и дописывает текст в поле. Повторное нажатие — стоп.
-function micButton(SR, btn, input, note) {
+function micButton(btn, input, note) {
   const errors = {
-    'not-allowed': 'Браузер не дал доступ к микрофону. Разрешите его в настройках сайта (значок замка у адреса).',
-    'service-not-allowed': 'Распознавание речи здесь недоступно. На телефоне диктуйте через микрофон японской клавиатуры.',
+    'not-allowed': 'Браузер не дал доступ к микрофону. Разрешите его в настройках сайта (значок «аА» или замка у адреса).',
     'no-speech': 'Речь не услышана. Нажмите «Говорить» и начните фразу сразу.',
     'audio-capture': 'Микрофон не найден.',
     'network': 'Нет связи с сервисом распознавания (нужен интернет).',
   };
   const say = t => { note.textContent = t || ''; note.hidden = !t; };
-  btn.hidden = false; let rec = null;
-  btn.onclick = () => {
-    if (rec) { rec.stop(); return; }
-    const before = input.value.trim();
-    rec = new SR(); rec.lang = 'ja-JP'; rec.interimResults = true;
-    rec.onresult = e => { input.value = (before ? before + ' ' : '') + [...e.results].map(r => r[0].transcript).join(''); };
+  const idle = () => { btn.textContent = 'Говорить'; btn.classList.remove('on'); btn.disabled = false; };
+  const busy = t => { btn.textContent = t; btn.classList.add('on'); };
+  const put = (before, text) => { input.value = (before ? before + ' ' : '') + text; };
+  btn.hidden = false; let stop = null;
+
+  function browser(before) {
+    const rec = new SR(); rec.lang = 'ja-JP'; rec.interimResults = true;
+    rec.onresult = e => put(before, [...e.results].map(r => r[0].transcript).join(''));
     rec.onerror = e => {
-      say(errors[e.error] || (e.error === 'aborted' ? '' : 'Ошибка распознавания: ' + e.error));
-      if (e.error === 'service-not-allowed') btn.hidden = true;
+      if (e.error === 'service-not-allowed' || e.error === 'language-not-supported') {
+        if (!canRecord) { say('Распознавание речи здесь недоступно. Диктуйте через микрофон японской клавиатуры.'); btn.hidden = true; return; }
+        useWhisper();
+        say('Распознавание браузера выключено в системе (на iPhone/iPad его включают Siri и диктовка). Переключил на распознавание на устройстве — нажмите «Говорить» ещё раз.');
+      } else say(errors[e.error] || (e.error === 'aborted' ? '' : 'Ошибка распознавания: ' + e.error));
     };
-    rec.onend = () => { rec = null; btn.textContent = 'Говорить'; btn.classList.remove('on'); input.focus(); };
-    say(''); btn.textContent = 'Стоп'; btn.classList.add('on');
-    try { rec.start(); } catch { rec = null; btn.textContent = 'Говорить'; btn.classList.remove('on'); }
+    rec.onend = () => { stop = null; idle(); input.focus(); };
+    stop = () => rec.stop(); busy('Стоп');
+    try { rec.start(); } catch { stop = null; idle(); }
+  }
+
+  async function whisper(before) {
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) { say(e.name === 'NotAllowedError' ? errors['not-allowed'] : errors['audio-capture']); return; }
+    Whisper.load().catch(() => {});  // модель грузится, пока человек говорит
+    const chunks = [], mr = new MediaRecorder(stream);
+    mr.ondataavailable = e => e.data.size && chunks.push(e.data);
+    const timer = setTimeout(() => stop?.(), 30000);
+    mr.onstop = async () => {
+      clearTimeout(timer); stream.getTracks().forEach(t => t.stop()); stop = null;
+      btn.disabled = true; busy('Распознаю…');
+      Whisper.onProgress = n => say(`Загружаю модель распознавания (один раз): ${n}%`);
+      try {
+        const text = await Whisper.transcribe(new Blob(chunks, { type: mr.mimeType }));
+        say(text ? '' : errors['no-speech']); if (text) put(before, text);
+      } catch (e) { say('Не получилось распознать: ' + (e.message || e) + '. Проверьте интернет при первой загрузке модели.'); }
+      Whisper.onProgress = null; idle(); input.focus();
+    };
+    stop = () => mr.state !== 'inactive' && mr.stop();
+    mr.start(); busy('Стоп');
+  }
+
+  btn.onclick = () => {
+    if (stop) { stop(); return; }
+    say('');
+    const before = input.value.trim();
+    if (S.mic === 'browser' && SR) browser(before); else whisper(before);
   };
 }
 
