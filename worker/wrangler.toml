@@ -1,0 +1,15 @@
+# Для развёртывания из командной строки: npx wrangler deploy (из папки worker).
+# Секреты задаются отдельно: npx wrangler secret put API_KEY и npx wrangler secret put ACCESS_CODE.
+name = "shoho-claude"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[vars]
+ALLOWED_ORIGINS = "https://vioriah.github.io"
+MODEL = "claude-sonnet-5-5"
+
+# Не больше 10 запросов в минуту с одного IP.
+[[ratelimits]]
+name = "LIMITER"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }

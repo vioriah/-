@@ -299,6 +299,12 @@ details.settings .row { margin-top: 8px; }
     </div>
     <p class="note" id="micInfo" hidden>«На устройстве» работает без Siri и диктовки: при первом нажатии «Говорить» загрузится модель (около 120 МБ, один раз), дальше распознаёт без интернета. Фраза — до 30 секунд.</p>
     <p class="note" id="voiceInfo"></p>
+    <div id="codeBox" hidden>
+      <p class="note">Код доступа к собеседнику и проверке переводов — его даёт владелец сайта. Код хранится только в этом браузере.</p>
+      <div class="row"><input class="keyfield" id="optCode" type="password" autocomplete="off" spellcheck="false" placeholder="код доступа" aria-label="Код доступа">
+        <button class="btn" id="codeSave" type="button">Сохранить код</button></div>
+      <p class="note" id="codeNote"></p>
+    </div>
     <div id="keyBox" hidden>
       <p class="note">«Собеседник» и проверка переводов на этом сайте работают с вашим ключом Anthropic API (его создают на platform.claude.com). Ключ хранится только в этом браузере и отправляется только в Anthropic. Не сохраняйте его на чужом компьютере. Каждый запрос оплачивается с вашего аккаунта API.</p>
       <div class="row"><input class="keyfield" id="optKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" aria-label="Ключ Anthropic API">
@@ -661,20 +667,27 @@ function checkRead(giveUp) {
 // ---------- Claude: проверка перевода и собеседник ----------
 let sampleFn = null;
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm';
-const MODEL = 'claude-opus-5-5';
+const MODEL = 'claude-sonnet-5-5';
+// Адрес посредника (папка worker/): с ним собеседник работает на ключе владельца сайта.
+// Пусто — каждый посетитель вводит свой ключ API.
+const PROXY_URL = '';
 const inViewer = !!window.claude;
 const apiKey = () => store.get('key', '');
+const accessCode = () => store.get('code', '');
+const viaProxy = () => !inViewer && !!PROXY_URL;
 const CHECK_SCHEMA = { type: 'object', additionalProperties: false, required: ['verdict', 'comment', 'fixed'],
   properties: { verdict: { type: 'string', enum: ['верно', 'почти', 'неверно'] }, comment: { type: 'string' }, fixed: { type: 'string' } } };
 const CHAT_SCHEMA = { type: 'object', additionalProperties: false, required: ['fix', 'reply', 'reading', 'ru'],
   properties: { fix: { type: 'string' }, reply: { type: 'string' }, reading: { type: 'string' }, ru: { type: 'string' } } };
 let sdkPromise = null;
-// Вне claude.ai: прямой вызов Claude API из браузера с ключом посетителя.
+// Вне claude.ai: вызов Claude API из браузера — через посредника или с ключом посетителя.
 async function keyJSON(input, o) {
   sdkPromise ||= import(SDK_URL);
   let mod;
   try { mod = await sdkPromise; } catch { sdkPromise = null; throw { code: 'upstream_error' }; }
-  const client = new mod.default({ apiKey: apiKey(), dangerouslyAllowBrowser: true });
+  const client = viaProxy()
+    ? new mod.default({ baseURL: PROXY_URL, apiKey: 'proxy', dangerouslyAllowBrowser: true, maxRetries: 1, defaultHeaders: { 'x-access-code': accessCode() } })
+    : new mod.default({ apiKey: apiKey(), dangerouslyAllowBrowser: true });
   const messages = typeof input === 'string' ? [{ role: 'user', content: input }] : input;
   try {
     const res = await client.beta.messages.create({
@@ -687,18 +700,19 @@ async function keyJSON(input, o) {
   } catch (e) {
     if (e && typeof e.code === 'string' && !(e instanceof Error)) throw e;
     if (e instanceof mod.APIUserAbortError) throw { code: 'cancelled' };
-    if (e instanceof mod.AuthenticationError || e instanceof mod.PermissionDeniedError) throw { code: 'bad_key' };
+    if (e instanceof mod.AuthenticationError || e instanceof mod.PermissionDeniedError) throw { code: viaProxy() ? 'bad_code' : 'bad_key' };
     if (e instanceof mod.RateLimitError) throw { code: 'rate_limited' };
     if (e instanceof mod.BadRequestError) throw { code: 'bad_request' };
     throw { code: 'upstream_error' };
   }
 }
-const ERR = { bad_key: 'Ключ API не подошёл — проверьте его в «Настройках» внизу страницы.', bad_request: 'API отклонил запрос — попробуйте ещё раз.', rate_limited: 'Слишком много запросов — попробуйте чуть позже.', session_expired: 'Нужно заново войти в Claude.', refused: 'Claude не стал отвечать на это сообщение — переформулируйте.', empty_completion: 'Пустой ответ — попробуйте ещё раз.', invalid_json: 'Ответ пришёл в неожиданном виде — попробуйте ещё раз.', upstream_error: 'Связь прервалась — попробуйте ещё раз.' };
+const ERR = { bad_key: 'Ключ API не подошёл — проверьте его в «Настройках» внизу страницы.', bad_code: 'Код доступа не подошёл — проверьте его в «Настройках» внизу страницы.', bad_request: 'API отклонил запрос — попробуйте ещё раз.', rate_limited: 'Слишком много запросов — попробуйте чуть позже.', session_expired: 'Нужно заново войти в Claude.', refused: 'Claude не стал отвечать на это сообщение — переформулируйте.', empty_completion: 'Пустой ответ — попробуйте ещё раз.', invalid_json: 'Ответ пришёл в неожиданном виде — попробуйте ещё раз.', upstream_error: 'Связь прервалась — попробуйте ещё раз.' };
 const HIDE = new Set(['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed']);
 function claudeUnavailable() {
   sampleFn = null; $('#sClaude').hidden = true;
   $('#chatState').textContent = inViewer
     ? 'Собеседнику нужно разрешение на использование Claude в этом окне. Остальные режимы доступны всегда.'
+    : viaProxy() ? 'Чтобы включить собеседника и проверку переводов, введите код доступа в «Настройках» внизу страницы. Остальные режимы работают без него.'
     : 'Чтобы включить собеседника и проверку переводов, вставьте свой ключ Anthropic API в «Настройках» внизу страницы. Остальные режимы работают без него.';
   $('#chatBox').hidden = true; $('#scen').hidden = true;
 }
@@ -706,7 +720,7 @@ async function initClaude() {
   let real = null;
   try { real = window.claude?.use ? await window.claude.use('sample') : null; } catch { real = null; }
   if (real) sampleFn = { json: (input, o) => real.json(input, { modelTier: o.tier, cache: o.cache, signal: o.signal }) };
-  else if (!inViewer && apiKey()) sampleFn = { json: keyJSON };
+  else if (viaProxy() || (!inViewer && apiKey())) sampleFn = { json: keyJSON };
   else sampleFn = null;
   if (!sampleFn) { claudeUnavailable(); return; }
   $('#sClaude').hidden = false; $('#chatBox').hidden = false; $('#scen').hidden = false;
@@ -1094,7 +1108,9 @@ function bind() {
     if ((e.key === ' ' || e.key === 'Enter') && !A.shown) { e.preventDefault(); showAnswer(); }
     else if (/^[1-4]$/.test(e.key) && A.shown) { e.preventDefault(); grade(+e.key); }
   });
-  $('#keyBox').hidden = inViewer;
+  $('#keyBox').hidden = inViewer || viaProxy(); $('#codeBox').hidden = !viaProxy();
+  $('#optCode').value = accessCode();
+  $('#codeSave').onclick = () => { const c = $('#optCode').value.trim(); store.set('code', c); $('#codeNote').textContent = c ? 'Код сохранён в этом браузере.' : ''; initClaude(); };
   $('#apkgLink').hidden = inViewer || !location.protocol.startsWith('http');
   $('#optKey').value = apiKey();
   $('#keySave').onclick = () => { const k = $('#optKey').value.trim(); store.set('key', k); $('#keyNote').textContent = k ? 'Ключ сохранён в этом браузере.' : ''; initClaude(); };
@@ -1218,6 +1234,9 @@ function micButton(btn, input, note) {
   };
 }
 
+// Ссылка вида ?code=… сразу сохраняет код доступа и убирает его из адресной строки.
+const linkCode = new URLSearchParams(location.search).get('code');
+if (linkCode) { store.set('code', linkCode.trim()); history.replaceState(null, '', location.pathname + location.hash); }
 renderStats(); initRange(); bind(); bindRomaji(); tts.init(); markRate();
 Prog.load(); Prog.today();
 show(location.hash.slice(1) || store.get('mode', 'cards'));
