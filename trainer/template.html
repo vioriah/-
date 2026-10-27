@@ -1,0 +1,768 @@
+<title>Тренажёр 日本語初歩</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Klee+One:wght@400;600&display=swap">
+<style>
+/* Layout: одна рабочая колонка-«тетрадь» под липкой шапкой; японский текст — учебным шрифтом (教科書体), поле ответа расчерчено как 原稿用紙. */
+:root {
+  --paper: #f3f5f8; --card: #ffffff; --ink: #1b2130; --muted: #5f6880; --line: #dde2ec;
+  --ai: #2b4a8e; --ai-soft: #e5ebf8; --ai-ink: #ffffff;
+  --shu: #bf3f28; --shu-soft: #fbe9e4; --matcha: #3b7536; --matcha-soft: #e3f1df;
+  --grid: #efc9bf; --chip: #eef1f6;
+  --f-ui: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-jp: "Klee One", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Sans JP", serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #13161c; --card: #1b1f27; --ink: #e6e9f0; --muted: #9ba4b8; --line: #2b3140;
+  --ai: #9cb2f7; --ai-soft: #243050; --ai-ink: #10162a;
+  --shu: #ff8d74; --shu-soft: #3a231e; --matcha: #9fd48f; --matcha-soft: #1e331d;
+  --grid: #4b3530; --chip: #242a35; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #13161c; --card: #1b1f27; --ink: #e6e9f0; --muted: #9ba4b8; --line: #2b3140;
+  --ai: #9cb2f7; --ai-soft: #243050; --ai-ink: #10162a;
+  --shu: #ff8d74; --shu-soft: #3a231e; --matcha: #9fd48f; --matcha-soft: #1e331d;
+  --grid: #4b3530; --chip: #242a35; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 16px/1.5 var(--f-ui); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--card); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
+.jp { font-family: var(--f-jp); }
+ruby rt { font-size: .5em; font-family: var(--f-ui); color: var(--muted); }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--card); border-bottom: 1px solid var(--line);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px 0; }
+.top-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; max-width: 920px; margin: 0 auto; }
+.brand { display: flex; align-items: baseline; gap: 8px; margin-right: auto; }
+.brand b { font-family: var(--f-jp); font-size: 22px; font-weight: 600; letter-spacing: .04em; }
+.brand span { font-size: 13px; color: var(--muted); }
+.range { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.range select { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 3px 6px; font-variant-numeric: tabular-nums; }
+.stat { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.stat .ok { color: var(--matcha); font-weight: 600; } .stat .bad { color: var(--shu); font-weight: 600; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; max-width: 920px; margin: 8px auto 0; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs a { flex: none; padding: 8px 12px 10px; color: var(--muted); text-decoration: none; font-weight: 500; font-size: 15px; border-bottom: 2px solid transparent; }
+.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ai); }
+.tabs a span { font-family: var(--f-jp); margin-right: 4px; }
+
+main { max-width: 920px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
+.mode { display: grid; gap: 16px; }
+.intro { color: var(--muted); font-size: 14px; max-width: 65ch; margin: 0; }
+.sheet { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px clamp(16px, 4vw, 32px); display: grid; gap: 14px; min-width: 0; }
+.task { font-size: 15px; color: var(--muted); }
+.task b { color: var(--ink); font-weight: 600; }
+.prompt { font-family: var(--f-jp); font-size: clamp(30px, 7vw, 46px); line-height: 1.6; text-align: center; overflow-wrap: anywhere; }
+.prompt.sentence { font-size: clamp(22px, 5vw, 30px); text-align: left; }
+.prompt-ru { font-size: clamp(19px, 4.4vw, 24px); font-weight: 500; text-wrap: balance; }
+.meta { font-size: 13px; color: var(--muted); }
+.chip { display: inline-block; font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--ai-soft); color: var(--ai); font-family: var(--f-jp); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background-color: var(--card);
+  font-family: var(--f-jp); font-size: 24px; line-height: 36px; letter-spacing: .5em; padding: 6px 6px; min-height: 50px;
+  background-image: linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 36px 100%; background-position: 0 0; }
+textarea.answer { resize: vertical; letter-spacing: .12em; background-image: none; font-size: 20px; line-height: 1.6; }
+.btn { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 500; }
+.btn:hover { border-color: var(--ai); }
+.btn.primary { background: var(--ai); color: var(--ai-ink); border-color: var(--ai); }
+.btn.ghost { background: transparent; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.on { background: var(--ai); color: var(--ai-ink); border-color: var(--ai); }
+.btn.speak::before { content: "▶ "; font-size: 12px; }
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px; }
+.choice { font-family: var(--f-jp); font-size: 24px; padding: 10px 6px; border: 1px solid var(--line); background: var(--card); border-radius: 8px; cursor: pointer; }
+.choice:hover:not(:disabled) { border-color: var(--ai); }
+.choice.right { background: var(--matcha-soft); border-color: var(--matcha); color: var(--matcha); }
+.choice.wrong { background: var(--shu-soft); border-color: var(--shu); color: var(--shu); }
+.blank { display: inline-block; min-width: 1.6em; border-bottom: 2px solid var(--ai); text-align: center; color: var(--ai); }
+.fb { border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; }
+.fb.good { background: var(--matcha-soft); } .fb.bad { background: var(--shu-soft); } .fb.info { background: var(--chip); }
+.fb .verdict { font-weight: 600; } .fb.good .verdict { color: var(--matcha); } .fb.bad .verdict { color: var(--shu); }
+.fb .jpline { font-family: var(--f-jp); font-size: 22px; line-height: 1.7; }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); cursor: pointer; user-select: none; }
+.toggle input { accent-color: var(--ai); margin: 0; }
+details.settings { font-size: 14px; color: var(--muted); }
+details.settings summary { cursor: pointer; }
+details.settings .row { margin-top: 8px; }
+.note { font-size: 13px; color: var(--muted); }
+.warn { font-size: 13px; color: var(--shu); }
+.kbd { font-size: 12px; color: var(--muted); }
+
+.chat { display: grid; gap: 12px; }
+.bubble { max-width: 92%; border-radius: 12px; padding: 10px 14px; display: grid; gap: 6px; min-width: 0; }
+.bubble.me { justify-self: end; background: var(--ai-soft); }
+.bubble.bot { justify-self: start; background: var(--card); border: 1px solid var(--line); }
+.bubble .jpline { font-family: var(--f-jp); font-size: 21px; line-height: 1.6; overflow-wrap: anywhere; }
+.bubble .fix { background: var(--shu-soft); border-radius: 8px; padding: 6px 10px; font-size: 14px; }
+.bubble .sub { font-size: 14px; color: var(--muted); }
+.bubble .tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.bubble .tools button { font-size: 12px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; cursor: pointer; }
+.scen { display: flex; flex-wrap: wrap; gap: 6px; }
+.scen button { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 5px 12px; font-size: 14px; cursor: pointer; }
+.scen button[aria-pressed="true"] { background: var(--ai); color: var(--ai-ink); border-color: var(--ai); }
+
+.map { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px clamp(16px, 4vw, 36px) 28px; min-width: 0; }
+.map h1 { font-size: 26px; text-wrap: balance; margin: 18px 0 8px; }
+.map h2 { font-size: 21px; margin: 32px 0 10px; padding-top: 12px; border-top: 1px solid var(--line); text-wrap: balance; }
+.map h3 { font-size: 17px; margin: 22px 0 8px; }
+.map p, .map li { max-width: 70ch; }
+.map code { font-family: var(--f-jp); background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+.map pre { background: var(--chip); padding: 12px; border-radius: 8px; overflow-x: auto; font-family: var(--f-jp); font-size: 15px; line-height: 1.6; }
+.map pre code { background: none; padding: 0; }
+.tablewrap { overflow-x: auto; margin: 10px 0; }
+.map table { border-collapse: collapse; font-size: 14px; min-width: 100%; }
+.map th, .map td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.map th { background: var(--chip); font-weight: 600; }
+.map td:first-child { white-space: nowrap; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.toc button { font-size: 13px; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+@media (prefers-reduced-motion: no-preference) { .fb, .bubble { animation: rise .18s ease-out; } @keyframes rise { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } } }
+</style>
+
+<header class="top">
+  <div class="top-row">
+    <div class="brand"><b>日本語初歩</b><span>тренажёр</span></div>
+    <label class="range" for="lfrom">Уроки
+      <select id="lfrom" aria-label="С урока"></select>–<select id="lto" aria-label="По урок"></select>
+    </label>
+    <div class="stat" id="stat" aria-live="polite"></div>
+  </div>
+  <nav class="tabs" aria-label="Режимы">
+    <a href="#forms" data-mode="forms"><span>活用</span>Формы</a>
+    <a href="#particles" data-mode="particles"><span>助詞</span>Частицы</a>
+    <a href="#speak" data-mode="speak"><span>話す</span>Скажи</a>
+    <a href="#listen" data-mode="listen"><span>聞く</span>Слушай</a>
+    <a href="#read" data-mode="read"><span>読む</span>Чтение</a>
+    <a href="#chat" data-mode="chat"><span>会話</span>Собеседник</a>
+    <a href="#map" data-mode="map"><span>地図</span>Карта грамматики</a>
+  </nav>
+</header>
+
+<main>
+  <section class="mode" id="m-forms" hidden>
+    <p class="intro">Поставьте слово в нужную форму и нажмите Enter. Глаголы и прилагательные — из словаря выбранных уроков, формы — только те, что уже пройдены. Цель — отвечать за 2–3 секунды, не вспоминая правило.</p>
+    <div class="toggles" id="formGroups"></div>
+    <div class="sheet">
+      <div class="task" id="fTask"></div>
+      <div class="prompt" id="fWord"></div>
+      <div class="meta" id="fMeta"></div>
+      <input class="answer jp-input" id="fInput" autocomplete="off" autocapitalize="off" spellcheck="false" lang="ja" aria-label="Ваш ответ">
+      <div class="row"><button class="btn primary" id="fCheck">Проверить</button><button class="btn ghost" id="fSkip">Показать ответ</button><button class="btn ghost" id="fHint">Подсказка: группа</button><span class="kbd">Enter — проверить / дальше</span></div>
+      <div id="fFb" hidden></div>
+    </div>
+  </section>
+
+  <section class="mode" id="m-particles" hidden>
+    <p class="intro">Выберите пропущенную частицу (клавиши 1–4). После ответа — полное предложение с переводом и конструкцией урока.</p>
+    <div class="sheet">
+      <div class="task" id="pTask"></div>
+      <div class="prompt sentence" id="pSent"></div>
+      <div class="choices" id="pChoices"></div>
+      <div id="pFb" hidden></div>
+      <div class="row"><button class="btn primary" id="pNext" hidden>Дальше</button></div>
+    </div>
+  </section>
+
+  <section class="mode" id="m-speak" hidden>
+    <p class="intro">Переведите фразу <b>вслух</b>, затем откройте ответ и повторите за озвучкой. Можно напечатать или надиктовать ответ (на телефоне — микрофон на японской клавиатуре) и попросить Claude проверить его: другие верные варианты тоже засчитываются.</p>
+    <div class="sheet">
+      <div class="task" id="sTask"></div>
+      <div class="prompt-ru" id="sRu"></div>
+      <div><span class="chip" id="sPattern"></span></div>
+      <textarea class="answer jp-input" id="sInput" rows="2" lang="ja" placeholder="ваш вариант (необязательно)" aria-label="Ваш перевод"></textarea>
+      <div class="row"><button class="btn primary" id="sShow">Показать ответ</button><button class="btn" id="sClaude" hidden>Проверить с Claude</button><button class="btn ghost" id="sMic" hidden>Сказать в микрофон</button></div>
+      <div id="sFb" hidden></div>
+      <div id="sClaudeFb" hidden></div>
+      <div class="row" id="sGrade" hidden><button class="btn" id="sGood">Получилось</button><button class="btn" id="sBad">Повторить позже</button><button class="btn speak ghost" id="sSpeak">Озвучить</button></div>
+    </div>
+  </section>
+
+  <section class="mode" id="m-listen" hidden>
+    <p class="intro">Послушайте фразу, поймите смысл и запишите, что услышали (диктант). Медленная скорость — для начала, обычная — для проверки себя.</p>
+    <div class="sheet">
+      <div class="task" id="lTask"></div>
+      <div class="row"><button class="btn primary speak" id="lPlay">Слушать</button>
+        <span class="note">скорость:</span>
+        <button class="btn ghost" data-rate="0.7">0.7</button><button class="btn ghost" data-rate="0.9">0.9</button><button class="btn ghost" data-rate="1.05">1.0</button></div>
+      <div class="warn" id="lVoice" hidden></div>
+      <textarea class="answer jp-input" id="lInput" rows="2" lang="ja" placeholder="что вы услышали (каной или с кандзи)" aria-label="Диктант"></textarea>
+      <div class="row"><button class="btn" id="lCheck">Проверить</button><button class="btn ghost" id="lReveal">Показать текст</button><button class="btn ghost" id="lNext">Следующая</button></div>
+      <div id="lFb" hidden></div>
+    </div>
+  </section>
+
+  <section class="mode" id="m-read" hidden>
+    <p class="intro">Прочитайте слово и напишите чтение каной (можно латиницей — она превратится в кану). Так закрепляются чтения кандзи прямо в словах из учебника.</p>
+    <div class="sheet">
+      <div class="task" id="rTask"></div>
+      <div class="prompt" id="rWord"></div>
+      <input class="answer jp-input" id="rInput" autocomplete="off" autocapitalize="off" spellcheck="false" lang="ja" aria-label="Чтение">
+      <div class="row"><button class="btn primary" id="rCheck">Проверить</button><button class="btn ghost" id="rSkip">Не знаю</button><span class="kbd">Enter — проверить / дальше</span></div>
+      <div id="rFb" hidden></div>
+    </div>
+  </section>
+
+  <section class="mode" id="m-chat" hidden>
+    <p class="intro">Разговор с Claude по‑японски в пределах пройденной грамматики. Пишите (или диктуйте) по‑японски; ошибки Claude исправит одной строкой по‑русски. Застряли — напишите по‑русски, Claude подскажет, как это сказать.</p>
+    <div class="scen" id="scen" role="group" aria-label="Тема разговора"></div>
+    <div class="note" id="chatState"></div>
+    <div class="chat" id="chatLog" aria-live="polite"></div>
+    <div class="sheet" id="chatBox">
+      <textarea class="answer jp-input" id="cInput" rows="2" lang="ja" placeholder="ваша реплика" aria-label="Ваша реплика"></textarea>
+      <div class="row"><button class="btn primary" id="cSend">Отправить</button><button class="btn ghost" id="cStop" hidden>Остановить</button><button class="btn ghost" id="cReset">Новый разговор</button></div>
+    </div>
+  </section>
+
+  <section class="mode" id="m-map" hidden>
+    <p class="intro">Вся грамматика учебника в одной схеме. Каждая конструкция отвечает на один из восьми вопросов о сказуемом — так темы складываются в систему.</p>
+    <div class="map">
+      <div class="toc" id="toc"></div>
+      <div id="grammar"><!--__GRAMMAR__--></div>
+    </div>
+  </section>
+
+  <details class="settings">
+    <summary>Настройки</summary>
+    <div class="row">
+      <label class="toggle" for="optRomaji"><input type="checkbox" id="optRomaji"> латиница → кана при вводе</label>
+      <label class="toggle" for="optFuri"><input type="checkbox" id="optFuri"> фуригана над кандзи</label>
+      <label class="toggle" for="optAuto"><input type="checkbox" id="optAuto"> озвучивать правильный ответ</label>
+    </div>
+    <p class="note" id="voiceInfo"></p>
+  </details>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/wanakana@5.3.1/wanakana.min.js"></script>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(() => {
+'use strict';
+const D = JSON.parse(document.getElementById('data').textContent);
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+// ---------- хранение настроек (только удобства этого браузера) ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('shoho.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('shoho.' + k, JSON.stringify(v)); } catch { /* недоступно — работаем без памяти */ } },
+};
+const fine = matchMedia('(pointer: fine)').matches;
+const S = {
+  from: store.get('from', 1), to: store.get('to', 34),
+  romaji: store.get('romaji', fine), furi: store.get('furi', true), auto: store.get('auto', true),
+  groups: store.get('groups', ['polite', 'plain', 'te', 'wish', 'cond', 'voice', 'adj']),
+};
+const inRange = l => l >= S.from && l <= S.to;
+const today = new Date().toISOString().slice(0, 10);
+let stats = store.get('stats', { day: today, ok: 0, bad: 0 });
+if (stats.day !== today) stats = { day: today, ok: 0, bad: 0 };
+function renderStats() { $('#stat').innerHTML = `сегодня <span class="ok">✓ ${stats.ok}</span> · <span class="bad">✗ ${stats.bad}</span>`; }
+function mark(ok) { ok ? stats.ok++ : stats.bad++; store.set('stats', stats); renderStats(); }
+
+// ---------- японский текст ----------
+const KJ_RUBY = /\s?([一-鿿々]+)\[([^\]]+)\]/g;
+const rubyHTML = f => esc(f).replace(KJ_RUBY, S.furi ? '<ruby>$1<rt>$2</rt></ruby>' : '$1');
+const rubyAlways = f => esc(f).replace(KJ_RUBY, '<ruby>$1<rt>$2</rt></ruby>');
+const readingOf = f => f.replace(KJ_RUBY, '$2');
+const wordRuby = (e, k) => (/[一-鿿]/.test(e) && S.furi) ? `<ruby>${esc(e)}<rt>${esc(k)}</rt></ruby>` : esc(e);
+function toHira(s) {
+  s = String(s || '');
+  if (window.wanakana) { try { s = wanakana.toHiragana(s, { passRomaji: false }); } catch { /* оставим как есть */ } }
+  return s.replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+}
+const norm = s => toHira(String(s || '').trim()).replace(/[\s、。，．,.!?！？「」『』・〜～ー()（）]/g, '');
+function similarity(a, b) {
+  a = norm(a); b = norm(b); if (!a || !b) return 0;
+  const dp = new Array(b.length + 1).fill(0);
+  for (let i = 1; i <= a.length; i++) { let prev = 0; for (let j = 1; j <= b.length; j++) { const t = dp[j]; dp[j] = a[i - 1] === b[j - 1] ? prev + 1 : Math.max(dp[j], dp[j - 1]); prev = t; } }
+  return dp[b.length] / Math.max(a.length, b.length);
+}
+
+// ---------- озвучка ----------
+const tts = {
+  voice: null, rate: store.get('rate', 0.9), ok: 'speechSynthesis' in window,
+  init() {
+    if (!this.ok) { voiceNote(); return; }
+    const choose = () => {
+      const vs = speechSynthesis.getVoices().filter(v => (v.lang || '').toLowerCase().replace('_', '-').startsWith('ja'));
+      this.voice = vs.find(v => /Kyoko|O-ren|Otoya|Nanami|Google/i.test(v.name)) || vs[0] || null;
+      voiceNote();
+    };
+    choose(); speechSynthesis.addEventListener?.('voiceschanged', choose);
+  },
+  speak(text, rate) {
+    if (!this.ok || !text) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(text).replace(/[「」()（）～〜]/g, ''));
+    u.lang = 'ja-JP'; if (this.voice) u.voice = this.voice; u.rate = rate || this.rate;
+    speechSynthesis.speak(u);
+  },
+};
+function voiceNote() {
+  const msg = !tts.ok ? 'Этот браузер не умеет озвучивать текст.'
+    : tts.voice ? `Голос озвучки: ${tts.voice.name}.`
+    : 'Японский голос для озвучки не найден. Android: Настройки → Синтез речи → японский язык; Windows: Параметры → Время и язык → Речь → добавить японский; iPhone обычно умеет сразу.';
+  $('#voiceInfo').textContent = msg;
+  const lv = $('#lVoice'); lv.hidden = !!tts.voice; lv.textContent = tts.voice ? '' : msg;
+}
+
+// ---------- ввод латиницей ----------
+function bindRomaji() {
+  if (!window.wanakana) return;
+  $$('.jp-input').forEach(el => { try { wanakana.unbind(el); } catch { } if (S.romaji) wanakana.bind(el, { IMEMode: 'toHiragana' }); });
+}
+
+// ---------- спряжение ----------
+const ROWS = { 'う': 'わいうえお', 'く': 'かきくけこ', 'ぐ': 'がぎぐげご', 'す': 'さしすせそ', 'つ': 'たちつてと', 'ぬ': 'なにぬねの', 'ぶ': 'ばびぶべぼ', 'む': 'まみむめも', 'る': 'らりるれろ' };
+const TE = { 'う': 'って', 'つ': 'って', 'る': 'って', 'く': 'いて', 'ぐ': 'いで', 'す': 'して', 'ぬ': 'んで', 'ぶ': 'んで', 'む': 'んで' };
+const VS = { masu: 'します', masen: 'しません', mashita: 'しました', masendeshita: 'しませんでした', nai: 'しない', nakatta: 'しなかった', te: 'して', ta: 'した', teiru: 'している', tekudasai: 'してください', naide: 'しないでください', temoii: 'してもいいです', tewa: 'してはいけません', nakereba: 'しなければなりません', tai: 'したい', vol: 'しよう', mashou: 'しましょう', nagara: 'しながら', takoto: 'したことがあります', ba: 'すれば', tara: 'したら', temo: 'しても', zu: 'せずに', pot: 'できる', pass: 'される', caus: 'させる', imp: 'しろ' };
+const VK = { masu: 'きます', masen: 'きません', mashita: 'きました', masendeshita: 'きませんでした', nai: 'こない', nakatta: 'こなかった', te: 'きて', ta: 'きた', teiru: 'きている', tekudasai: 'きてください', naide: 'こないでください', temoii: 'きてもいいです', tewa: 'きてはいけません', nakereba: 'こなければなりません', tai: 'きたい', vol: 'こよう', mashou: 'きましょう', nagara: 'きながら', takoto: 'きたことがあります', ba: 'くれば', tara: 'きたら', temo: 'きても', zu: 'こずに', pot: 'こられる', pass: 'こられる', caus: 'こさせる', imp: 'こい' };
+const FORMS = [
+  ['masu', 'polite', 8, 'вежливая форма ‑ます', '書く → 書きます'], ['masen', 'polite', 8, 'вежливое отрицание ‑ません', '書きません'],
+  ['mashita', 'polite', 7, 'вежливое прошедшее ‑ました', '書きました'], ['masendeshita', 'polite', 8, 'вежл. прош. отрицание', '書きませんでした'],
+  ['nai', 'plain', 14, 'отрицание ‑ない', '書く → 書かない'], ['ta', 'plain', 13, 'прошедшее ‑た', '書く → 書いた'], ['nakatta', 'plain', 17, 'прошедшее отрицание', '書かなかった'],
+  ['te', 'te', 13, 'деепричастие ‑て', '書く → 書いて'], ['teiru', 'te', 16, '‑ている', '書いている'], ['tekudasai', 'te', 14, 'просьба ‑てください', '書いてください'],
+  ['naide', 'te', 14, 'просьба не делать', '書かないでください'], ['temoii', 'te', 26, 'разрешение ‑てもいいです', '書いてもいいです'],
+  ['tewa', 'te', 26, 'запрет ‑てはいけません', '書いてはいけません'], ['nakereba', 'te', 26, 'долг ‑なければなりません', '書かなければなりません'],
+  ['tai', 'wish', 19, 'желание ‑たい', '書きたい'], ['vol', 'wish', 19, 'волевая форма', '書こう'], ['mashou', 'wish', 26, 'предложение ‑ましょう', '書きましょう'],
+  ['nagara', 'wish', 23, 'одновременно ‑ながら', '書きながら'], ['takoto', 'wish', 25, 'опыт ‑たことがあります', '書いたことがあります'],
+  ['ba', 'cond', 32, 'условие ‑ば', '書けば'], ['tara', 'cond', 32, 'условие ‑たら', '書いたら'], ['temo', 'cond', 32, 'уступка ‑ても', '書いても'], ['zu', 'cond', 23, '«не делая» ‑ずに', '書かずに'],
+  ['pot', 'voice', 23, 'потенциальная форма', '書く → 書ける'], ['pass', 'voice', 31, 'страдательный залог', '書かれる'],
+  ['caus', 'voice', 30, 'понудительный залог', '書かせる'], ['imp', 'voice', 30, 'повелительная форма', '書け'],
+].map(([id, g, l, name, ex]) => ({ id, g, l, name, ex, kind: 'verb' }));
+const ADJ_FORMS = [
+  ['i_nai', 8, 'отрицание', '高い → 高くない'], ['i_katta', 10, 'прошедшее', '高かった'], ['i_nakatta', 10, 'прошедшее отрицание', '高くなかった'],
+  ['i_te', 6, 'форма ‑て («и…»)', '高くて'], ['i_naru', 9, '«стать» ‑くなる', '高くなる'], ['i_ba', 32, 'условие ‑ければ', '高ければ'], ['i_sou', 20, '«на вид» ‑そうだ', '高そうだ'],
+  ['na_nai', 6, 'отрицание', '静かだ → 静かではない'], ['na_datta', 10, 'прошедшее', '静かだった'], ['na_nakatta', 10, 'прошедшее отрицание', '静かではなかった'],
+  ['na_de', 14, 'форма ‑で («и…»)', '静かで'], ['na_naru', 9, '«стать» ‑になる', '静かになる'], ['na_nara', 32, 'условие ‑なら', '静かなら'], ['na_sou', 20, '«на вид» ‑そうだ', '静かそうだ'],
+].map(([id, l, name, ex]) => ({ id, g: 'adj', l, name, ex, kind: id.startsWith('i_') ? 'adj-i' : 'adj-na' }));
+const GROUPS = [['polite', 'вежливые ‑ます'], ['plain', 'ない / た'], ['te', '‑て и её семья'], ['wish', 'желание, намерение'], ['cond', 'условие, уступка'], ['voice', 'залог, приказ'], ['adj', 'прилагательные']];
+const LIMITED = new Set(['ある', 'わかる', 'できる', 'みえる', 'きこえる', 'たりる']);
+const BASIC = new Set(['masu', 'masen', 'mashita', 'masendeshita', 'nai', 'nakatta', 'te', 'ta', 'ba', 'tara', 'temo']);
+
+function bases(w, p, kana) {
+  if (p === 'v5') {
+    const last = w.slice(-1), st = w.slice(0, -1), row = ROWS[last]; if (!row) return null;
+    let te = st + TE[last]; if (last === 'く' && /いく$/.test(kana)) te = st + 'って';
+    return { a: st + row[0], i: st + row[1], e: st + row[3], o: st + row[4], te, ta: te.replace(/て$/, 'た').replace(/で$/, 'だ') };
+  }
+  if (p === 'v1') { const st = w.slice(0, -1); return { v1: true, st, a: st, i: st, te: st + 'て', ta: st + 'た' }; }
+  return null;
+}
+function conjVerb(w, p, kana, f) {
+  if (p === 'vs') return w.endsWith('する') ? w.slice(0, -2) + VS[f] : null;
+  if (p === 'vk') {
+    if (w.endsWith('来る')) return w.slice(0, -2) + '来' + VK[f].slice(1);
+    return w.endsWith('くる') ? w.slice(0, -2) + VK[f] : null;
+  }
+  const b = bases(w, p, kana); if (!b) return null;
+  const neg = b.a, aru = kana === 'ある';
+  switch (f) {
+    case 'masu': return b.i + 'ます'; case 'masen': return b.i + 'ません'; case 'mashita': return b.i + 'ました'; case 'masendeshita': return b.i + 'ませんでした';
+    case 'nai': return aru ? 'ない' : neg + 'ない'; case 'nakatta': return aru ? 'なかった' : neg + 'なかった';
+    case 'te': return b.te; case 'ta': return b.ta; case 'teiru': return b.te + 'いる'; case 'tekudasai': return b.te + 'ください';
+    case 'naide': return neg + 'ないでください'; case 'temoii': return b.te + 'もいいです'; case 'tewa': return b.te + 'はいけません';
+    case 'nakereba': return neg + 'なければなりません'; case 'tai': return b.i + 'たい'; case 'vol': return b.v1 ? b.st + 'よう' : b.o + 'う';
+    case 'mashou': return b.i + 'ましょう'; case 'nagara': return b.i + 'ながら'; case 'takoto': return b.ta + 'ことがあります';
+    case 'ba': return b.v1 ? b.st + 'れば' : b.e + 'ば'; case 'tara': return b.ta + 'ら'; case 'temo': return b.te + 'も'; case 'zu': return neg + 'ずに';
+    case 'pot': return b.v1 ? b.st + 'られる' : b.e + 'る'; case 'pass': return b.v1 ? b.st + 'られる' : b.a + 'れる';
+    case 'caus': return b.v1 ? b.st + 'させる' : b.a + 'せる'; case 'imp': return b.v1 ? b.st + 'ろ' : b.e;
+  }
+  return null;
+}
+function conjAdj(w, p, f) {
+  if (p === 'adj-i') {
+    if (!w.endsWith('い')) return null;
+    const good = w === 'いい', st = good ? 'よ' : w.slice(0, -1);
+    return { i_nai: st + 'くない', i_katta: st + 'かった', i_nakatta: st + 'くなかった', i_te: st + 'くて', i_naru: st + 'くなる', i_ba: st + 'ければ', i_sou: (good ? 'よさ' : st) + 'そうだ' }[f] ?? null;
+  }
+  const st = w.replace(/な$/, '');
+  return { na_nai: st + 'ではない', na_datta: st + 'だった', na_nakatta: st + 'ではなかった', na_de: st + 'で', na_naru: st + 'になる', na_nara: st + 'なら', na_sou: st + 'そうだ' }[f] ?? null;
+}
+const conj = (w, item, f) => item.p.startsWith('adj') ? conjAdj(w, item.p, f.id) : conjVerb(w, item.p, item.base, f.id);
+function variants(s) {
+  const out = new Set([s]);
+  const swaps = [['ではな', 'じゃな'], ['なりません', 'ならない'], ['いけません', 'いけない'], ['ことがあります', 'ことがある'], ['もいいです', 'もいい']];
+  for (const [a, b] of swaps) if (s.includes(a)) out.add(s.replace(a, b));
+  if (s.endsWith('そうだ')) { out.add(s.slice(0, -1)); out.add(s.slice(0, -1) + 'です'); }
+  return [...out];
+}
+const POS_RU = { v5: 'глагол I группы', v1: 'глагол II группы', vs: 'глагол する', vk: 'глагол 来る', 'adj-i': 'い‑прилагательное', 'adj-na': 'な‑прилагательное' };
+function ruleHint(dict, ans, item) {
+  let i = 0; while (i < dict.length && i < ans.length && dict[i] === ans[i]) i++;
+  const tail = `‑${dict.slice(i) || '∅'} → ‑${ans.slice(i)}`;
+  let extra = '';
+  if (item.base === 'いく' || /いく$/.test(item.base) && item.p === 'v5') extra = ' (行く — исключение: 行って / 行った)';
+  if (item.base === 'ある') extra = ' (ある — отрицание просто ない)';
+  if (item.base === 'いい') extra = ' (いい спрягается от よい)';
+  if (item.p === 'v5' && /[いえ]る$/.test(item.base)) extra = ' (похож на II группу, но это I группа)';
+  return `${POS_RU[item.p] || ''}: ${tail}${extra}`;
+}
+
+const words = D.words.map(w => {
+  const m = w.k.match(/^\((.*?)\)(.*)$/), me = w.e.match(/^\((.*?)\)(.*)$/);
+  return { ...w, ctx: m ? m[1] : '', base: m ? m[2] : w.k, ebase: me ? me[2] : w.e };
+});
+
+// ---------- режим «Формы» ----------
+const F = { cur: null, shown: false, done: false };
+function buildGroupToggles() {
+  $('#formGroups').innerHTML = GROUPS.map(([g, label]) =>
+    `<label class="toggle" for="g-${g}"><input type="checkbox" id="g-${g}" data-g="${g}" ${S.groups.includes(g) ? 'checked' : ''}> ${label}</label>`).join('');
+  $$('#formGroups input').forEach(el => el.addEventListener('change', () => {
+    S.groups = $$('#formGroups input:checked').map(x => x.dataset.g); store.set('groups', S.groups); nextForm();
+  }));
+}
+function nextForm() {
+  const forms = [...FORMS, ...ADJ_FORMS].filter(f => S.groups.includes(f.g) && f.l <= S.to);
+  const pool = words.filter(w => inRange(w.l) && w.t === 'word' && ['v5', 'v1', 'vs', 'vk', 'adj-i', 'adj-na'].includes(w.p) && w.base !== 'あいする');
+  F.done = false; F.shown = false; $('#fFb').hidden = true; $('#fInput').value = ''; $('#fInput').disabled = false;
+  if (!forms.length || !pool.length) {
+    $('#fTask').textContent = forms.length ? 'В выбранных уроках нет глаголов и прилагательных.' : 'Для выбранных уроков нет форм из отмеченных групп — расширьте диапазон уроков или включите другие группы.';
+    $('#fWord').textContent = ''; $('#fMeta').textContent = ''; F.cur = null; return;
+  }
+  for (let tries = 0; tries < 60; tries++) {
+    const item = pick(pool);
+    const kinds = item.p.startsWith('adj') ? [item.p] : ['verb'];
+    let fs = forms.filter(f => kinds.includes(f.kind));
+    if (LIMITED.has(item.base)) fs = fs.filter(f => BASIC.has(f.id));
+    if (item.base === 'くれる') fs = fs.filter(f => f.id !== 'imp');
+    if (!fs.length) continue;
+    const f = pick(fs);
+    const ansK = conj(item.base, item, f), ansE = conj(item.ebase, item, f);
+    if (!ansK) continue;
+    F.cur = { item, f, ansK, ansE: ansE || ansK };
+    $('#fTask').innerHTML = `Форма: <b>${esc(f.name)}</b> <span class="meta">· как ${esc(f.ex)}</span>`;
+    const ctx = item.ctx ? `<span class="meta">(${esc(item.ctx)})</span> ` : '';
+    $('#fWord').innerHTML = ctx + wordRuby(item.ebase, item.base);
+    $('#fMeta').textContent = `${item.r} · урок ${item.l}`;
+    $('#fHint').disabled = false; $('#fHint').textContent = 'Подсказка: группа';
+    if (fine) $('#fInput').focus();
+    return;
+  }
+}
+function checkForm(giveUp) {
+  const c = F.cur; if (!c) return;
+  if (F.done) { nextForm(); return; }
+  const user = norm($('#fInput').value);
+  if (!user && !giveUp) return;
+  const ok = !giveUp && [...variants(c.ansK), ...variants(c.ansE)].some(v => norm(v) === user);
+  F.done = true; mark(ok);
+  const shown = c.ansE !== c.ansK ? `${esc(c.ansE)} <span class="meta">(${esc(c.ansK)})</span>` : esc(c.ansK);
+  const fb = $('#fFb'); fb.hidden = false;
+  fb.className = 'fb ' + (ok ? 'good' : 'bad');
+  fb.innerHTML = `<div class="verdict">${ok ? 'Верно' : giveUp ? 'Ответ' : 'Не так'}</div>
+    <div class="jpline">${shown}</div>
+    <div class="meta">${esc(ruleHint(c.item.base, c.ansK, c.item))}</div>
+    <div class="row"><button class="btn speak ghost" type="button" id="fSay">Озвучить</button><span class="kbd">Enter — дальше</span></div>`;
+  $('#fSay').onclick = () => tts.speak(c.ansK);
+  if (S.auto) tts.speak(c.ansK);
+}
+
+// ---------- режим «Частицы» ----------
+const CONF = { 'は': ['が', 'も', 'を'], 'が': ['は', 'を', 'に'], 'を': ['が', 'に', 'で'], 'に': ['で', 'へ', 'を'], 'で': ['に', 'を', 'へ'], 'へ': ['に', 'で', 'を'], 'と': ['に', 'や', 'で'], 'から': ['まで', 'で', 'に'], 'まで': ['から', 'に', 'で'], 'より': ['ほど', 'から', 'と'], 'も': ['は', 'が', 'を'], 'の': ['が', 'に', 'は'], 'や': ['と', 'も', 'の'], 'しか': ['だけ', 'も', 'は'], 'だけ': ['しか', 'も', 'は'], 'ばかり': ['だけ', 'しか', 'も'], 'でも': ['も', 'は', 'に'] };
+const ROLE = { 'は': 'тема / контраст', 'が': 'субъект‑новость; объект чувства, желания, умения', 'を': 'прямой объект; маршрут; место, которое покидают', 'に': 'место нахождения, время, адресат, цель, результат', 'で': 'место действия, средство, причина, рамки', 'へ': 'направление', 'と': '«вместе с», перечисление, цитата', 'から': 'начальная точка, источник', 'まで': 'конечная точка', 'より': '«чем» (сравнение)', 'も': '«тоже», с отрицанием — «ни…»', 'の': 'принадлежность, определение; субъект в определении', 'や': 'неполное перечисление', 'しか': '«только» (с отрицанием)', 'だけ': '«только»', 'ばかり': '«одно только»', 'でも': '«хотя бы», «даже»' };
+const P = { cur: null, done: false };
+function nextParticle() {
+  const pool = D.slots.filter(([i]) => inRange(D.sentences[i].l));
+  P.done = false; $('#pFb').hidden = true; $('#pNext').hidden = true;
+  if (!pool.length) { $('#pTask').textContent = 'В выбранных уроках нет предложений.'; $('#pSent').textContent = ''; $('#pChoices').innerHTML = ''; return; }
+  const [i, off, part] = pick(pool), s = D.sentences[i];
+  P.cur = { s, off, part };
+  $('#pTask').innerHTML = `${esc(s.r)} <span class="meta">· урок ${s.l}</span>`;
+  $('#pSent').innerHTML = `<span class="jp">${esc(s.j.slice(0, off))}<span class="blank">？</span>${esc(s.j.slice(off + part.length))}</span>`;
+  const opts = shuffle([part, ...shuffle(CONF[part] || ['は', 'が', 'を']).slice(0, 3)]);
+  $('#pChoices').innerHTML = opts.map((o, n) => `<button class="choice" type="button" data-p="${o}" aria-label="${n + 1}: ${o}">${o}</button>`).join('');
+  $$('#pChoices .choice').forEach(b => b.onclick = () => answerParticle(b.dataset.p));
+}
+function answerParticle(choice) {
+  const c = P.cur; if (!c || P.done) return;
+  const after = c.s.j.slice(c.off + c.part.length, c.off + c.part.length + 8);
+  const alt = ((c.part === 'へ' && choice === 'に') || (c.part === 'に' && choice === 'へ')) && /行|来|帰|もど|まいり|出かけ/.test(after);
+  const ok = choice === c.part || alt;
+  P.done = true; mark(ok);
+  $$('#pChoices .choice').forEach(b => { b.disabled = true; if (b.dataset.p === c.part) b.classList.add('right'); else if (b.dataset.p === choice) b.classList.add('wrong'); });
+  const fb = $('#pFb'); fb.hidden = false; fb.className = 'fb ' + (ok ? 'good' : 'bad');
+  fb.innerHTML = `<div class="verdict">${ok ? (alt ? 'Тоже верно: に и へ оба указывают направление' : 'Верно') : 'Нужна частица ' + esc(c.part)}</div>
+    <div class="jpline">${rubyAlways(c.s.f)}</div>
+    <div class="meta"><span class="chip">${esc(c.s.p)}</span> · ${esc(c.part)} — ${esc(ROLE[c.part] || '')}</div>
+    <div class="row"><button class="btn speak ghost" type="button" id="pSay">Озвучить</button></div>`;
+  $('#pSay').onclick = () => tts.speak(c.s.j);
+  $('#pNext').hidden = false; if (fine) $('#pNext').focus();
+}
+
+// ---------- режим «Скажи» ----------
+const SP = { queue: [], cur: null, revealed: false };
+function nextSpeak() {
+  const pool = D.sentences.filter(s => inRange(s.l));
+  $('#sFb').hidden = true; $('#sClaudeFb').hidden = true; $('#sGrade').hidden = true; $('#sInput').value = ''; SP.revealed = false;
+  if (!pool.length) { $('#sTask').textContent = 'В выбранных уроках нет предложений.'; $('#sRu').textContent = ''; return; }
+  SP.queue = SP.queue.filter(q => inRange(q.s.l));
+  SP.queue.forEach(q => q.wait--);
+  const due = SP.queue.findIndex(q => q.wait <= 0);
+  SP.cur = due >= 0 ? SP.queue.splice(due, 1)[0].s : pick(pool);
+  const s = SP.cur;
+  $('#sTask').innerHTML = `Скажите по‑японски <span class="meta">· урок ${s.l}${due >= 0 ? ' · повтор' : ''}</span>`;
+  $('#sRu').textContent = s.r; $('#sPattern').textContent = s.p;
+  $('#sShow').textContent = 'Показать ответ';
+}
+function revealSpeak() {
+  const s = SP.cur; if (!s) return;
+  if (SP.revealed) { nextSpeak(); return; }
+  SP.revealed = true;
+  const user = $('#sInput').value.trim();
+  const fb = $('#sFb'); fb.hidden = false; fb.className = 'fb info';
+  let cmp = '';
+  if (user) {
+    const sim = Math.round(100 * Math.max(similarity(user, readingOf(s.f)), similarity(user, s.j)));
+    cmp = `<div class="meta">Совпадение с эталоном: ${sim}% — другие верные варианты тоже возможны${sampleFn ? ', спросите Claude' : ''}.</div>`;
+  }
+  fb.innerHTML = `<div class="jpline">${rubyAlways(s.f)}</div>${cmp}`;
+  $('#sGrade').hidden = false; $('#sShow').textContent = 'Следующая';
+  if (S.auto) tts.speak(s.j);
+}
+function gradeSpeak(ok) {
+  mark(ok);
+  if (!ok && SP.cur) SP.queue.push({ s: SP.cur, wait: 3 + Math.floor(Math.random() * 3) });
+  nextSpeak();
+}
+
+// ---------- режим «Слушай» ----------
+const L = { cur: null };
+function nextListen() {
+  const pool = D.sentences.filter(s => inRange(s.l));
+  $('#lFb').hidden = true; $('#lInput').value = '';
+  if (!pool.length) { $('#lTask').textContent = 'В выбранных уроках нет предложений.'; L.cur = null; return; }
+  L.cur = pick(pool);
+  $('#lTask').innerHTML = `Фраза из урока ${L.cur.l} <span class="meta">· нажмите «Слушать»</span>`;
+}
+function showListen(checked) {
+  const s = L.cur; if (!s) return;
+  const user = $('#lInput').value.trim();
+  const fb = $('#lFb'); fb.hidden = false;
+  let head = '';
+  if (checked && user) {
+    const sim = Math.round(100 * Math.max(similarity(user, readingOf(s.f)), similarity(user, s.j)));
+    const ok = sim >= 90; mark(ok);
+    fb.className = 'fb ' + (ok ? 'good' : 'bad');
+    head = `<div class="verdict">${ok ? 'Отлично' : 'Есть расхождения'} · совпадение ${sim}%</div>`;
+  } else fb.className = 'fb info';
+  fb.innerHTML = `${head}<div class="jpline">${rubyAlways(s.f)}</div><div>${esc(s.r)}</div><div class="meta"><span class="chip">${esc(s.p)}</span></div>`;
+}
+
+// ---------- режим «Чтение» ----------
+const R = { cur: null, done: false };
+const readPool = () => words.filter(w => inRange(w.l) && /[一-鿿]/.test(w.e) && w.t !== 'name');
+function nextRead() {
+  const pool = readPool();
+  R.done = false; $('#rFb').hidden = true; $('#rInput').value = '';
+  if (!pool.length) { $('#rTask').textContent = 'В выбранных уроках нет слов с кандзи.'; $('#rWord').textContent = ''; R.cur = null; return; }
+  R.cur = pick(pool);
+  $('#rTask').innerHTML = `Как читается? <span class="meta">· урок ${R.cur.l}</span>`;
+  $('#rWord').textContent = R.cur.e;
+  if (fine) $('#rInput').focus();
+}
+function checkRead(giveUp) {
+  const c = R.cur; if (!c) return;
+  if (R.done) { nextRead(); return; }
+  const user = norm($('#rInput').value);
+  if (!user && !giveUp) return;
+  const full = c.k.replace(/[()～〜]/g, ''), short = c.k.replace(/\(.*?\)/g, '').replace(/[～〜]/g, '');
+  const ok = !giveUp && (user === norm(full) || user === norm(short));
+  R.done = true; mark(ok);
+  const fb = $('#rFb'); fb.hidden = false; fb.className = 'fb ' + (ok ? 'good' : 'bad');
+  fb.innerHTML = `<div class="verdict">${ok ? 'Верно' : giveUp ? 'Чтение' : 'Не так'}</div>
+    <div class="jpline"><ruby>${esc(c.e)}<rt>${esc(c.k)}</rt></ruby></div>
+    <div>${esc(c.r)}</div>${c.kb ? `<div class="meta">${esc(c.kb)}</div>` : ''}
+    <div class="row"><button class="btn speak ghost" type="button" id="rSay">Озвучить</button><span class="kbd">Enter — дальше</span></div>`;
+  $('#rSay').onclick = () => tts.speak(full);
+  if (S.auto) tts.speak(full);
+}
+
+// ---------- Claude: проверка перевода и собеседник ----------
+let sampleFn = null;
+const ERR = { rate_limited: 'Слишком много запросов — попробуйте чуть позже.', session_expired: 'Нужно заново войти в Claude.', refused: 'Claude не стал отвечать на это сообщение — переформулируйте.', empty_completion: 'Пустой ответ — попробуйте ещё раз.', invalid_json: 'Ответ пришёл в неожиданном виде — попробуйте ещё раз.', upstream_error: 'Связь прервалась — попробуйте ещё раз.' };
+const HIDE = new Set(['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed']);
+function claudeUnavailable() {
+  sampleFn = null; $('#sClaude').hidden = true;
+  $('#chatState').textContent = 'Собеседник работает только в опубликованной версии тренажёра на claude.ai и с разрешением на использование Claude. Остальные режимы доступны всегда.';
+  $('#chatBox').hidden = true; $('#scen').hidden = true;
+}
+async function initClaude() {
+  try { sampleFn = window.claude?.use ? await window.claude.use('sample') : null; } catch { sampleFn = null; }
+  if (!sampleFn) { claudeUnavailable(); return; }
+  $('#sClaude').hidden = false; $('#chatBox').hidden = false; $('#scen').hidden = false;
+  $('#chatState').textContent = 'Выберите тему — Claude начнёт разговор.';
+}
+async function checkWithClaude() {
+  const s = SP.cur, user = $('#sInput').value.trim(); if (!s || !sampleFn) return;
+  const box = $('#sClaudeFb'); box.hidden = false; box.className = 'fb info';
+  if (!user) { box.innerHTML = '<div class="meta">Сначала напишите или надиктуйте свой вариант.</div>'; return; }
+  box.innerHTML = '<div class="meta">Claude проверяет…</div>'; $('#sClaude').disabled = true;
+  const prompt = `Ты — преподаватель японского языка. Студент 1 курса (учебник «日本語初歩», урок ${s.l}) переводил фразу с русского на японский.
+Русская фраза: «${s.r}»
+Тренируемая конструкция: ${s.p}
+Эталонный перевод: ${s.j}
+Ответ студента: ${user}
+Оцени ответ. Другой вариант тоже верен, если он грамматически правилен, передаёт смысл и сохраняет стиль эталона (вежливый или простой). Мелочи вроде записи каной вместо кандзи ошибкой не считай.
+Ответь только JSON: {"verdict": "верно" | "почти" | "неверно", "comment": "1–2 коротких предложения по-русски: что не так и почему, или что всё хорошо", "fixed": "исправленный вариант ответа студента по-японски (если ошибок нет — сам ответ)"}`;
+  try {
+    const r = await sampleFn.json(prompt, { modelTier: 'default' });
+    const v = String(r?.verdict || ''), good = v.startsWith('верн');
+    box.className = 'fb ' + (good ? 'good' : v.startsWith('почти') ? 'info' : 'bad');
+    box.innerHTML = `<div class="verdict">Claude: ${esc(v || 'оценка')}</div><div>${esc(r?.comment || '')}</div>${r?.fixed ? `<div class="jpline">${esc(r.fixed)}</div>` : ''}`;
+  } catch (e) {
+    if (HIDE.has(e?.code)) { claudeUnavailable(); box.innerHTML = '<div class="meta">Проверка Claude недоступна в этом окне.</div>'; }
+    else box.innerHTML = `<div class="meta">${esc(ERR[e?.code] || ERR.upstream_error)}</div>`;
+  } finally { $('#sClaude').disabled = false; }
+}
+
+const SCEN = [
+  ['Знакомство', 'знакомство: имя, страна, учёба', 1], ['Мой день', 'распорядок дня: когда встаёшь, что делаешь', 13], ['Выходные', 'выходные и хобби', 8],
+  ['В магазине', 'покупки в магазине: цены, количество', 6], ['Погода', 'погода и времена года', 10], ['Планы', 'планы на будущее и желания', 19],
+  ['У врача', 'самочувствие, болезнь, советы', 24], ['Путешествия', 'поездки, опыт, сравнение мест', 25], ['Гостиница (敬語)', 'разговор с администратором гостиницы, вежливая речь 敬語', 33],
+  ['С другом', 'дружеская болтовня в кафе, простой стиль だ', 34], ['Свободная тема', 'любая тема, которую предложит студент', 1],
+];
+const C = { topic: null, turns: [], ctl: null };
+function chatRules() {
+  const topics = D.topics.filter(t => t.to >= S.from && t.from <= S.to).map(t => `${t.label}: ${t.text}`).join('\n');
+  const casual = C.topic[2] >= 34;
+  return `Ты — дружелюбный японский собеседник для русскоязычного студента 1 курса. Он прошёл уроки ${S.from}–${S.to} учебника «日本語初歩» (Japan Foundation). Тема разговора: ${C.topic[1]}.
+Правила для твоих реплик:
+- пиши по-японски очень просто: 1–2 коротких предложения и в конце один простой вопрос собеседнику;
+- используй только грамматику пройденных уроков (список ниже) и простую лексику; стиль — ${casual ? 'простой (だ-体), как с другом' : 'вежливый (です/ます)'};
+- кандзи — только самые простые.
+Проверка студента: если в его последнем сообщении есть ошибки (частицы, формы, порядок слов, неестественные выражения), в поле "fix" дай исправленный вариант и очень короткое объяснение по-русски (одна строка). Ошибок нет — "fix": "". Если студент написал по-русски или смешал языки, в "fix" покажи, как сказать это по-японски.
+Отвечай только JSON: {"fix": "...", "reply": "реплика по-японски", "reading": "та же реплика целиком хираганой", "ru": "перевод реплики на русский"}
+Грамматика пройденных уроков:
+${topics}`;
+}
+function addBubble(role, data) {
+  const b = document.createElement('div'); b.className = 'bubble ' + (role === 'user' ? 'me' : 'bot');
+  if (role === 'user') { b.innerHTML = `<div class="jpline">${esc(data)}</div>`; }
+  else {
+    b.innerHTML = `${data.fix ? `<div class="fix">${esc(data.fix)}</div>` : ''}<div class="jpline">${esc(data.reply)}</div>
+      <div class="sub" data-k="reading" hidden>${esc(data.reading || '')}</div><div class="sub" data-k="ru" hidden>${esc(data.ru || '')}</div>
+      <div class="tools"><button type="button" data-a="say">▶ озвучить</button><button type="button" data-a="reading">чтение</button><button type="button" data-a="ru">перевод</button></div>`;
+    b.querySelector('[data-a="say"]').onclick = () => tts.speak(data.reply);
+    b.querySelector('[data-a="reading"]').onclick = () => { const x = b.querySelector('[data-k="reading"]'); x.hidden = !x.hidden; };
+    b.querySelector('[data-a="ru"]').onclick = () => { const x = b.querySelector('[data-k="ru"]'); x.hidden = !x.hidden; };
+  }
+  $('#chatLog').append(b); b.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  return b;
+}
+async function chatCall(userText) {
+  if (!sampleFn || !C.topic) return;
+  const first = !C.turns.length;
+  if (!first) { C.turns.push({ role: 'user', content: userText }); addBubble('user', userText); }
+  const input = [{ role: 'user', content: chatRules() + (first ? '\n\nНачни разговор: поздоровайся и задай первый вопрос.' : '') }, ...C.turns.slice(-16)];
+  const wait = document.createElement('div'); wait.className = 'note'; wait.textContent = 'Claude пишет…'; $('#chatLog').append(wait);
+  C.ctl = new AbortController(); $('#cSend').disabled = true; $('#cStop').hidden = false;
+  try {
+    const r = await sampleFn.json(input, { modelTier: 'quick', cache: false, signal: C.ctl.signal });
+    const reply = String(r?.reply || '').trim();
+    if (!reply) throw { code: 'invalid_json' };
+    addBubble('bot', { fix: String(r.fix || '').trim(), reply, reading: r.reading, ru: r.ru });
+    C.turns.push({ role: 'assistant', content: reply });
+    if (S.auto) tts.speak(reply);
+  } catch (e) {
+    if (e?.code === 'cancelled') { /* остановлено пользователем */ }
+    else if (HIDE.has(e?.code)) claudeUnavailable();
+    else { const n = document.createElement('div'); n.className = 'warn'; n.textContent = ERR[e?.code] || ERR.upstream_error; $('#chatLog').append(n); }
+  } finally { wait.remove(); $('#cSend').disabled = false; $('#cStop').hidden = true; C.ctl = null; }
+}
+function startChat(i) {
+  C.ctl?.abort(); C.topic = SCEN[i]; C.turns = []; $('#chatLog').innerHTML = '';
+  $$('#scen button').forEach((b, n) => b.setAttribute('aria-pressed', n === i ? 'true' : 'false'));
+  $('#chatState').textContent = `Тема: ${C.topic[1]}. Уроки ${S.from}–${S.to}.`;
+  chatCall('');
+}
+
+// ---------- карта грамматики ----------
+function initMap() {
+  const heads = $$('#grammar h2');
+  $('#toc').innerHTML = heads.map((h, i) => `<button type="button" data-i="${i}">${esc(h.textContent.replace(/^\d+\.\s*/, (m) => m))}</button>`).join('');
+  $$('#toc button').forEach(b => b.onclick = () => heads[+b.dataset.i].scrollIntoView({ behavior: 'smooth', block: 'start' }));
+}
+
+// ---------- навигация ----------
+const INIT = {
+  forms() { buildGroupToggles(); nextForm(); },
+  particles() { nextParticle(); }, speak() { nextSpeak(); }, listen() { nextListen(); }, read() { nextRead(); },
+  chat() { $('#scen').innerHTML = SCEN.map((s, i) => `<button type="button" data-i="${i}" aria-pressed="false">${esc(s[0])}</button>`).join(''); $$('#scen button').forEach(b => b.onclick = () => startChat(+b.dataset.i)); },
+  map() { initMap(); },
+};
+const started = {};
+const MODES = Object.keys(INIT);
+function show(mode) {
+  if (!MODES.includes(mode)) mode = 'forms';
+  $$('.mode').forEach(s => { s.hidden = s.id !== 'm-' + mode; });
+  $$('.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.mode === mode ? 'page' : 'false'));
+  if (!started[mode]) { started[mode] = true; INIT[mode](); }
+  store.set('mode', mode);
+}
+function refreshAll() { for (const m of Object.keys(started)) if (m !== 'map' && m !== 'chat') ({ forms: nextForm, particles: nextParticle, speak: nextSpeak, listen: nextListen, read: nextRead })[m](); }
+
+// ---------- события ----------
+function initRange() {
+  const opts = Array.from({ length: 34 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
+  $('#lfrom').innerHTML = opts; $('#lto').innerHTML = opts; $('#lfrom').value = S.from; $('#lto').value = S.to;
+  const upd = () => {
+    let a = +$('#lfrom').value, b = +$('#lto').value; if (a > b) { [a, b] = [b, a]; $('#lfrom').value = a; $('#lto').value = b; }
+    S.from = a; S.to = b; store.set('from', a); store.set('to', b); refreshAll();
+  };
+  $('#lfrom').onchange = upd; $('#lto').onchange = upd;
+}
+function onEnter(el, fn) { el.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing && !e.shiftKey) { e.preventDefault(); fn(); } }); }
+function bind() {
+  $('#fCheck').onclick = () => checkForm(false); $('#fSkip').onclick = () => checkForm(true);
+  $('#fHint').onclick = () => { if (F.cur) { $('#fHint').textContent = POS_RU[F.cur.item.p] || ''; $('#fHint').disabled = true; } };
+  onEnter($('#fInput'), () => checkForm(false));
+  $('#pNext').onclick = nextParticle;
+  document.addEventListener('keydown', e => {
+    if ($('#m-particles').hidden || e.target.closest('input, textarea, select')) return;
+    if (/^[1-4]$/.test(e.key) && !P.done) { const b = $$('#pChoices .choice')[+e.key - 1]; if (b) answerParticle(b.dataset.p); }
+    else if (e.key === 'Enter' && P.done) { e.preventDefault(); nextParticle(); }
+  });
+  $('#sShow').onclick = revealSpeak; $('#sGood').onclick = () => gradeSpeak(true); $('#sBad').onclick = () => gradeSpeak(false);
+  $('#sSpeak').onclick = () => SP.cur && tts.speak(SP.cur.j); $('#sClaude').onclick = checkWithClaude;
+  $('#lPlay').onclick = () => L.cur && tts.speak(L.cur.j);
+  $$('[data-rate]').forEach(b => b.onclick = () => { tts.rate = +b.dataset.rate; store.set('rate', tts.rate); markRate(); if (L.cur) tts.speak(L.cur.j); });
+  $('#lCheck').onclick = () => showListen(true); $('#lReveal').onclick = () => showListen(false); $('#lNext').onclick = nextListen;
+  $('#rCheck').onclick = () => checkRead(false); $('#rSkip').onclick = () => checkRead(true); onEnter($('#rInput'), () => checkRead(false));
+  $('#cSend').onclick = () => { const t = $('#cInput').value.trim(); if (!t || !C.topic) return; $('#cInput').value = ''; chatCall(t); };
+  onEnter($('#cInput'), () => $('#cSend').click());
+  $('#cStop').onclick = () => C.ctl?.abort();
+  $('#cReset').onclick = () => { const i = SCEN.indexOf(C.topic); if (i >= 0) startChat(i); };
+  const opt = (id, key, after) => { const el = $(id); el.checked = !!S[key]; el.onchange = () => { S[key] = el.checked; store.set(key, S[key]); after?.(); }; };
+  opt('#optRomaji', 'romaji', bindRomaji); opt('#optFuri', 'furi', refreshAll); opt('#optAuto', 'auto');
+  addEventListener('hashchange', () => show(location.hash.slice(1)));
+  initSpeechRecognition();
+}
+function markRate() { $$('[data-rate]').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.rate - tts.rate) < .01)); }
+function initSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
+  const btn = $('#sMic'); btn.hidden = false; let rec = null;
+  btn.onclick = () => {
+    if (rec) { rec.stop(); return; }
+    rec = new SR(); rec.lang = 'ja-JP'; rec.interimResults = true;
+    rec.onresult = e => { $('#sInput').value = [...e.results].map(r => r[0].transcript).join(''); };
+    rec.onerror = e => { btn.hidden = e.error === 'not-allowed' || e.error === 'service-not-allowed'; if (btn.hidden) $('#sTask').insertAdjacentHTML('beforeend', ' <span class="note">· микрофон здесь недоступен — диктуйте через клавиатуру телефона</span>'); };
+    rec.onend = () => { rec = null; btn.textContent = 'Сказать в микрофон'; };
+    btn.textContent = 'Стоп'; try { rec.start(); } catch { rec = null; }
+  };
+}
+
+renderStats(); initRange(); bind(); bindRomaji(); tts.init(); markRate();
+show(location.hash.slice(1) || store.get('mode', 'forms'));
+initClaude();
+window.addEventListener('load', bindRomaji);
+})();
+</script>
