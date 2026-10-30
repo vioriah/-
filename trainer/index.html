@@ -2689,6 +2689,20 @@ const CHAT_SCHEMA = { type: 'object', additionalProperties: false, required: ['f
   properties: { fix: { type: 'string' }, reply: { type: 'string' }, reading: { type: 'string' }, ru: { type: 'string' } } };
 let sdkPromise = null;
 // Вне claude.ai: вызов Claude API из браузера — через посредника или с ключом посетителя.
+// Сторонние сервисы могут не соблюдать строгий формат: JSON приходит в блоке ```json или с текстом вокруг.
+function looseJSON(text) {
+  const t = String(text || '').trim();
+  if (!t) throw { code: 'empty_completion' };
+  const fenced = t.match(/```(?:json)?\s*([\s\S]*?)```/)?.[1];
+  for (const c of [t, fenced, t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1)]) {
+    if (!c) continue;
+    try { return JSON.parse(c); } catch { /* пробуем следующий вариант */ }
+  }
+  console.warn('Claude: ответ не в формате JSON', t);
+  throw { code: 'invalid_json', raw: t };
+}
+// Текст ошибки; при неразобранном ответе — его начало, чтобы было видно, что пришло.
+const errText = e => (ERR[e?.code] || ERR.upstream_error) + (e?.raw ? ` Пришло: «${e.raw.slice(0, 160)}${e.raw.length > 160 ? '…' : ''}»` : '');
 async function keyJSON(input, o) {
   sdkPromise ||= import(SDK_URL);
   let mod;
@@ -2703,8 +2717,7 @@ async function keyJSON(input, o) {
       output_config: { effort: o.effort, format: { type: 'json_schema', schema: o.schema } }, messages,
     }, { signal: o.signal });
     if (res.stop_reason === 'refusal') throw { code: 'refused' };
-    const text = res.content.filter(b => b.type === 'text').map(b => b.text).join('');
-    try { return JSON.parse(text); } catch { throw { code: 'invalid_json' }; }
+    return looseJSON(res.content.filter(b => b.type === 'text').map(b => b.text).join(''));
   } catch (e) {
     if (e && typeof e.code === 'string' && !(e instanceof Error)) throw e;
     if (e instanceof mod.APIUserAbortError) throw { code: 'cancelled' };
@@ -2753,7 +2766,7 @@ async function checkWithClaude() {
     box.innerHTML = `<div class="verdict">Claude: ${esc(v || 'оценка')}</div><div>${esc(r?.comment || '')}</div>${r?.fixed ? `<div class="jpline">${esc(r.fixed)}</div>` : ''}`;
   } catch (e) {
     if (HIDE.has(e?.code)) { claudeUnavailable(); box.innerHTML = '<div class="meta">Проверка Claude недоступна в этом окне.</div>'; }
-    else box.innerHTML = `<div class="meta">${esc(ERR[e?.code] || ERR.upstream_error)}</div>`;
+    else box.innerHTML = `<div class="meta">${esc(errText(e))}</div>`;
   } finally { $('#sClaude').disabled = false; }
 }
 
@@ -2801,14 +2814,14 @@ async function chatCall(userText) {
   try {
     const r = await sampleFn.json(input, { tier: 'quick', effort: 'low', cache: false, signal: C.ctl.signal, schema: CHAT_SCHEMA });
     const reply = String(r?.reply || '').trim();
-    if (!reply) throw { code: 'invalid_json' };
+    if (!reply) throw { code: 'invalid_json', raw: JSON.stringify(r) };
     addBubble('bot', { fix: String(r.fix || '').trim(), reply, reading: r.reading, ru: r.ru });
     C.turns.push({ role: 'assistant', content: reply });
     if (S.auto) tts.speak(reply);
   } catch (e) {
     if (e?.code === 'cancelled') { /* остановлено пользователем */ }
     else if (HIDE.has(e?.code)) claudeUnavailable();
-    else { const n = document.createElement('div'); n.className = 'warn'; n.textContent = ERR[e?.code] || ERR.upstream_error; $('#chatLog').append(n); }
+    else { const n = document.createElement('div'); n.className = 'warn'; n.textContent = errText(e); $('#chatLog').append(n); }
   } finally { wait.remove(); $('#cSend').disabled = false; $('#cStop').hidden = true; C.ctl = null; }
 }
 function startChat(i) {
