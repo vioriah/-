@@ -820,15 +820,15 @@ async function checkWithClaude() {
   const box = $('#sClaudeFb'); box.hidden = false; box.className = 'fb info';
   if (!user) { box.innerHTML = '<div class="meta">Сначала напишите или надиктуйте свой вариант.</div>'; return; }
   box.innerHTML = '<div class="meta">Claude проверяет…</div>'; $('#sClaude').disabled = true;
-  const prompt = `Ты — преподаватель японского языка. Студент 1 курса (учебник «日本語初歩», урок ${s.l}) переводил фразу с русского на японский.
+  const prompt = `Ты — преподаватель японского языка. Студент 1 курса (учебник «日本語初歩») переводил фразу с русского на японский. Оцени его ответ. Другой вариант тоже верен, если он грамматически правилен, передаёт смысл и сохраняет стиль эталона (вежливый или простой). Мелочи вроде записи каной вместо кандзи ошибкой не считай.
+Ответь только JSON, без markdown и без текста вокруг: {"verdict": "верно" | "почти" | "неверно", "comment": "1–2 коротких предложения по-русски: что не так и почему, или что всё хорошо", "fixed": "исправленный вариант ответа студента по-японски (если ошибок нет — сам ответ)"}
+Урок: ${s.l}
 Русская фраза: «${s.r}»
 Тренируемая конструкция: ${s.p}
 Эталонный перевод: ${s.j}
-Ответ студента: ${user}
-Оцени ответ. Другой вариант тоже верен, если он грамматически правилен, передаёт смысл и сохраняет стиль эталона (вежливый или простой). Мелочи вроде записи каной вместо кандзи ошибкой не считай.
-Ответь только JSON: {"verdict": "верно" | "почти" | "неверно", "comment": "1–2 коротких предложения по-русски: что не так и почему, или что всё хорошо", "fixed": "исправленный вариант ответа студента по-японски (если ошибок нет — сам ответ)"}`;
+Ответ студента: ${user}`;
   try {
-    const r = await sampleFn.json(prompt, { tier: 'default', effort: 'medium', schema: CHECK_SCHEMA });
+    const r = await sampleFn.json(prompt, { tier: 'default', effort: 'low', schema: CHECK_SCHEMA });
     const v = String(r?.verdict || ''), good = v.startsWith('верн');
     box.className = 'fb ' + (good ? 'good' : v.startsWith('почти') ? 'info' : 'bad');
     box.innerHTML = `<div class="verdict">Claude: ${esc(v || 'оценка')}</div><div>${esc(r?.comment || '')}</div>${r?.fixed ? `<div class="jpline">${esc(r.fixed)}</div>` : ''}`;
@@ -844,19 +844,25 @@ const SCEN = [
   ['У врача', 'самочувствие, болезнь, советы', 24], ['Путешествия', 'поездки, опыт, сравнение мест', 25], ['Гостиница (敬語)', 'разговор с администратором гостиницы, вежливая речь 敬語', 33],
   ['С другом', 'дружеская болтовня в кафе, простой стиль だ', 34], ['Свободная тема', 'любая тема, которую предложит студент', 1],
 ];
-const C = { topic: null, turns: [], ctl: null };
+const C = { topic: null, rules: '', turns: [], base: 0, ctl: null };
+// Сервис кэширует начало запроса: повторно отправленная часть стоит в 10 раз дешевле, а полностью
+// оплачивается только новое. Поэтому запрос меняется только дописыванием в конец: правила
+// фиксируются в начале разговора, а старые реплики отбрасываются не по одной, а пачкой.
+const HISTORY_MAX = 24, HISTORY_KEEP = 10;
 function chatRules() {
   const topics = D.topics.filter(t => t.to >= S.from && t.from <= S.to).map(t => `${t.label}: ${t.text}`).join('\n');
   const casual = C.topic[2] >= 34;
-  return `Ты — дружелюбный японский собеседник для русскоязычного студента 1 курса. Он прошёл уроки ${S.from}–${S.to} учебника «日本語初歩» (Japan Foundation). Тема разговора: ${C.topic[1]}.
+  return `Ты — дружелюбный японский собеседник для русскоязычного студента 1 курса, который учится по учебнику «日本語初歩» (Japan Foundation).
 Правила для твоих реплик:
 - пиши по-японски очень просто: 1–2 коротких предложения и в конце один простой вопрос собеседнику;
-- используй только грамматику пройденных уроков (список ниже) и простую лексику; стиль — ${casual ? 'простой (だ-体), как с другом' : 'вежливый (です/ます)'};
+- используй только грамматику пройденных уроков (список ниже) и простую лексику;
 - кандзи — только самые простые.
 Проверка студента: если в его последнем сообщении есть ошибки (частицы, формы, порядок слов, неестественные выражения), в поле "fix" дай исправленный вариант и очень короткое объяснение по-русски (одна строка). Ошибок нет — "fix": "". Если студент написал по-русски или смешал языки, в "fix" покажи, как сказать это по-японски.
-Отвечай только JSON: {"fix": "...", "reply": "реплика по-японски", "reading": "та же реплика целиком хираганой", "ru": "перевод реплики на русский"}
-Грамматика пройденных уроков:
-${topics}`;
+Отвечай только JSON, без markdown и без текста вокруг: {"fix": "...", "reply": "реплика по-японски", "reading": "та же реплика целиком хираганой", "ru": "перевод реплики на русский"}
+Грамматика пройденных уроков (${S.from}–${S.to}):
+${topics}
+Стиль: ${casual ? 'простой (だ-体), как с другом' : 'вежливый (です/ます)'}. Тема разговора: ${C.topic[1]}.
+Если разговор ещё не начат, поздоровайся и задай первый вопрос.`;
 }
 function addBubble(role, data) {
   const b = document.createElement('div'); b.className = 'bubble ' + (role === 'user' ? 'me' : 'bot');
@@ -876,7 +882,11 @@ async function chatCall(userText) {
   if (!sampleFn || !C.topic) return;
   const first = !C.turns.length;
   if (!first) { C.turns.push({ role: 'user', content: userText }); addBubble('user', userText); }
-  const input = [{ role: 'user', content: chatRules() + (first ? '\n\nНачни разговор: поздоровайся и задай первый вопрос.' : '') }, ...C.turns.slice(-16)];
+  if (C.turns.length - C.base > HISTORY_MAX) {
+    C.base = C.turns.length - HISTORY_KEEP;
+    if (C.turns[C.base].role !== 'assistant') C.base++;  // после правил (реплика студента) идёт ответ Claude
+  }
+  const input = [{ role: 'user', content: C.rules }, ...C.turns.slice(C.base)];
   const wait = document.createElement('div'); wait.className = 'note'; wait.textContent = 'Claude пишет…'; $('#chatLog').append(wait);
   C.ctl = new AbortController(); $('#cSend').disabled = true; $('#cStop').hidden = false;
   try {
@@ -893,7 +903,7 @@ async function chatCall(userText) {
   } finally { wait.remove(); $('#cSend').disabled = false; $('#cStop').hidden = true; C.ctl = null; }
 }
 function startChat(i) {
-  C.ctl?.abort(); C.topic = SCEN[i]; C.turns = []; $('#chatLog').innerHTML = '';
+  C.ctl?.abort(); C.topic = SCEN[i]; C.rules = chatRules(); C.turns = []; C.base = 0; $('#chatLog').innerHTML = '';
   $$('#scen button').forEach((b, n) => b.setAttribute('aria-pressed', n === i ? 'true' : 'false'));
   $('#chatState').textContent = `Тема: ${C.topic[1]}. Уроки ${S.from}–${S.to}.`;
   chatCall('');
