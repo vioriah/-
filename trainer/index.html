@@ -361,6 +361,38 @@ button.start:active { box-shadow: var(--in); }
 .lp-sum { margin: 0; font-size: 15px; }
 .lp-row { justify-content: center; }
 .lp-go { background: var(--ai); color: var(--ai-ink); }
+
+/* Полка развлечений и раздел «Музыка» */
+.shelf-title { margin: 8px 0 0; padding-top: 14px; width: 100%; font-size: 18px; font-weight: 700; }
+.tt-icon { width: 184px; height: 152px; }
+.fun .book-label { font-family: var(--f-ui); font-weight: 600; }
+.mu-lbl { font-weight: 600; }
+.mu-list { display: grid; gap: 8px; }
+.mu-item { display: flex; align-items: center; gap: 14px; text-align: left; padding: 10px 14px; cursor: pointer; font: inherit; color: var(--ink); }
+.mu-item b { display: block; font-size: 18px; } .mu-item small { font-size: 13px; color: var(--muted); }
+.mu-disc { flex: none; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, #ffd1e0 0 8%, #ff7aa6 9% 24%, #141218 25% 40%, #2c2a36 41% 43%, #141218 44% 62%, #2c2a36 63% 65%, #141218 66%); }
+.mu-title { font-size: 18px; } .mu-title .meta { margin-left: 6px; }
+.mu-video { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; width: 100%; max-width: 560px; justify-self: center; aspect-ratio: 16 / 9; background: #000; }
+.mu-video iframe, #muPlayer { display: block; width: 100%; height: 100%; border: 0; }
+.mu-lines { display: grid; gap: 2px; }
+.mu-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding: 8px 10px; cursor: pointer; }
+.mu-row.no-t { cursor: default; }
+.mu-jp { font-size: 21px; line-height: 1.75; overflow-wrap: anywhere; }
+.mu-tr { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.mu-ru { font-size: 15px; } .mu-note { font-size: 13px; color: var(--muted); }
+.mu-words { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; } .mu-words .tb { font-size: 11px; color: var(--muted); }
+.mu-sec { padding: 14px 10px 2px; font-weight: 700; color: var(--ai); }
+.mu-mark { display: grid; gap: 10px; padding: 12px; }
+.mu-next { font-size: 15px; } .mu-next .jp { font-size: 19px; }
+.mu-json { width: 100%; min-height: 140px; margin-top: 8px; padding: 8px; font: 13px/1.4 ui-monospace, Menlo, monospace; color: var(--ink); background: var(--card); }
+@media (max-width: 640px) { .mu-row { grid-template-columns: 1fr; gap: 4px; } }
+.shelf-title { border-top: 2px dotted var(--face-sh); }
+.mu-item { border: 0; background: var(--face); box-shadow: var(--out); }
+.mu-item:active { box-shadow: var(--in); }
+.mu-row.on { background: var(--ai-soft); box-shadow: var(--in); }
+.mu-mark { box-shadow: var(--in); background: var(--chip); }
+.mu-json { border: 0; box-shadow: var(--in); }
+.mu-video { box-shadow: var(--out), 4px 4px 0 var(--shadow); padding: 3px; }
 </style>
 
 <style id="css-plain" media="not all">
@@ -625,6 +657,39 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .lsn.anchor { outline: 2px solid var(--ai); outline-offset: 2px; }
 .lp-sum { margin: 0; font-size: 15px; }
 .lp-row { justify-content: center; }
+
+/* Полка развлечений и раздел «Музыка» */
+.shelf-title { margin: 8px 0 0; padding-top: 14px; width: 100%; font-size: 18px; font-weight: 700; }
+.tt-icon { width: 184px; height: 152px; }
+.fun .book-label { font-family: var(--f-ui); font-weight: 600; }
+.mu-lbl { font-weight: 600; }
+.mu-list { display: grid; gap: 8px; }
+.mu-item { display: flex; align-items: center; gap: 14px; text-align: left; padding: 10px 14px; cursor: pointer; font: inherit; color: var(--ink); }
+.mu-item b { display: block; font-size: 18px; } .mu-item small { font-size: 13px; color: var(--muted); }
+.mu-disc { flex: none; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, #ffd1e0 0 8%, #ff7aa6 9% 24%, #141218 25% 40%, #2c2a36 41% 43%, #141218 44% 62%, #2c2a36 63% 65%, #141218 66%); }
+.mu-title { font-size: 18px; } .mu-title .meta { margin-left: 6px; }
+.mu-video { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; width: 100%; max-width: 560px; justify-self: center; aspect-ratio: 16 / 9; background: #000; }
+.mu-video iframe, #muPlayer { display: block; width: 100%; height: 100%; border: 0; }
+.mu-lines { display: grid; gap: 2px; }
+.mu-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding: 8px 10px; cursor: pointer; }
+.mu-row.no-t { cursor: default; }
+.mu-jp { font-size: 21px; line-height: 1.75; overflow-wrap: anywhere; }
+.mu-tr { display: grid; gap: 4px; align-content: start; min-width: 0; }
+.mu-ru { font-size: 15px; } .mu-note { font-size: 13px; color: var(--muted); }
+.mu-words { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; } .mu-words .tb { font-size: 11px; color: var(--muted); }
+.mu-sec { padding: 14px 10px 2px; font-weight: 700; color: var(--ai); }
+.mu-mark { display: grid; gap: 10px; padding: 12px; }
+.mu-next { font-size: 15px; } .mu-next .jp { font-size: 19px; }
+.mu-json { width: 100%; min-height: 140px; margin-top: 8px; padding: 8px; font: 13px/1.4 ui-monospace, Menlo, monospace; color: var(--ink); background: var(--card); }
+@media (max-width: 640px) { .mu-row { grid-template-columns: 1fr; gap: 4px; } }
+.shelf-title { border-top: 1px solid var(--line); }
+.mu-item { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.mu-item:hover { border-color: var(--ai); }
+.mu-row { border-radius: 8px; border-left: 3px solid transparent; }
+.mu-row.on { background: var(--ai-soft); border-left-color: var(--ai); }
+.mu-mark { border: 1px solid var(--line); border-radius: 8px; background: var(--chip); }
+.mu-json { border: 1px solid var(--line); border-radius: 8px; }
+.mu-video { border-radius: 8px; overflow: hidden; }
 </style>
 <script>
 // Оформление выбирается до отрисовки страницы, чтобы она не мигала чужим стилем.
@@ -671,6 +736,14 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
           <span class="book-icon"><svg viewBox="0 0 38 46" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="5" width="33" height="41" fill="#000" fill-opacity=".28"/><rect x="3" y="3" width="33" height="41" fill="#4a2410"/><rect x="4" y="3" width="31" height="40" fill="#e8d9b0"/><path fill="#c9b282" d="M33 5h1v36h-1zM31 5h1v36h-1zM6 41h27v1H6z"/><rect x="1" y="1" width="32" height="40" fill="#5a2e14"/><rect x="2" y="2" width="4" height="38" fill="#7b4422"/><rect x="3" y="2" width="1" height="38" fill="#9a5a30"/><rect x="6" y="2" width="26" height="38" fill="#fbf8ef"/><rect x="6" y="2" width="26" height="1" fill="#ffffff"/><rect x="31" y="3" width="1" height="37" fill="#e6e0cf"/><rect x="6" y="39" width="26" height="1" fill="#e6e0cf"/><path fill="#2a2a2a" d="M11 34h3v3h-3zM13 34h3v3h-3zM15 34h3v3h-3z"/><path fill="#fbf8ef" d="M12 35h1v1h-1zM14 35h1v1h-1zM16 35h1v1h-1z"/><rect x="19" y="35" width="10" height="1" fill="#2a2a2a"/><rect x="11" y="38" width="17" height="1" fill="#8a8a8a"/></svg><b>日本語初歩</b></span>
           <span class="book-label">日本語初歩</span>
           <span class="book-sub">Сёхо · Japan Foundation · 34 урока</span>
+        </button>
+      </div>
+      <h2 class="shelf-title">Развлечения</h2>
+      <div class="shelf">
+        <button class="book fun" type="button" data-fun="music">
+          <span class="book-icon tt-icon"><svg viewBox="0 0 46 38" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" fill-opacity=".28" d="M43 7h3v1h-3zM43 8h3v1h-3zM43 9h3v1h-3zM43 10h3v1h-3zM43 11h3v1h-3zM43 12h3v1h-3zM43 13h3v1h-3zM43 14h3v1h-3zM43 15h3v1h-3zM43 16h3v1h-3zM43 17h3v1h-3zM43 18h3v1h-3zM43 19h3v1h-3zM43 20h3v1h-3zM43 21h3v1h-3zM43 22h3v1h-3zM43 23h3v1h-3zM43 24h3v1h-3zM43 25h3v1h-3zM43 26h3v1h-3zM43 27h3v1h-3zM43 28h3v1h-3zM43 29h3v1h-3zM43 30h3v1h-3zM43 31h3v1h-3zM43 32h3v1h-3zM43 33h3v1h-3zM43 34h3v1h-3zM43 35h3v1h-3zM3 36h43v1h-43zM3 37h43v1h-43z"/><path fill="#4a2410" d="M1 5h42v1h-42zM1 6h1v1h-1zM42 6h1v1h-1zM1 7h1v1h-1zM42 7h1v1h-1zM1 8h1v1h-1zM42 8h1v1h-1zM1 9h1v1h-1zM42 9h1v1h-1zM1 10h1v1h-1zM42 10h1v1h-1zM1 11h1v1h-1zM42 11h1v1h-1zM1 12h1v1h-1zM42 12h1v1h-1zM1 13h1v1h-1zM42 13h1v1h-1zM1 14h1v1h-1zM42 14h1v1h-1zM1 15h1v1h-1zM42 15h1v1h-1zM1 16h1v1h-1zM42 16h1v1h-1zM1 17h1v1h-1zM42 17h1v1h-1zM1 18h1v1h-1zM42 18h1v1h-1zM1 19h1v1h-1zM42 19h1v1h-1zM1 20h1v1h-1zM42 20h1v1h-1zM1 21h1v1h-1zM42 21h1v1h-1zM1 22h1v1h-1zM42 22h1v1h-1zM1 23h1v1h-1zM42 23h1v1h-1zM1 24h1v1h-1zM42 24h1v1h-1zM1 25h1v1h-1zM42 25h1v1h-1zM1 26h1v1h-1zM42 26h1v1h-1zM1 27h1v1h-1zM42 27h1v1h-1zM1 28h1v1h-1zM42 28h1v1h-1zM1 29h1v1h-1zM42 29h1v1h-1zM1 30h1v1h-1zM42 30h1v1h-1zM1 31h1v1h-1zM42 31h1v1h-1zM1 32h1v1h-1zM42 32h1v1h-1zM1 33h1v1h-1zM42 33h1v1h-1zM1 34h1v1h-1zM42 34h1v1h-1zM1 35h42v1h-42z"/><path fill="#a8673a" d="M2 6h40v1h-40z"/><path fill="#8a4f26" d="M2 7h12v1h-12zM22 7h20v1h-20zM2 8h10v1h-10zM24 8h10v1h-10zM38 8h4v1h-4zM2 9h8v1h-8zM26 9h7v1h-7zM39 9h3v1h-3zM2 10h7v1h-7zM27 10h6v1h-6zM39 10h3v1h-3zM2 11h6v1h-6zM28 11h5v1h-5zM39 11h3v1h-3zM2 12h5v1h-5zM29 12h4v1h-4zM39 12h3v1h-3zM2 13h5v1h-5zM29 13h5v1h-5zM38 13h4v1h-4zM2 14h4v1h-4zM30 14h5v1h-5zM36 14h6v1h-6zM2 15h4v1h-4zM30 15h5v1h-5zM36 15h6v1h-6zM2 16h3v1h-3zM31 16h3v1h-3zM36 16h6v1h-6zM2 17h3v1h-3zM31 17h3v1h-3zM35 17h7v1h-7zM2 18h3v1h-3zM31 18h3v1h-3zM35 18h7v1h-7zM2 19h3v1h-3zM31 19h3v1h-3zM35 19h7v1h-7zM2 20h3v1h-3zM31 20h2v1h-2zM35 20h7v1h-7zM2 21h3v1h-3zM31 21h2v1h-2zM34 21h8v1h-8zM2 22h3v1h-3zM31 22h1v1h-1zM34 22h8v1h-8zM2 23h3v1h-3zM33 23h9v1h-9zM2 24h4v1h-4zM31 24h11v1h-11zM2 25h4v1h-4zM30 25h12v1h-12zM2 26h5v1h-5zM29 26h13v1h-13zM2 27h5v1h-5zM29 27h13v1h-13zM2 28h6v1h-6zM28 28h14v1h-14zM2 29h7v1h-7zM27 29h7v1h-7zM37 29h1v1h-1zM41 29h1v1h-1zM2 30h8v1h-8zM26 30h8v1h-8zM37 30h1v1h-1zM41 30h1v1h-1zM2 31h10v1h-10zM24 31h18v1h-18zM2 32h12v1h-12zM22 32h20v1h-20z"/><path fill="#141218" d="M14 7h1v1h-1zM21 7h1v1h-1zM14 8h8v1h-8zM10 9h1v1h-1zM12 9h2v1h-2zM22 9h2v1h-2zM25 9h1v1h-1zM10 10h2v1h-2zM14 10h8v1h-8zM24 10h2v1h-2zM9 11h2v1h-2zM12 11h12v1h-12zM25 11h2v1h-2zM7 12h3v1h-3zM11 12h4v1h-4zM17 12h2v1h-2zM21 12h4v1h-4zM26 12h3v1h-3zM8 13h1v1h-1zM10 13h3v1h-3zM14 13h8v1h-8zM23 13h3v1h-3zM27 13h1v1h-1zM7 14h1v1h-1zM11 14h1v1h-1zM13 14h10v1h-10zM24 14h3v1h-3zM28 14h1v1h-1zM7 15h1v1h-1zM9 15h2v1h-2zM12 15h5v1h-5zM19 15h5v1h-5zM25 15h2v1h-2zM28 15h1v1h-1zM5 16h2v1h-2zM9 16h6v1h-6zM21 16h7v1h-7zM29 16h2v1h-2zM6 17h1v1h-1zM8 17h2v1h-2zM11 17h3v1h-3zM22 17h3v1h-3zM26 17h2v1h-2zM29 17h1v1h-1zM6 18h1v1h-1zM8 18h2v1h-2zM11 18h3v1h-3zM22 18h3v1h-3zM26 18h2v1h-2zM29 18h1v1h-1zM6 19h1v1h-1zM8 19h5v1h-5zM17 19h2v1h-2zM23 19h5v1h-5zM29 19h1v1h-1zM6 20h1v1h-1zM8 20h5v1h-5zM17 20h2v1h-2zM23 20h5v1h-5zM29 20h1v1h-1zM6 21h1v1h-1zM8 21h2v1h-2zM11 21h3v1h-3zM22 21h3v1h-3zM26 21h2v1h-2zM29 21h1v1h-1zM6 22h1v1h-1zM8 22h2v1h-2zM11 22h3v1h-3zM22 22h3v1h-3zM26 22h2v1h-2zM29 22h1v1h-1zM5 23h2v1h-2zM8 23h7v1h-7zM21 23h7v1h-7zM29 23h2v1h-2zM7 24h1v1h-1zM9 24h2v1h-2zM12 24h5v1h-5zM19 24h5v1h-5zM25 24h2v1h-2zM28 24h1v1h-1zM7 25h1v1h-1zM9 25h3v1h-3zM13 25h10v1h-10zM24 25h1v1h-1zM8 26h1v1h-1zM10 26h3v1h-3zM14 26h8v1h-8zM23 26h2v1h-2zM7 27h3v1h-3zM11 27h4v1h-4zM17 27h2v1h-2zM21 27h4v1h-4zM28 27h1v1h-1zM9 28h2v1h-2zM12 28h12v1h-12zM25 28h2v1h-2zM10 29h2v1h-2zM14 29h8v1h-8zM24 29h2v1h-2zM10 30h1v1h-1zM12 30h2v1h-2zM22 30h2v1h-2zM25 30h1v1h-1zM14 31h8v1h-8zM14 32h1v1h-1zM21 32h1v1h-1z"/><path fill="#2c2a36" d="M15 7h6v1h-6zM12 8h2v1h-2zM22 8h2v1h-2zM11 9h1v1h-1zM14 9h8v1h-8zM24 9h1v1h-1zM9 10h1v1h-1zM12 10h2v1h-2zM22 10h2v1h-2zM26 10h1v1h-1zM8 11h1v1h-1zM11 11h1v1h-1zM24 11h1v1h-1zM27 11h1v1h-1zM10 12h1v1h-1zM15 12h2v1h-2zM19 12h2v1h-2zM25 12h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM13 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM12 14h1v1h-1zM23 14h1v1h-1zM27 14h1v1h-1zM29 14h1v1h-1zM6 15h1v1h-1zM11 15h1v1h-1zM24 15h1v1h-1zM27 15h1v1h-1zM29 15h1v1h-1zM7 16h1v1h-1zM28 16h1v1h-1zM5 17h1v1h-1zM7 17h1v1h-1zM10 17h1v1h-1zM25 17h1v1h-1zM28 17h1v1h-1zM30 17h1v1h-1zM5 18h1v1h-1zM7 18h1v1h-1zM10 18h1v1h-1zM25 18h1v1h-1zM28 18h1v1h-1zM30 18h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM28 19h1v1h-1zM30 19h1v1h-1zM5 20h1v1h-1zM7 20h1v1h-1zM28 20h1v1h-1zM30 20h1v1h-1zM5 21h1v1h-1zM7 21h1v1h-1zM10 21h1v1h-1zM25 21h1v1h-1zM28 21h1v1h-1zM30 21h1v1h-1zM5 22h1v1h-1zM7 22h1v1h-1zM10 22h1v1h-1zM25 22h1v1h-1zM28 22h1v1h-1zM30 22h1v1h-1zM7 23h1v1h-1zM28 23h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM11 24h1v1h-1zM24 24h1v1h-1zM27 24h1v1h-1zM29 24h1v1h-1zM6 25h1v1h-1zM8 25h1v1h-1zM12 25h1v1h-1zM23 25h1v1h-1zM7 26h1v1h-1zM9 26h1v1h-1zM13 26h1v1h-1zM22 26h1v1h-1zM10 27h1v1h-1zM15 27h2v1h-2zM19 27h2v1h-2zM8 28h1v1h-1zM11 28h1v1h-1zM24 28h1v1h-1zM27 28h1v1h-1zM9 29h1v1h-1zM12 29h2v1h-2zM22 29h2v1h-2zM26 29h1v1h-1zM11 30h1v1h-1zM14 30h8v1h-8zM24 30h1v1h-1zM12 31h2v1h-2zM22 31h2v1h-2zM15 32h6v1h-6z"/><path fill="#c9c3d6" d="M34 8h4v1h-4zM33 9h2v1h-2zM37 9h2v1h-2zM33 10h1v1h-1zM38 10h1v1h-1zM33 11h1v1h-1zM38 11h1v1h-1zM33 12h2v1h-2zM37 12h2v1h-2zM34 13h1v1h-1zM36 13h2v1h-2z"/><path fill="#6e6880" d="M35 9h2v1h-2zM34 10h4v1h-4zM34 11h2v1h-2zM37 11h1v1h-1zM35 12h1v1h-1z"/><path fill="#e6e0f0" d="M36 11h1v1h-1zM36 12h1v1h-1zM35 13h1v1h-1zM35 14h1v1h-1zM35 15h1v1h-1zM34 16h2v1h-2zM34 17h1v1h-1zM34 18h1v1h-1zM34 19h1v1h-1zM33 20h2v1h-2zM33 21h1v1h-1zM32 22h2v1h-2zM31 23h2v1h-2zM30 24h1v1h-1zM28 25h2v1h-2zM28 26h1v1h-1z"/><path fill="#5d5a6e" d="M9 14h2v1h-2zM8 15h1v1h-1zM8 16h1v1h-1z"/><path fill="#ff7aa6" d="M17 15h2v1h-2zM15 16h6v1h-6zM14 17h8v1h-8zM14 18h2v1h-2zM20 18h2v1h-2zM13 19h3v1h-3zM20 19h3v1h-3zM13 20h3v1h-3zM20 20h3v1h-3zM14 21h2v1h-2zM20 21h2v1h-2zM14 22h8v1h-8zM15 23h6v1h-6zM17 24h2v1h-2zM38 29h3v1h-3zM38 30h3v1h-3z"/><path fill="#ffd1e0" d="M16 18h4v1h-4zM16 19h1v1h-1zM19 19h1v1h-1zM16 20h1v1h-1zM19 20h1v1h-1zM16 21h4v1h-4z"/><path fill="#3a3550" d="M25 25h3v1h-3zM25 26h3v1h-3zM25 27h3v1h-3z"/><path fill="#9be15d" d="M34 29h3v1h-3zM34 30h3v1h-3z"/><path fill="#6b3a1a" d="M2 33h40v1h-40zM2 34h40v1h-40z"/></svg></span>
+          <span class="book-label">Музыка</span>
+          <span class="book-sub">песни: полный текст, перевод, грамматика</span>
         </button>
       </div>
     </div>
@@ -844,6 +917,41 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
       <div class="row"><button class="btn primary" id="cSend">Отправить</button><button class="btn ghost" id="cStop" hidden>Остановить</button><button class="btn ghost mic" id="cMic" hidden>Говорить</button><button class="btn ghost" id="cReset">Новый разговор</button></div>
       <div class="note" id="cMicNote" hidden></div>
     </div>
+  </section>
+
+  <section class="mode" id="m-music" hidden>
+    <p class="intro">Песни целиком: клип с YouTube и строка за строкой — японский текст, перевод и грамматика. Текущая строка подсвечивается сама; нажмите на строку, чтобы перейти к ней. Раздел только для студентов курса — вход по личному коду.</p>
+    <div class="sheet" id="muGate">
+      <label class="mu-lbl" for="muCode">Личный код студента</label>
+      <div class="row"><input class="keyfield" id="muCode" type="password" autocomplete="off" spellcheck="false" placeholder="код от преподавателя"><button class="btn primary" id="muEnter" type="button">Войти</button></div>
+      <p class="note" id="muGateNote"></p>
+    </div>
+    <div class="sheet" id="muLib" hidden>
+      <div class="row"><span class="note" id="muWho"></span><button class="btn ghost" id="muLogout" type="button">Выйти</button></div>
+      <div class="mu-list" id="muList"></div>
+    </div>
+    <div class="sheet" id="muSong" hidden>
+      <div class="row"><button class="btn" id="muBack" type="button">← К списку песен</button><div class="mu-title" id="muTitle"></div></div>
+      <div class="mu-video"><div id="muPlayer"></div></div>
+      <div class="row"><label class="toggle" for="muFollow"><input type="checkbox" id="muFollow" checked> следить за песней</label><button class="btn ghost" id="muMarkBtn" type="button" hidden>Разметить время строк</button></div>
+      <div class="mu-mark" id="muMark" hidden>
+        <p class="note">Включите клип и нажимайте кнопку (или пробел) в момент, когда начинается каждая строка.</p>
+        <div class="mu-next" id="muMarkNext"></div>
+        <button class="btn primary big" id="muMarkHit" type="button">Строка началась</button>
+        <div class="row"><button class="btn" id="muMarkUndo" type="button">Шаг назад</button><button class="btn primary" id="muMarkSave" type="button">Сохранить разметку</button><button class="btn ghost" id="muMarkCancel" type="button">Отмена</button></div>
+        <p class="note" id="muMarkNote"></p>
+      </div>
+      <div class="mu-lines" id="muLines"></div>
+      <p class="note" id="muSource"></p>
+    </div>
+    <details class="settings" id="muAdmin">
+      <summary>Для преподавателя</summary>
+      <p class="note">Код преподавателя открывает загрузку песен и разметку времени строк. Песню вставляйте в формате JSON — его готовит Claude.</p>
+      <div class="row"><input class="keyfield" id="muAdminCode" type="password" autocomplete="off" spellcheck="false" placeholder="код преподавателя"><button class="btn" id="muAdminSave" type="button">Сохранить код</button></div>
+      <textarea class="mu-json" id="muJson" rows="6" spellcheck="false" aria-label="Песня в формате JSON" placeholder="{&quot;id&quot;: &quot;…&quot;, &quot;title&quot;: &quot;…&quot;, &quot;yt&quot;: &quot;…&quot;, &quot;lines&quot;: […]}"></textarea>
+      <div class="row"><button class="btn primary" id="muUpload" type="button">Проверить и загрузить песню</button></div>
+      <p class="note" id="muAdminNote"></p>
+    </details>
   </section>
 
   <section class="mode" id="m-map" hidden>
@@ -3659,11 +3767,123 @@ function initMap() {
   $$('#toc button').forEach(b => b.onclick = () => heads[+b.dataset.i].scrollIntoView({ behavior: 'smooth', block: 'start' }));
 }
 
+
+// ---------- музыка: песни по личным кодам, клип YouTube, строки в такт ----------
+const MU = { code: store.get('mcode', ''), admin: store.get('madmin', ''), song: null, player: null, timer: null, cur: -1, mark: null };
+async function muApi(path, opts = {}, code = MU.code) {
+  const r = await fetch(PROXY_URL + path, { ...opts, headers: { 'x-student-code': code, ...(opts.body ? { 'content-type': 'application/json' } : {}) } });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data?.error?.message || `Ошибка ${r.status}`);
+  return data;
+}
+const muShow = which => ['muGate', 'muLib', 'muSong'].forEach(id => { $('#' + id).hidden = id !== which; });
+async function muEnter() {
+  if (inViewer || !PROXY_URL) { $('#muGateNote').textContent = 'Музыка работает только на сайте тренажёра.'; muShow('muGate'); return; }
+  const code = $('#muCode').value.trim() || MU.code;
+  if (!code) { muShow('muGate'); return; }
+  $('#muGateNote').textContent = 'Проверяю код…';
+  try { const d = await muApi('/music/list', {}, code); MU.code = code; store.set('mcode', code); $('#muCode').value = ''; $('#muGateNote').textContent = ''; muList(d); }
+  catch (e) { $('#muGateNote').textContent = e.message; muShow('muGate'); }
+}
+function muList(d) {
+  $('#muWho').textContent = `Вы вошли как: ${d.who}`;
+  $('#muList').innerHTML = d.songs.length ? d.songs.map(x => `<button type="button" class="mu-item" data-id="${esc(x.id)}"><span class="mu-disc" aria-hidden="true"></span>
+    <span><b>${esc(x.title)}</b><small>${esc([x.artist, x.year].filter(Boolean).join(' · '))}</small></span></button>`).join('') : '<p class="note">Песен пока нет.</p>';
+  $$('#muList .mu-item').forEach(b => b.onclick = () => muOpen(b.dataset.id));
+  muShow('muLib');
+}
+async function muOpen(id) {
+  try { MU.song = await muApi('/music/song/' + encodeURIComponent(id)); }
+  catch (e) { $('#muWho').textContent = e.message; return; }
+  const s = MU.song;
+  $('#muTitle').innerHTML = `<b>${esc(s.title)}</b> <span class="meta">${esc([s.artist, s.year].filter(Boolean).join(' · '))}</span>`;
+  $('#muSource').innerHTML = `Источник: <a href="https://www.youtube.com/watch?v=${esc(s.yt)}" target="_blank" rel="noopener">клип на YouTube</a>${s.artist ? ' · ' + esc(s.artist) : ''}${s.year ? ', ' + esc(s.year) : ''}. Материал только для учебных целей курса — не распространяйте текст за его пределами.`;
+  $('#muMarkBtn').hidden = !MU.admin; $('#muMark').hidden = true; MU.mark = null;
+  muLines(); muShow('muSong'); scrollTo(0, 0); muPlayer(s.yt);
+}
+function muLines() {
+  const lines = MU.song.lines, t = MU.mark ? MU.mark.t : lines.map(l => l.t);
+  $('#muLines').innerHTML = lines.map((l, i) => l.sec && !l.jp ? `<div class="mu-sec">${esc(l.sec)}</div>` : `<div class="mu-row${t[i] == null ? ' no-t' : ''}" data-i="${i}" role="button" tabindex="0">
+    <div class="mu-jp jp">${l.furi ? rubyAlways(l.furi) : esc(l.jp)}</div>
+    <div class="mu-tr">${l.ru ? `<div class="mu-ru">${esc(l.ru)}</div>` : ''}${l.note ? `<div class="mu-note">${esc(l.note)}</div>` : ''}${l.words?.length ? `<div class="mu-words">${l.words.map(([w, r, m, les]) =>
+      `<span><b class="jp">${esc(w)}</b>${r ? ` <span class="jp">${esc(r)}</span>` : ''} — ${esc(m)}${les ? ` <span class="tb">ур. ${les}</span>` : ''}</span>`).join('')}</div>` : ''}</div></div>`).join('');
+  $$('#muLines .mu-row').forEach(r => {
+    const go = () => { const at = (MU.mark ? MU.mark.t : MU.song.lines.map(l => l.t))[+r.dataset.i]; if (at != null && MU.player?.seekTo) { MU.player.seekTo(at, true); MU.player.playVideo(); } };
+    r.onclick = go; r.onkeydown = e => { if (e.key === 'Enter') go(); };
+  });
+  MU.cur = -1;
+}
+let ytReady = null;
+function loadYT() {
+  return ytReady ||= new Promise((resolve, reject) => {
+    window.onYouTubeIframeAPIReady = resolve;
+    const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api';
+    sc.onerror = () => { ytReady = null; reject(); }; document.head.append(sc);
+  });
+}
+async function muPlayer(yt) {
+  try { await loadYT(); } catch { $('#muSource').textContent = 'Не удалось загрузить плеер YouTube — проверьте интернет.'; return; }
+  if (MU.player?.cueVideoById) MU.player.cueVideoById(yt);
+  else MU.player = new YT.Player('muPlayer', { videoId: yt, playerVars: { playsinline: 1, rel: 0 } });
+  clearInterval(MU.timer); MU.timer = setInterval(muTick, 250);
+}
+function muTick() {
+  const p = MU.player; if (!p?.getCurrentTime || !MU.song) return;
+  const now = p.getCurrentTime(), t = MU.mark ? MU.mark.t : MU.song.lines.map(l => l.t);
+  let idx = -1; t.forEach((x, i) => { if (x != null && x <= now + 0.15) idx = i; });
+  if (idx === MU.cur) return;
+  MU.cur = idx;
+  $$('#muLines .mu-row').forEach(r => r.classList.toggle('on', +r.dataset.i === idx));
+  const row = $(`#muLines .mu-row[data-i="${idx}"]`);
+  if (row && $('#muFollow').checked && p.getPlayerState?.() === 1) row.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+function muStop() { clearInterval(MU.timer); MU.timer = null; try { MU.player?.pauseVideo?.(); } catch { /* плеера ещё нет */ } }
+// Разметка: преподаватель нажимает кнопку в начале каждой строки, время сохраняется в песню.
+const muSingable = () => MU.song.lines.map((l, i) => l.jp ? i : -1).filter(i => i >= 0);
+function muMarkShow() {
+  const order = muSingable(), k = MU.mark.k, i = order[k];
+  $('#muMarkNext').innerHTML = i == null ? 'Все строки размечены — сохраните разметку.' : `Строка ${k + 1} из ${order.length}: <span class="jp">${esc(MU.song.lines[i].jp)}</span>`;
+  $('#muMarkHit').disabled = i == null;
+}
+function bindMusic() {
+  $('#muEnter').onclick = muEnter; onEnter($('#muCode'), muEnter);
+  $('#muLogout').onclick = () => { MU.code = ''; store.set('mcode', ''); muStop(); muShow('muGate'); };
+  $('#muBack').onclick = () => { muStop(); muEnter(); };
+  $('#muAdminCode').value = MU.admin;
+  $('#muAdminSave').onclick = () => { MU.admin = $('#muAdminCode').value.trim(); store.set('madmin', MU.admin); $('#muAdminNote').textContent = MU.admin ? 'Код сохранён в этом браузере.' : 'Код удалён.'; $('#muMarkBtn').hidden = !MU.admin || !MU.song; };
+  $('#muUpload').onclick = async () => {
+    let song; try { song = JSON.parse($('#muJson').value); } catch { $('#muAdminNote').textContent = 'Это не JSON — проверьте, что текст вставлен целиком.'; return; }
+    if (!MU.admin) { $('#muAdminNote').textContent = 'Сначала сохраните код преподавателя.'; return; }
+    $('#muAdminNote').textContent = 'Загружаю…';
+    try { const d = await muApi('/music/admin/song', { method: 'POST', body: JSON.stringify(song) }, MU.admin); $('#muAdminNote').textContent = `Загружено: ${d.saved}, строк — ${d.lines}.`; $('#muJson').value = ''; if (MU.code) muEnter(); }
+    catch (e) { $('#muAdminNote').textContent = e.message; }
+  };
+  $('#muMarkBtn').onclick = () => { MU.mark = { k: 0, t: MU.song.lines.map(() => null) }; $('#muMark').hidden = false; muLines(); muMarkShow(); };
+  $('#muMarkHit').onclick = () => {
+    const i = muSingable()[MU.mark.k]; if (i == null || !MU.player?.getCurrentTime) return;
+    MU.mark.t[i] = Math.max(0, Math.round((MU.player.getCurrentTime() - 0.3) * 10) / 10); MU.mark.k++;
+    $(`#muLines .mu-row[data-i="${i}"]`)?.classList.remove('no-t'); muMarkShow();
+  };
+  $('#muMarkUndo').onclick = () => { if (MU.mark.k > 0) { MU.mark.k--; MU.mark.t[muSingable()[MU.mark.k]] = null; muLines(); muMarkShow(); } };
+  $('#muMarkCancel').onclick = () => { MU.mark = null; $('#muMark').hidden = true; muLines(); };
+  $('#muMarkSave').onclick = async () => {
+    const song = { ...MU.song, lines: MU.song.lines.map((l, i) => MU.mark.t[i] == null ? l : { ...l, t: MU.mark.t[i] }) };
+    $('#muMarkNote').textContent = 'Сохраняю…';
+    try { await muApi('/music/admin/song', { method: 'POST', body: JSON.stringify(song) }, MU.admin); MU.song = song; MU.mark = null; $('#muMark').hidden = true; muLines(); $('#muMarkNote').textContent = ''; }
+    catch (e) { $('#muMarkNote').textContent = e.message; }
+  };
+  document.addEventListener('keydown', e => {
+    if (!MU.mark || $('#muMark').hidden || e.key !== ' ' || e.target.closest('input, textarea, select, button')) return;
+    e.preventDefault(); $('#muMarkHit').click();
+  });
+}
+
 // ---------- навигация ----------
 const INIT = {
   cards() { renderDecks(); },
   forms() { buildGroupToggles(); nextForm(); },
   particles() { nextParticle(); }, speak() { nextSpeak(); }, listen() { nextListen(); }, read() { nextRead(); },
+  music() { bindMusic(); if (MU.code) muEnter(); else muShow('muGate'); },
   chat() {
     $$('#scen button').forEach(b => b.onclick = () => { C.mode = b.dataset.cm; store.set('chatMode', C.mode); resetChat(); });
     resetChat();
@@ -3673,7 +3893,7 @@ const INIT = {
 const started = {};
 const MODES = Object.keys(INIT);
 // ---------- оформление: окна Windows 95, часы на панели задач ----------
-const WIN = { cards: '暗記.exe — Карточки', forms: '活用.exe — Формы', particles: '助詞.exe — Частицы', speak: '話す.exe — Скажи', listen: '聞く.exe — Слушай', read: '読む.exe — Чтение', chat: '会話.exe — Собеседник', map: '地図.txt — Карта грамматики' };
+const WIN = { cards: '暗記.exe — Карточки', forms: '活用.exe — Формы', particles: '助詞.exe — Частицы', speak: '話す.exe — Скажи', listen: '聞く.exe — Слушай', read: '読む.exe — Чтение', chat: '会話.exe — Собеседник', music: '音楽.exe — Музыка', map: '地図.txt — Карта грамматики' };
 const winbar = title => `<div class="titlebar" aria-hidden="true"><span class="ttl">${esc(title)}</span><span class="wbtns"><i>_</i><i>□</i><i>×</i></span></div>`;
 function winify() {
   for (const sec of $$('.mode')) {
@@ -3691,7 +3911,7 @@ function applyPlain() {
   $('#optPlain').checked = on;
 }
 // Учебники: пока один. Выбор живёт до конца сеанса, сменить — кнопкой в шапке или START.
-const BOOKS = { shoho: '日本語初歩' };
+const BOOKS = { shoho: '日本語初歩', music: 'Музыка' };
 // Выбор уроков после учебника: первое касание — начало диапазона, второе — конец.
 const LP = { a: 1, b: 34, anchor: null };
 function showLessonPick() { LP.a = S.from; LP.b = S.to; LP.anchor = null; renderLessonPick(); $('#lessonPick').hidden = false; $('#lpGo').focus(); }
@@ -3711,13 +3931,19 @@ function renderLessonPick() {
     + (LP.anchor !== null ? ' · теперь нажмите последний урок (или «Открыть учебник»)' : '');
   $('#lpGo').textContent = `Открыть учебник · ${LP.a === LP.b ? 'урок ' + LP.a : 'уроки ' + LP.a + '–' + LP.b}`;
 }
+function setBookChip(id) { $('#curBook b').textContent = BOOKS[id]; $('#curBook small').textContent = id === 'music' ? 'раздел' : 'учебник'; }
 function showPicker() { $('#picker').hidden = false; $('#picker .book')?.focus(); }
 function bindPicker() {
   $$('#picker .book').forEach(b => b.onclick = () => {
     try { sessionStorage.setItem('shoho.book', b.dataset.book); } catch { /* без памяти — спросим снова в следующий раз */ }
-    $('#curBook b').textContent = BOOKS[b.dataset.book];
+    setBookChip(b.dataset.book);
     $('#picker').hidden = true; showLessonPick();
   });
+  $$('#picker .fun').forEach(b => b.onclick = () => {
+    try { sessionStorage.setItem('shoho.book', b.dataset.fun); } catch { /* без памяти */ }
+    setBookChip(b.dataset.fun); $('#picker').hidden = true; location.hash = '#music';
+  });
+  try { const cur = sessionStorage.getItem('shoho.book'); if (BOOKS[cur]) setBookChip(cur); } catch { /* без памяти */ }
   $('#lpAll').onclick = () => { LP.a = 1; LP.b = 34; LP.anchor = null; renderLessonPick(); };
   $('#lpGo').onclick = () => {
     S.from = LP.a; S.to = LP.b; store.set('from', LP.a); store.set('to', LP.b);
@@ -3739,6 +3965,7 @@ function show(mode) {
   if (!MODES.includes(mode)) mode = 'cards';
   const ex = EX.includes(mode), tab = ex ? 'ex' : mode;
   if (ex) store.set('exMode', mode);
+  if (mode !== 'music' && started.music) muStop();
   $$('.mode').forEach(s => { s.hidden = s.id !== 'm-' + mode; });
   $('#exNav').hidden = !ex;
   $$('#exNav a').forEach(a => a.setAttribute('aria-current', a.dataset.sub === mode ? 'page' : 'false'));
