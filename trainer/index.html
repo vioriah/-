@@ -3969,6 +3969,8 @@ class FilmPlayer {
     this.v.addEventListener('loadedmetadata', () => { this.dur[this.part] = this.v.duration; });
     this.v.addEventListener('ended', () => { if (this.part < this.urls.length - 1) this.load(this.part + 1, 0, true); });
     this.v.addEventListener('error', () => this.onError?.());
+    // iPad не всегда сообщает об ошибке: если после «Пуск» за 15 с не пришли даже сведения о видео — проверяем связь.
+    this.v.addEventListener('play', () => { clearTimeout(this.wait); this.wait = setTimeout(() => { if (this.v.readyState < 1) this.onError?.(); }, 15000); });
     urls.forEach((u, i) => { if (!i) return; const m = document.createElement('video'); m.preload = 'metadata'; m.muted = true;
       m.onloadedmetadata = () => { this.dur[i] = m.duration; m.removeAttribute('src'); m.load(); }; m.src = u; });
     this.load(0, 0, false);
@@ -3994,13 +3996,27 @@ async function muFilmUrls(s) {
   const { exp, sig } = await muApi('/music/ticket/' + encodeURIComponent(s.id));
   return s.parts.map(p => `${PROXY_URL}/film/${encodeURIComponent(s.id)}/${encodeURIComponent(p.file)}?exp=${exp}&sig=${encodeURIComponent(sig)}`);
 }
+// Почему не грузится часть фильма: запрашиваем у посредника первые байты и показываем его ответ.
+async function muFilmCheck(url) {
+  try {
+    const r = await fetch(url, { headers: { range: 'bytes=0-1' } });
+    if (!r.ok) { const d = await r.json().catch(() => null); return { status: r.status, msg: `Видео не загрузилось (${r.status}): ${d?.error?.message || r.statusText}` }; }
+    return { status: r.status, msg: `Хранилище отвечает (${r.status}, ${r.headers.get('content-type') || 'тип не указан'}), но браузер не смог открыть видео: возможно, этот браузер не поддерживает формат файла. Попробуйте Safari или компьютер.` };
+  } catch (e) { return { status: 0, msg: 'Нет связи с посредником: ' + (e.message || e) }; }
+}
 async function muFilm(s) {
   const box = muScreen();
   let urls; try { urls = await muFilmUrls(s); } catch (e) { $('#muSource').textContent = e.message; return; }
   const p = MU.player = new FilmPlayer(box, urls);
+  let renewed = false;
   p.onError = async () => {
     const at = p.v.currentTime, playing = !p.v.paused;
-    try { p.urls = await muFilmUrls(s); p.load(p.part, at, playing); } catch (e) { $('#muSource').textContent = e.message; }
+    const { status, msg } = await muFilmCheck(p.urls[p.part]);
+    if (status === 403 && !renewed) {   // подпись устарела — один раз берём новую
+      renewed = true;
+      try { p.urls = await muFilmUrls(s); p.load(p.part, at, playing); return; } catch (e) { $('#muSource').textContent = e.message; return; }
+    }
+    if (MU.player === p) $('#muSource').textContent = msg;
   };
   clearInterval(MU.timer); MU.timer = setInterval(muTick, 250);
 }

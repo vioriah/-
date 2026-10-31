@@ -75,7 +75,7 @@ async function b2auth(env, force) {
 }
 
 // Часть фильма: проверяем подпись и что файл действительно из этого фильма, затем отдаём из B2 с поддержкой перемотки (Range).
-async function filmStream(req, env, id, file, url, fail) {
+async function filmStream(req, env, id, file, url, fail, cors) {
   const exp = Number(url.searchParams.get('exp'));
   if (!exp || exp < Date.now() / 1000 || url.searchParams.get('sig') !== await sign(env, id + '.' + exp)) return fail(403, 'permission_error', 'Ссылка на фильм устарела — откройте фильм заново.');
   const film = JSON.parse(await env.MUSIC.get('song:' + id) || 'null');
@@ -88,10 +88,27 @@ async function filmStream(req, env, id, file, url, fail) {
   };
   let res;
   try { res = await get(false); if (res.status === 401) res = await get(true); }
-  catch (e) { return fail(502, 'api_error', String(e.message || e)); }
+  catch (e) { console.log('film b2 error', String(e.message || e)); return fail(502, 'api_error', String(e.message || e)); }
+  if (!res.ok) {
+    // Ошибку B2 переводим в понятное сообщение: его покажет страница фильма.
+    const b2 = await res.json().catch(() => ({}));
+    console.log('film b2', res.status, b2.code, b2.message, file);
+    const why = res.status === 404 ? `В хранилище «${env.B2_BUCKET}» нет файла «${file}». Проверьте имя файла (с учётом регистра) и секрет B2_BUCKET.`
+      : b2.code === 'download_cap_exceeded' ? 'Исчерпан дневной лимит скачивания B2 (Caps & Alerts). Завтра лимит обновится, или его можно поднять в B2.'
+      : b2.code === 'transaction_cap_exceeded' ? 'Исчерпан дневной лимит запросов B2 (Caps & Alerts).'
+      : res.status === 401 || res.status === 403 ? `B2 не пускает к файлу (${b2.code || res.status}): у ключа нет доступа к хранилищу «${env.B2_BUCKET}» или ключ заменён.`
+      : `B2 ответил ошибкой ${res.status}: ${b2.message || b2.code || ''}`;
+    return fail(res.status === 416 ? 416 : 502, 'api_error', why);
+  }
   const out = new Headers();
   for (const h of ['content-type', 'content-length', 'content-range', 'accept-ranges', 'etag', 'last-modified']) if (res.headers.get(h)) out.set(h, res.headers.get(h));
+  // Без точного типа iPad не берётся играть файл: подставляем тип по расширению, если B2 его не знает.
+  const ext = file.split('.').pop().toLowerCase(), types = { mov: 'video/quicktime', mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm' };
+  if (types[ext] && !/^video\//.test(out.get('content-type') || '')) out.set('content-type', types[ext]);
+  out.set('accept-ranges', 'bytes');
   out.set('cache-control', 'private, max-age=3600');
+  for (const [k, v] of Object.entries(cors)) out.set(k, v);
+  out.set('access-control-expose-headers', 'content-type, content-length, content-range');
   return new Response(res.body, { status: res.status, headers: out });
 }
 
@@ -148,7 +165,7 @@ export default {
     const cors = {
       'access-control-allow-origin': allowed.includes(origin) ? origin : allowed[0],
       'access-control-allow-methods': 'GET, POST, OPTIONS',
-      'access-control-allow-headers': req.headers.get('access-control-request-headers') || 'content-type, x-access-code',
+      'access-control-allow-headers': req.headers.get('access-control-request-headers') || 'content-type, x-access-code, range',
       'access-control-max-age': '86400',
       vary: 'origin',
     };
@@ -161,7 +178,7 @@ export default {
     const fs = path.match(/^\/film\/([a-z0-9-]{1,60})\/([^/]{1,200})$/);
     if (fs && (req.method === 'GET' || req.method === 'HEAD')) {
       if (!env.MUSIC || !env.B2_BUCKET) return fail(500, 'api_error', 'Кино не настроено в посреднике.');
-      return filmStream(req, env, fs[1], decodeURIComponent(fs[2]), url, fail);
+      return filmStream(req, env, fs[1], decodeURIComponent(fs[2]), url, fail, cors);
     }
     if (path.startsWith('/music/')) {
       if (!allowed.includes(origin)) return fail(403, 'permission_error', 'Запросы принимаются только с сайта тренажёра.');
