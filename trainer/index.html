@@ -366,14 +366,13 @@ button.start:active { box-shadow: var(--in); }
 .shelf-title { margin: 8px 0 0; padding-top: 14px; width: 100%; font-size: 18px; font-weight: 700; }
 .tt-icon { width: 184px; height: 152px; }
 .fun .book-label { font-family: var(--f-ui); font-weight: 600; }
+.bookchip b.ui { font-family: var(--f-ui); }
 .mu-lbl { font-weight: 600; }
 .mu-list { display: grid; gap: 8px; }
 .mu-item { display: flex; align-items: center; gap: 14px; text-align: left; padding: 10px 14px; cursor: pointer; font: inherit; color: var(--ink); }
 .mu-item b { display: block; font-size: 18px; } .mu-item small { font-size: 13px; color: var(--muted); }
 .mu-disc { flex: none; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, #ffd1e0 0 8%, #ff7aa6 9% 24%, #141218 25% 40%, #2c2a36 41% 43%, #141218 44% 62%, #2c2a36 63% 65%, #141218 66%); }
 .mu-title { font-size: 18px; } .mu-title .meta { margin-left: 6px; }
-.mu-video { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; width: 100%; max-width: 560px; justify-self: center; aspect-ratio: 16 / 9; background: #000; }
-.mu-video iframe, #muPlayer { display: block; width: 100%; height: 100%; border: 0; }
 .mu-lines { display: grid; gap: 2px; }
 .mu-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding: 8px 10px; cursor: pointer; }
 .mu-row.no-t { cursor: default; }
@@ -392,7 +391,48 @@ button.start:active { box-shadow: var(--in); }
 .mu-row.on { background: var(--ai-soft); box-shadow: var(--in); }
 .mu-mark { box-shadow: var(--in); background: var(--chip); }
 .mu-json { border: 0; box-shadow: var(--in); }
-.mu-video { box-shadow: var(--out), 4px 4px 0 var(--shadow); padding: 3px; }
+
+/* Сцена песни: поток строк слева, разбор справа */
+.mu-stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; min-height: 230px; }
+.mu-flow { display: grid; align-content: center; gap: 6px; padding: 14px 16px; text-align: center; overflow: hidden; }
+.mf-sec { font-size: 12px; color: var(--ai); font-weight: 700; letter-spacing: .04em; }
+.mf-prev, .mf-next { font-size: 15px; line-height: 1.7; color: var(--muted); opacity: .75; min-height: 1.7em; }
+.mf-cur { font-size: clamp(22px, 3.4vw, 32px); line-height: 1.8; min-height: 1.8em; overflow-wrap: anywhere; text-wrap: balance; word-break: keep-all; }
+.mu-expl { display: grid; gap: 8px; align-content: start; padding: 14px 16px; min-width: 0; }
+.mx-ru { font-size: 19px; font-weight: 600; text-wrap: balance; }
+.mx-note { font-size: 14px; line-height: 1.55; }
+.mx-words { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); }
+.mx-words .jp { color: var(--ink); } .mx-words .tb { font-size: 11px; }
+.mu-steps { justify-content: center; }
+.mu-all > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.mu-all .mu-lines { margin-top: 8px; }
+@media (prefers-reduced-motion: no-preference) {
+  .mf-cur.swap { animation: lyr .24s steps(3) both; }
+  @keyframes lyr { from { transform: translateY(10px); opacity: .3; } to { transform: none; opacity: 1; } }
+}
+@media (max-width: 640px) { .mu-stage { grid-template-columns: 1fr; min-height: 0; } .mu-flow { min-height: 170px; } }
+.mu-flow, .mu-expl { background: var(--card); box-shadow: var(--in); }
+/* Аналоговый телевизор: деревянный корпус, выпуклый экран с развёрткой, ручки и динамик */
+.tv { position: relative; justify-self: center; width: min(100%, 640px); padding-top: 34px; }
+.tv-ant { position: absolute; top: 0; left: 50%; width: 120px; height: 38px; transform: translateX(-50%); }
+.tv-ant::before, .tv-ant::after { content: ""; position: absolute; bottom: 4px; left: 50%; width: 4px; height: 44px; background: #2a2433; transform-origin: bottom center; }
+.tv-ant::before { transform: rotate(-38deg); } .tv-ant::after { transform: rotate(38deg); }
+.tv-body { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; padding: 16px; background: #8a4f26;
+  border: 4px solid #3b1d0c; box-shadow: inset 3px 3px 0 #b06a38, inset -3px -3px 0 #5e3216, 6px 6px 0 var(--shadow); }
+.tv-body::before { content: ""; position: absolute; top: -12px; left: 50%; width: 46px; height: 12px; transform: translateX(-50%); background: #3b1d0c; }
+.tv-screen { position: relative; aspect-ratio: 16 / 9; padding: 10px; background: #26232c; border-radius: 22px / 28px; box-shadow: inset 0 0 0 3px #15131a, inset 0 0 0 6px #3a3642; }
+.tv-screen #muPlayer, .tv-screen iframe { display: block; width: 100%; height: 100%; border: 0; border-radius: 16px / 22px; background: #000; }
+.tv-screen::after { content: ""; position: absolute; inset: 10px; border-radius: 16px / 22px; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, .14) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, .10), transparent 55%); }
+.tv-side { display: grid; justify-items: center; align-content: start; gap: 12px; width: 62px; padding-top: 6px; }
+.tv-knob { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #f3e6d2 0 30%, #b7a48a 31% 62%, #5a4a38 63%); box-shadow: 2px 2px 0 #3b1d0c; position: relative; }
+.tv-knob::after { content: ""; position: absolute; left: 50%; top: 4px; width: 3px; height: 12px; margin-left: -1px; background: #3b1d0c; }
+.tv-knob + .tv-knob::after { transform: rotate(60deg); transform-origin: 50% 14px; }
+.tv-grille { width: 46px; height: 54px; background: repeating-linear-gradient(0deg, #3b1d0c 0 3px, #6e3c1c 3px 6px); box-shadow: inset 0 0 0 2px #3b1d0c; }
+.tv-led { width: 8px; height: 8px; background: #9fe060; box-shadow: 0 0 0 2px #3b1d0c; }
+.tv-feet { display: flex; justify-content: space-between; padding: 0 12%; }
+.tv-feet::before, .tv-feet::after { content: ""; width: 16px; height: 14px; background: #3b1d0c; }
+@media (max-width: 640px) { .tv-body { gap: 8px; padding: 10px; } .tv-side { width: 34px; gap: 8px; } .tv-knob { width: 24px; height: 24px; } .tv-grille { width: 26px; height: 34px; } }
 </style>
 
 <style id="css-plain" media="not all">
@@ -662,14 +702,13 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .shelf-title { margin: 8px 0 0; padding-top: 14px; width: 100%; font-size: 18px; font-weight: 700; }
 .tt-icon { width: 184px; height: 152px; }
 .fun .book-label { font-family: var(--f-ui); font-weight: 600; }
+.bookchip b.ui { font-family: var(--f-ui); }
 .mu-lbl { font-weight: 600; }
 .mu-list { display: grid; gap: 8px; }
 .mu-item { display: flex; align-items: center; gap: 14px; text-align: left; padding: 10px 14px; cursor: pointer; font: inherit; color: var(--ink); }
 .mu-item b { display: block; font-size: 18px; } .mu-item small { font-size: 13px; color: var(--muted); }
 .mu-disc { flex: none; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, #ffd1e0 0 8%, #ff7aa6 9% 24%, #141218 25% 40%, #2c2a36 41% 43%, #141218 44% 62%, #2c2a36 63% 65%, #141218 66%); }
 .mu-title { font-size: 18px; } .mu-title .meta { margin-left: 6px; }
-.mu-video { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; width: 100%; max-width: 560px; justify-self: center; aspect-ratio: 16 / 9; background: #000; }
-.mu-video iframe, #muPlayer { display: block; width: 100%; height: 100%; border: 0; }
 .mu-lines { display: grid; gap: 2px; }
 .mu-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding: 8px 10px; cursor: pointer; }
 .mu-row.no-t { cursor: default; }
@@ -689,7 +728,31 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .mu-row.on { background: var(--ai-soft); border-left-color: var(--ai); }
 .mu-mark { border: 1px solid var(--line); border-radius: 8px; background: var(--chip); }
 .mu-json { border: 1px solid var(--line); border-radius: 8px; }
-.mu-video { border-radius: 8px; overflow: hidden; }
+
+/* Сцена песни: поток строк слева, разбор справа */
+.mu-stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; min-height: 230px; }
+.mu-flow { display: grid; align-content: center; gap: 6px; padding: 14px 16px; text-align: center; overflow: hidden; }
+.mf-sec { font-size: 12px; color: var(--ai); font-weight: 700; letter-spacing: .04em; }
+.mf-prev, .mf-next { font-size: 15px; line-height: 1.7; color: var(--muted); opacity: .75; min-height: 1.7em; }
+.mf-cur { font-size: clamp(22px, 3.4vw, 32px); line-height: 1.8; min-height: 1.8em; overflow-wrap: anywhere; text-wrap: balance; word-break: keep-all; }
+.mu-expl { display: grid; gap: 8px; align-content: start; padding: 14px 16px; min-width: 0; }
+.mx-ru { font-size: 19px; font-weight: 600; text-wrap: balance; }
+.mx-note { font-size: 14px; line-height: 1.55; }
+.mx-words { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); }
+.mx-words .jp { color: var(--ink); } .mx-words .tb { font-size: 11px; }
+.mu-steps { justify-content: center; }
+.mu-all > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.mu-all .mu-lines { margin-top: 8px; }
+@media (prefers-reduced-motion: no-preference) {
+  .mf-cur.swap { animation: lyr .24s steps(3) both; }
+  @keyframes lyr { from { transform: translateY(10px); opacity: .3; } to { transform: none; opacity: 1; } }
+}
+@media (max-width: 640px) { .mu-stage { grid-template-columns: 1fr; min-height: 0; } .mu-flow { min-height: 170px; } }
+.mu-flow, .mu-expl { background: var(--chip); border-radius: var(--radius); }
+.tv { justify-self: center; width: min(100%, 640px); }
+.tv-ant, .tv-side, .tv-feet { display: none; }
+.tv-screen { aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; background: #000; }
+.tv-screen #muPlayer, .tv-screen iframe { display: block; width: 100%; height: 100%; border: 0; }
 </style>
 <script>
 // Оформление выбирается до отрисовки страницы, чтобы она не мигала чужим стилем.
@@ -932,8 +995,19 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
     </div>
     <div class="sheet" id="muSong" hidden>
       <div class="row"><button class="btn" id="muBack" type="button">← К списку песен</button><div class="mu-title" id="muTitle"></div></div>
-      <div class="mu-video"><div id="muPlayer"></div></div>
-      <div class="row"><label class="toggle" for="muFollow"><input type="checkbox" id="muFollow" checked> следить за песней</label><button class="btn ghost" id="muMarkBtn" type="button" hidden>Разметить время строк</button></div>
+      <div class="tv">
+        <div class="tv-ant" aria-hidden="true"></div>
+        <div class="tv-body">
+          <div class="tv-screen"><div id="muPlayer"></div></div>
+          <div class="tv-side" aria-hidden="true"><i class="tv-knob"></i><i class="tv-knob"></i><span class="tv-grille"></span><span class="tv-led"></span></div>
+        </div>
+        <div class="tv-feet" aria-hidden="true"></div>
+      </div>
+      <div class="mu-stage">
+        <div class="mu-flow" id="muFlow" aria-live="polite"></div>
+        <div class="mu-expl" id="muExpl" aria-live="polite"></div>
+      </div>
+      <div class="row mu-steps"><button class="btn" id="muPrev" type="button" aria-label="Предыдущая строка">◀ строка</button><button class="btn" id="muNext" type="button" aria-label="Следующая строка">строка ▶</button><button class="btn ghost" id="muMarkBtn" type="button" hidden>Разметить время строк</button></div>
       <div class="mu-mark" id="muMark" hidden>
         <p class="note">Включите клип и нажимайте кнопку (или пробел) в момент, когда начинается каждая строка.</p>
         <div class="mu-next" id="muMarkNext"></div>
@@ -941,7 +1015,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
         <div class="row"><button class="btn" id="muMarkUndo" type="button">Шаг назад</button><button class="btn primary" id="muMarkSave" type="button">Сохранить разметку</button><button class="btn ghost" id="muMarkCancel" type="button">Отмена</button></div>
         <p class="note" id="muMarkNote"></p>
       </div>
-      <div class="mu-lines" id="muLines"></div>
+      <details class="mu-all"><summary>Весь текст песни</summary><div class="mu-lines" id="muLines"></div></details>
       <p class="note" id="muSource"></p>
     </div>
     <details class="settings" id="muAdmin">
@@ -3808,10 +3882,35 @@ function muLines() {
     <div class="mu-tr">${l.ru ? `<div class="mu-ru">${esc(l.ru)}</div>` : ''}${l.note ? `<div class="mu-note">${esc(l.note)}</div>` : ''}${l.words?.length ? `<div class="mu-words">${l.words.map(([w, r, m, les]) =>
       `<span><b class="jp">${esc(w)}</b>${r ? ` <span class="jp">${esc(r)}</span>` : ''} — ${esc(m)}${les ? ` <span class="tb">ур. ${les}</span>` : ''}</span>`).join('')}</div>` : ''}</div></div>`).join('');
   $$('#muLines .mu-row').forEach(r => {
-    const go = () => { const at = (MU.mark ? MU.mark.t : MU.song.lines.map(l => l.t))[+r.dataset.i]; if (at != null && MU.player?.seekTo) { MU.player.seekTo(at, true); MU.player.playVideo(); } };
+    const go = () => { const i = +r.dataset.i, at = (MU.mark ? MU.mark.t : MU.song.lines.map(l => l.t))[i]; if (at != null && MU.player?.seekTo) { MU.player.seekTo(at, true); MU.player.playVideo(); } MU.cur = i; muStage(i); };
     r.onclick = go; r.onkeydown = e => { if (e.key === 'Enter') go(); };
   });
-  MU.cur = -1;
+  MU.cur = -1; muStage(-1);
+}
+// Сцена: слева поток строк (предыдущая · текущая · следующая), справа перевод и разбор текущей строки.
+const muSing = () => MU.song.lines.map((l, i) => l.jp ? i : -1).filter(i => i >= 0);
+const muFuri = l => l.furi ? rubyAlways(l.furi) : esc(l.jp);
+function muStage(i) {
+  const L = MU.song.lines, order = muSing();
+  const pos = order.indexOf(i), cur = pos >= 0 ? i : -1;
+  const prev = pos > 0 ? order[pos - 1] : null, next = pos >= 0 ? order[pos + 1] : order[0];
+  let sec = ''; for (let k = 0; k <= Math.max(cur, 0); k++) if (L[k].sec) sec = L[k].sec;
+  $('#muFlow').innerHTML = `<div class="mf-sec">${esc(cur >= 0 ? sec : 'Включите клип — строки пойдут в такт музыке')}</div>
+    <div class="mf-prev jp">${prev != null ? muFuri(L[prev]) : ''}</div>
+    <div class="mf-cur jp">${cur >= 0 ? muFuri(L[cur]) : ''}</div>
+    <div class="mf-next jp">${next != null ? muFuri(L[next]) : ''}</div>`;
+  const l = L[cur];
+  $('#muExpl').innerHTML = !l ? '<div class="mx-ru">Перевод и разбор появятся здесь вместе со строкой.</div>' :
+    `${l.ru ? `<div class="mx-ru">${esc(l.ru)}</div>` : ''}${l.note ? `<div class="mx-note">${esc(l.note)}</div>` : ''}${l.words?.length ? `<div class="mx-words">${l.words.map(([w, r, m, les]) =>
+      `<span><b class="jp">${esc(w)}</b>${r ? ` <span class="jp">${esc(r)}</span>` : ''} — ${esc(m)}${les ? ` <span class="tb">ур. ${les}</span>` : ''}</span>`).join('')}</div>` : ''}`;
+  $('#muFlow .mf-cur').classList.add('swap');
+  $$('#muLines .mu-row').forEach(r => r.classList.toggle('on', +r.dataset.i === cur));
+}
+function muStep(d) {
+  const order = muSing(), pos = order.indexOf(MU.cur), i = order[Math.min(order.length - 1, Math.max(0, pos + d))];
+  const at = (MU.mark ? MU.mark.t : MU.song.lines.map(l => l.t))[i];
+  if (at != null && MU.player?.seekTo) MU.player.seekTo(at, true);
+  MU.cur = i; muStage(i);
 }
 let ytReady = null;
 function loadYT() {
@@ -3831,17 +3930,15 @@ function muTick() {
   const p = MU.player; if (!p?.getCurrentTime || !MU.song) return;
   const now = p.getCurrentTime(), t = MU.mark ? MU.mark.t : MU.song.lines.map(l => l.t);
   let idx = -1; t.forEach((x, i) => { if (x != null && x <= now + 0.15) idx = i; });
-  if (idx === MU.cur) return;
-  MU.cur = idx;
-  $$('#muLines .mu-row').forEach(r => r.classList.toggle('on', +r.dataset.i === idx));
-  const row = $(`#muLines .mu-row[data-i="${idx}"]`);
-  if (row && $('#muFollow').checked && p.getPlayerState?.() === 1) row.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  if (idx === MU.cur || (idx < 0 && p.getPlayerState?.() !== 1)) return;
+  MU.cur = idx; muStage(idx);
 }
 function muStop() { clearInterval(MU.timer); MU.timer = null; try { MU.player?.pauseVideo?.(); } catch { /* плеера ещё нет */ } }
 // Разметка: преподаватель нажимает кнопку в начале каждой строки, время сохраняется в песню.
-const muSingable = () => MU.song.lines.map((l, i) => l.jp ? i : -1).filter(i => i >= 0);
+const muSingable = muSing;
 function muMarkShow() {
   const order = muSingable(), k = MU.mark.k, i = order[k];
+  if (i != null) { MU.cur = i; muStage(i); }
   $('#muMarkNext').innerHTML = i == null ? 'Все строки размечены — сохраните разметку.' : `Строка ${k + 1} из ${order.length}: <span class="jp">${esc(MU.song.lines[i].jp)}</span>`;
   $('#muMarkHit').disabled = i == null;
 }
@@ -3849,6 +3946,7 @@ function bindMusic() {
   $('#muEnter').onclick = muEnter; onEnter($('#muCode'), muEnter);
   $('#muLogout').onclick = () => { MU.code = ''; store.set('mcode', ''); muStop(); muShow('muGate'); };
   $('#muBack').onclick = () => { muStop(); muEnter(); };
+  $('#muPrev').onclick = () => muStep(-1); $('#muNext').onclick = () => muStep(1);
   $('#muAdminCode').value = MU.admin;
   $('#muAdminSave').onclick = () => { MU.admin = $('#muAdminCode').value.trim(); store.set('madmin', MU.admin); $('#muAdminNote').textContent = MU.admin ? 'Код сохранён в этом браузере.' : 'Код удалён.'; $('#muMarkBtn').hidden = !MU.admin || !MU.song; };
   $('#muUpload').onclick = async () => {
@@ -3931,7 +4029,7 @@ function renderLessonPick() {
     + (LP.anchor !== null ? ' · теперь нажмите последний урок (или «Открыть учебник»)' : '');
   $('#lpGo').textContent = `Открыть учебник · ${LP.a === LP.b ? 'урок ' + LP.a : 'уроки ' + LP.a + '–' + LP.b}`;
 }
-function setBookChip(id) { $('#curBook b').textContent = BOOKS[id]; $('#curBook small').textContent = id === 'music' ? 'раздел' : 'учебник'; }
+function setBookChip(id) { $('#curBook b').textContent = BOOKS[id]; $('#curBook b').classList.toggle('ui', id === 'music'); $('#curBook small').textContent = id === 'music' ? 'раздел' : 'учебник'; }
 function showPicker() { $('#picker').hidden = false; $('#picker .book')?.focus(); }
 function bindPicker() {
   $$('#picker .book').forEach(b => b.onclick = () => {
