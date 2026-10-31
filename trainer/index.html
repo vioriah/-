@@ -404,6 +404,7 @@ button.start:active { box-shadow: var(--in); }
 .mx-words { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); }
 .mx-words .jp { color: var(--ink); } .mx-words .tb { font-size: 11px; }
 .mu-steps { justify-content: center; }
+.mu-shift { display: inline-flex; gap: 6px; }
 .mu-all > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
 .mu-all .mu-lines { margin-top: 8px; }
 @media (prefers-reduced-motion: no-preference) {
@@ -741,6 +742,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .mx-words { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; color: var(--muted); }
 .mx-words .jp { color: var(--ink); } .mx-words .tb { font-size: 11px; }
 .mu-steps { justify-content: center; }
+.mu-shift { display: inline-flex; gap: 6px; }
 .mu-all > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
 .mu-all .mu-lines { margin-top: 8px; }
 @media (prefers-reduced-motion: no-preference) {
@@ -1007,7 +1009,8 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
         <div class="mu-flow" id="muFlow" aria-live="polite"></div>
         <div class="mu-expl" id="muExpl" aria-live="polite"></div>
       </div>
-      <div class="row mu-steps"><button class="btn" id="muPrev" type="button" aria-label="Предыдущая строка">◀ строка</button><button class="btn" id="muNext" type="button" aria-label="Следующая строка">строка ▶</button><button class="btn ghost" id="muMarkBtn" type="button" hidden>Разметить время строк</button></div>
+      <div class="row mu-steps"><button class="btn" id="muPrev" type="button" aria-label="Предыдущая строка">◀ строка</button><button class="btn" id="muNext" type="button" aria-label="Следующая строка">строка ▶</button><button class="btn ghost" id="muMarkBtn" type="button" hidden>Разметить время строк</button><span class="mu-shift" id="muShift" hidden><button class="btn ghost" type="button" data-shift="-0.5" title="Все строки раньше на 0,5 с">−0,5 с</button><button class="btn ghost" type="button" data-shift="0.5" title="Все строки позже на 0,5 с">+0,5 с</button></span></div>
+      <p class="note" id="muShiftNote" hidden></p>
       <div class="mu-mark" id="muMark" hidden>
         <p class="note">Включите клип и нажимайте кнопку (или пробел) в момент, когда начинается каждая строка.</p>
         <div class="mu-next" id="muMarkNext"></div>
@@ -3872,7 +3875,7 @@ async function muOpen(id) {
   const s = MU.song;
   $('#muTitle').innerHTML = `<b>${esc(s.title)}</b> <span class="meta">${esc([s.artist, s.year].filter(Boolean).join(' · '))}</span>`;
   $('#muSource').innerHTML = `Источник: <a href="https://www.youtube.com/watch?v=${esc(s.yt)}" target="_blank" rel="noopener">клип на YouTube</a>${s.artist ? ' · ' + esc(s.artist) : ''}${s.year ? ', ' + esc(s.year) : ''}. Материал только для учебных целей курса — не распространяйте текст за его пределами.`;
-  $('#muMarkBtn').hidden = !MU.admin; $('#muMark').hidden = true; MU.mark = null;
+  $('#muMarkBtn').hidden = !MU.admin; $('#muShift').hidden = !MU.admin; $('#muShiftNote').hidden = true; $('#muMark').hidden = true; MU.mark = null;
   muLines(); muShow('muSong'); scrollTo(0, 0); muPlayer(s.yt);
 }
 function muLines() {
@@ -3956,6 +3959,13 @@ function bindMusic() {
     try { const d = await muApi('/music/admin/song', { method: 'POST', body: JSON.stringify(song) }, MU.admin); $('#muAdminNote').textContent = `Загружено: ${d.saved}, строк — ${d.lines}.`; $('#muJson').value = ''; if (MU.code) muEnter(); }
     catch (e) { $('#muAdminNote').textContent = e.message; }
   };
+  // Сдвиг всей разметки: если вступление в клипе длиннее или короче, чем в записи, по которой ставилось время.
+  $$('#muShift [data-shift]').forEach(b => b.onclick = async () => {
+    const d = +b.dataset.shift, song = { ...MU.song, lines: MU.song.lines.map(l => l.t == null ? l : { ...l, t: Math.max(0, Math.round((l.t + d) * 10) / 10) }) };
+    const note = $('#muShiftNote'); note.hidden = false; note.textContent = 'Сохраняю…';
+    try { await muApi('/music/admin/song', { method: 'POST', body: JSON.stringify(song) }, MU.admin); MU.song = song; muLines(); note.textContent = `Все строки сдвинуты на ${d > 0 ? '+' : '−'}0,5 с и сохранены.`; }
+    catch (e) { note.textContent = e.message; }
+  });
   $('#muMarkBtn').onclick = () => { MU.mark = { k: 0, t: MU.song.lines.map(() => null) }; $('#muMark').hidden = false; muLines(); muMarkShow(); };
   $('#muMarkHit').onclick = () => {
     const i = muSingable()[MU.mark.k]; if (i == null || !MU.player?.getCurrentTime) return;
