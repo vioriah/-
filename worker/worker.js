@@ -34,7 +34,10 @@ const FILM_TTL = 6 * 3600;          // сколько живёт подпись 
 // похожие на латинские (А, В, Е, К, М, Н, О, Р, С, Т, У, Х), считаются латинскими — на планшете
 // код легко набрать то на одной, то на другой раскладке.
 const LOOKALIKE = { А: 'A', В: 'B', Е: 'E', К: 'K', М: 'M', Н: 'H', О: 'O', Р: 'P', С: 'C', Т: 'T', У: 'Y', Х: 'X', Ё: 'E' };
-const norm = c => String(c || '').replace(/["'«»\s\u200B-\u200D\u2060\uFEFF]/g, '').toUpperCase().replace(/[АВЕКМНОРСТУХЁ]/g, ch => LOOKALIKE[ch]);
+// Код сравнивается терпимо: регистр, русские буквы-двойники, пробелы, дефисы и прочие знаки не важны,
+// O и 0, I/L и 1 считаются одним знаком (на телефоне их легко перепутать).
+const norm = c => String(c || '').toUpperCase().replace(/[АВЕКМНОРСТУХЁ]/g, ch => LOOKALIKE[ch])
+  .replace(/[^0-9A-ZА-Я]/g, '').replace(/O/g, '0').replace(/[IL]/g, '1');
 // Сайт присылает код в кодировке URL, чтобы проходили и русские буквы; старые клиенты — как есть.
 const sentCode = req => { const raw = req.headers.get('x-student-code') || ''; try { return decodeURIComponent(raw); } catch { return raw; } };
 const codeList = env => String(env.STUDENT_CODES || '').split(/[;,\n]/).filter(p => norm(p.slice(p.lastIndexOf('=') + 1)));
@@ -98,7 +101,7 @@ async function music(req, env, path, fail, ok) {
   if (!who) {
     const n = codeList(env).length;
     console.log('music wrong code, length', norm(sentCode(req)).length, 'codes in list', n);
-    return fail(401, 'authentication_error', n ? `Неверный личный код. (Кодов в списке студентов: ${n}.)` : 'Неверный личный код. Список кодов студентов пуст — проверьте секрет STUDENT_CODES.');
+    return fail(401, 'authentication_error', n ? `Неверный личный код. (Получено знаков: ${norm(sentCode(req)).length}; кодов в списке студентов: ${n}.)` : 'Неверный личный код. Список кодов студентов пуст — проверьте секрет STUDENT_CODES.');
   }
   if (req.method === 'GET' && path === '/music/list') {
     const { keys } = await env.MUSIC.list({ prefix: 'song:' });

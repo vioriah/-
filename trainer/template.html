@@ -1004,7 +1004,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
     <p class="intro" id="muIntro">Песни целиком: клип с YouTube и строка за строкой — японский текст, перевод и грамматика. Текущая строка подсвечивается сама; нажмите на строку, чтобы перейти к ней. Раздел только для студентов курса — вход по личному коду.</p>
     <div class="sheet" id="muGate">
       <label class="mu-lbl" for="muCode">Личный код студента</label>
-      <div class="row"><input class="keyfield" id="muCode" type="password" autocomplete="off" spellcheck="false" placeholder="код от преподавателя"><button class="btn primary" id="muEnter" type="button">Войти</button></div>
+      <div class="row"><input class="keyfield" id="muCode" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="код от преподавателя"><button class="btn primary" id="muEnter" type="button">Войти</button></div>
       <p class="note" id="muGateNote"></p>
     </div>
     <div class="sheet" id="muLib" hidden>
@@ -2401,9 +2401,12 @@ function micButton(btn, input, note) {
   };
 }
 
-// Ссылка вида ?code=… сразу сохраняет код доступа и убирает его из адресной строки.
-const linkCode = new URLSearchParams(location.search).get('code');
-if (linkCode) { store.set('code', linkCode.trim()); history.replaceState(null, '', location.pathname + location.hash); }
+// Ссылки вида ?code=… (код доступа к Claude) и ?mcode=… (личный код студента для «Развлечений»)
+// сразу сохраняют код и убирают его из адресной строки.
+const linkQ = new URLSearchParams(location.search), linkCode = linkQ.get('code'), linkM = linkQ.get('mcode');
+if (linkCode) store.set('code', linkCode.trim());
+if (linkM) { MU.code = linkM.trim(); store.set('mcode', MU.code); }
+if (linkCode || linkM) history.replaceState(null, '', location.pathname + location.hash);
 winify(); tick(); setInterval(tick, 20000); applyKyo(); applyPlain();
 renderStats(); initRange(); bind(); bindRomaji(); tts.init(); markRate();
 Prog.load(); Prog.today();
