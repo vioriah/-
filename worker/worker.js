@@ -67,8 +67,15 @@ async function sign(env, msg) {
 let B2 = null;
 async function b2auth(env, force) {
   if (B2 && !force && B2.until > Date.now()) return B2;
-  const r = await fetch('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', { headers: { authorization: 'Basic ' + btoa(env.B2_KEY_ID + ':' + env.B2_APP_KEY) } });
-  if (!r.ok) throw new Error('B2 не принял ключ: ' + r.status);
+  // Пробелы и переносы строк при вставке секрета — частая причина отказа: убираем их.
+  const id = String(env.B2_KEY_ID || '').trim(), key = String(env.B2_APP_KEY || '').trim();
+  const r = await fetch('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', { headers: { authorization: 'Basic ' + btoa(id + ':' + key) } });
+  if (!r.ok) {
+    const j = await r.json().catch(() => ({}));
+    console.log('b2 authorize', r.status, j.code, j.message, 'id len', id.length, 'key len', key.length);
+    // Сами ключи не показываем — только длину: у ключа B2 keyID из 25 знаков (у мастер-ключа 12), applicationKey из 31.
+    throw new Error(`B2 не принял ключ: ${r.status} ${j.code || ''}. Длина B2_KEY_ID: ${id.length} (нужно 25, у мастер-ключа 12), B2_APP_KEY: ${key.length} (нужно 31).`);
+  }
   const j = await r.json();
   B2 = { token: j.authorizationToken, url: j.downloadUrl, until: Date.now() + 20 * 3600e3 };
   return B2;
