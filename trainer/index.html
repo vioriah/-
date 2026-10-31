@@ -340,6 +340,27 @@ button.start:active { box-shadow: var(--in); }
 .kc-ex td { border-bottom: 1px dotted var(--face-sh); }
 .pad, .strokes { box-shadow: var(--in); }
 .pad-tools button, .pad-clear { border: 0; background: var(--face); box-shadow: var(--out); }
+
+/* Подвкладки «Упражнений» — вкладки окна свойств Windows 95 */
+.subtabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; margin-bottom: 16px; padding-top: 4px; border-bottom: 2px solid var(--face-hi); }
+.subtabs::-webkit-scrollbar { display: none; }
+.subtabs a { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px 5px; margin-top: 3px; background: var(--face); color: var(--ink); text-decoration: none; font-size: 15px;
+  box-shadow: inset 1px 1px var(--face-hi), inset -1px 0 var(--edge), inset -2px 0 var(--face-sh); }
+.subtabs a span { font-family: var(--f-jp); color: var(--ai); }
+.subtabs a[aria-current="page"] { margin-top: 0; padding-bottom: 8px; font-weight: 700; background: var(--ai-soft); }
+/* Переключатель режима собеседника */
+.seg { gap: 0; }
+.seg button { padding: 8px 14px; font-size: 15px; }
+/* Сетка уроков */
+.lp-note { margin: -8px 0 0; font-size: 14px; color: var(--muted); max-width: 52ch; }
+.lessons { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; padding-inline: 4px; }
+.lsn { aspect-ratio: 1; border: 0; background: var(--face); color: var(--ink); box-shadow: var(--out); font: 700 17px var(--f-ui); font-variant-numeric: tabular-nums; cursor: pointer; }
+.lsn[aria-pressed="true"] { background: var(--title-a); color: var(--edge); box-shadow: var(--in); }
+.lsn.end { background: var(--ai); color: var(--ai-ink); }
+.lsn.anchor { outline: 2px dotted var(--ink); outline-offset: -5px; }
+.lp-sum { margin: 0; font-size: 15px; }
+.lp-row { justify-content: center; }
+.lp-go { background: var(--ai); color: var(--ai-ink); }
 </style>
 
 <style id="css-plain" media="not all">
@@ -587,6 +608,23 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .kc-ex td { border-bottom: 1px solid var(--line); }
 .pad, .strokes { border: 1px solid var(--line); border-radius: 8px; }
 .pad-tools button, .pad-clear { border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+
+.subtabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-bottom: 4px; }
+.subtabs::-webkit-scrollbar { display: none; }
+.subtabs a { flex: none; padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; }
+.subtabs a span { font-family: var(--f-jp); margin-right: 4px; }
+.subtabs a[aria-current="page"] { background: var(--ai); color: var(--ai-ink); border-color: var(--ai); }
+.seg { gap: 0; }
+.seg button { border-radius: 0; padding: 8px 14px; }
+.seg button:first-child { border-radius: 999px 0 0 999px; } .seg button:last-child { border-radius: 0 999px 999px 0; margin-left: -1px; }
+.lp-note { margin: -8px 0 0; font-size: 14px; color: var(--muted); max-width: 52ch; }
+.lessons { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 6px; }
+.lsn { aspect-ratio: 1; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; cursor: pointer; }
+.lsn[aria-pressed="true"] { background: var(--ai-soft); border-color: var(--ai); color: var(--ai); }
+.lsn.end { background: var(--ai); color: var(--ai-ink); }
+.lsn.anchor { outline: 2px solid var(--ai); outline-offset: 2px; }
+.lp-sum { margin: 0; font-size: 15px; }
+.lp-row { justify-content: center; }
 </style>
 <script>
 // Оформление выбирается до отрисовки страницы, чтобы она не мигала чужим стилем.
@@ -639,6 +677,19 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
   </div>
   <button class="design-btn" id="designBtn" type="button">Упрощённый дизайн</button>
 </div>
+<div class="picker" id="lessonPick" role="dialog" aria-modal="true" aria-labelledby="lpTitle" hidden>
+  <div class="picker-win">
+    <div class="titlebar" aria-hidden="true"><span class="ttl">Уроки — выбор</span><span class="wbtns"><i>_</i><i>□</i><i>×</i></span></div>
+    <div class="picker-body">
+      <h1 id="lpTitle">Выберите изучаемые вами уроки</h1>
+      <p class="lp-note">Их всегда можно изменить прямо во время обучения — в шапке сайта. Нажмите первый и последний урок диапазона.</p>
+      <div class="lessons" id="lpGrid" role="group" aria-label="Уроки"></div>
+      <p class="lp-sum" id="lpSum" aria-live="polite"></p>
+      <div class="row lp-row"><button class="btn" id="lpAll" type="button">Все уроки (1–34)</button></div>
+    </div>
+  </div>
+  <button class="design-btn lp-go" id="lpGo" type="button">Открыть учебник</button>
+</div>
 <script>
 // Выбор учебника — один раз за сеанс (после заставки) или по кнопке в шапке и START.
 (() => {
@@ -661,11 +712,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
   <button class="start" id="startBtn" type="button" title="Выбор учебника"><b>本</b>START</button>
   <div class="tasks">
     <a href="#cards" data-mode="cards"><span>暗記</span>Карточки</a>
-    <a href="#forms" data-mode="forms"><span>活用</span>Формы</a>
-    <a href="#particles" data-mode="particles"><span>助詞</span>Частицы</a>
-    <a href="#speak" data-mode="speak"><span>話す</span>Скажи</a>
-    <a href="#listen" data-mode="listen"><span>聞く</span>Слушай</a>
-    <a href="#read" data-mode="read"><span>読む</span>Чтение</a>
+    <a href="#ex" data-mode="ex"><span>練習</span>Упражнения</a>
     <a href="#chat" data-mode="chat"><span>会話</span>Собеседник</a>
     <a href="#map" data-mode="map"><span>地図</span>Карта</a>
   </div>
@@ -673,6 +720,13 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 </nav>
 
 <main>
+  <nav class="subtabs" id="exNav" aria-label="Упражнения" hidden>
+    <a href="#forms" data-sub="forms"><span>活用</span>Формы</a>
+    <a href="#particles" data-sub="particles"><span>助詞</span>Частицы</a>
+    <a href="#speak" data-sub="speak"><span>話す</span>Скажи</a>
+    <a href="#listen" data-sub="listen"><span>聞く</span>Слушай</a>
+    <a href="#read" data-sub="read"><span>読む</span>Чтение</a>
+  </nav>
   <section class="mode" id="m-cards" hidden>
     <div class="sheet" id="aStudy" hidden>
       <div class="task" id="aTask"></div>
@@ -778,8 +832,11 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
   </section>
 
   <section class="mode" id="m-chat" hidden>
-    <p class="intro">Разговор с Claude по‑японски в пределах пройденной грамматики. Пишите или говорите (кнопка «Говорить») по‑японски; ошибки Claude исправит одной строкой по‑русски. Застряли — напишите по‑русски, Claude подскажет, как это сказать.</p>
-    <div class="scen" id="scen" role="group" aria-label="Тема разговора"></div>
+    <p class="intro">Начните разговор сами — о чём угодно: Claude подхватит тему и ответит как живой собеседник. Пишите или говорите (кнопка «Говорить») по‑японски; ошибки Claude исправит одной строкой по‑русски. Застряли — напишите по‑русски, Claude подскажет, как это сказать.</p>
+    <div class="scen seg" id="scen" role="group" aria-label="Режим разговора">
+      <button type="button" data-cm="free" aria-pressed="false">Свободный разговор (N4)</button>
+      <button type="button" data-cm="lessons" aria-pressed="false">Грамматика выбранных уроков</button>
+    </div>
     <div class="note" id="chatState"></div>
     <div class="chat" id="chatLog" aria-live="polite"></div>
     <div class="sheet" id="chatBox">
@@ -3183,7 +3240,7 @@ async function initClaude() {
   else sampleFn = null;
   if (!sampleFn) { claudeUnavailable(); return; }
   $('#sClaude').hidden = false; $('#chatBox').hidden = false; $('#scen').hidden = false;
-  $('#chatState').textContent = 'Выберите тему — Claude начнёт разговор.';
+  chatState();
 }
 async function checkWithClaude() {
   const s = SP.cur, user = $('#sInput').value.trim(); if (!s || !sampleFn) return;
@@ -3208,32 +3265,36 @@ async function checkWithClaude() {
   } finally { $('#sClaude').disabled = false; }
 }
 
-const SCEN = [
-  ['Знакомство', 'знакомство: имя, страна, учёба', 1], ['Мой день', 'распорядок дня: когда встаёшь, что делаешь', 13], ['Выходные', 'выходные и хобби', 8],
-  ['В магазине', 'покупки в магазине: цены, количество', 6], ['Погода', 'погода и времена года', 10], ['Планы', 'планы на будущее и желания', 19],
-  ['У врача', 'самочувствие, болезнь, советы', 24], ['Путешествия', 'поездки, опыт, сравнение мест', 25], ['Гостиница (敬語)', 'разговор с администратором гостиницы, вежливая речь 敬語', 33],
-  ['С другом', 'дружеская болтовня в кафе, простой стиль だ', 34], ['Свободная тема', 'любая тема, которую предложит студент', 1],
-];
-const C = { topic: null, rules: '', turns: [], base: 0, ctl: null };
+const C = { mode: store.get('chatMode', 'lessons'), rules: '', turns: [], base: 0, ctl: null };
 // Сервис кэширует начало запроса: повторно отправленная часть стоит в 10 раз дешевле, а полностью
 // оплачивается только новое. Поэтому запрос меняется только дописыванием в конец: правила
 // фиксируются в начале разговора, а старые реплики отбрасываются не по одной, а пачкой.
 const HISTORY_MAX = 24, HISTORY_KEEP = 10;
 function chatRules() {
-  const topics = D.topics.filter(t => t.to >= S.from && t.from <= S.to).map(t => `${t.label}: ${t.text}`).join('\n');
-  const casual = C.topic[2] >= 34;
-  return `Ты — дружелюбный японский собеседник для русскоязычного студента 1 курса, который учится по учебнику «日本語初歩» (Japan Foundation).
-Правила для твоих реплик:
-- пиши по-японски очень просто: 1–2 коротких предложения и в конце один простой вопрос собеседнику;
-- используй только грамматику пройденных уроков (список ниже) и простую лексику;
-- кандзи — только самые простые.
+  const base = `Ты — живой японский собеседник в переписке с русскоязычным студентом, который учит японский.
+Как отвечать:
+- как настоящий человек, а не учебник: сначала живая реакция на сказанное студентом (удивление, согласие, сочувствие, лёгкая шутка), потом немного о себе — свой опыт, мнение, мелкая подробность — и встречный вопрос;
+- 2–3 коротких предложения; иногда естественные разговорные реакции (へえ、そうなんだ、いいですね、本当？), но без перебора;
+- вежливость подстраивай под студента: пишет на です/ます — отвечай так же, пишет простым стилем — отвечай простым;
+- тему определи по сообщениям студента и поддерживай её; сменит тему — иди за ним.
 Проверка студента: если в его последнем сообщении есть ошибки (частицы, формы, порядок слов, неестественные выражения), в поле "fix" дай исправленный вариант и очень короткое объяснение по-русски (одна строка). Ошибок нет — "fix": "". Если студент написал по-русски или смешал языки, в "fix" покажи, как сказать это по-японски.
-Отвечай только JSON, без markdown и без текста вокруг: {"fix": "...", "reply": "реплика по-японски", "reading": "та же реплика целиком хираганой", "ru": "перевод реплики на русский"}
-Грамматика пройденных уроков (${S.from}–${S.to}):
-${topics}
-Стиль: ${casual ? 'простой (だ-体), как с другом' : 'вежливый (です/ます)'}. Тема разговора: ${C.topic[1]}.
-Если разговор ещё не начат, поздоровайся и задай первый вопрос.`;
+Отвечай только JSON, без markdown и без текста вокруг: {"fix": "...", "reply": "реплика по-японски", "reading": "та же реплика целиком хираганой", "ru": "перевод реплики на русский"}`;
+  if (C.mode === 'free') return base + `
+Уровень языка: не выше JLPT N4 — лексика, грамматика и кандзи уровней N5–N4. К урокам учебника не привязывайся.`;
+  const topics = D.topics.filter(t => t.to >= S.from && t.from <= S.to).map(t => `${t.label}: ${t.text}`).join('\n');
+  return base + `
+Студент учится по учебнику «日本語初歩» (Japan Foundation) и прошёл уроки ${S.from}–${S.to}. Используй только грамматику этих уроков (список ниже), простую лексику и простые кандзи. Чаще, чем в обычной речи, вставляй конструкции из списка, особенно из последних уроков диапазона, — но так, чтобы фраза звучала естественно, а не как упражнение.
+Грамматика уроков ${S.from}–${S.to}:
+${topics}`;
 }
+function chatState() {
+  $('#chatState').textContent = C.mode === 'free'
+    ? 'Свободный разговор · уровень до JLPT N4. Напишите первое сообщение — Claude подхватит тему.'
+    : `Грамматика уроков ${S.from}–${S.to} звучит чаще. Напишите первое сообщение — Claude подхватит тему.`;
+  $$('#scen button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cm === C.mode ? 'true' : 'false'));
+}
+// Новый разговор: правила фиксируются при первом сообщении и до конца разговора не меняются (так дешевле — см. кэш).
+function resetChat() { C.ctl?.abort(); C.rules = ''; C.turns = []; C.base = 0; $('#chatLog').innerHTML = ''; chatState(); }
 function addBubble(role, data) {
   const b = document.createElement('div'); b.className = 'bubble ' + (role === 'user' ? 'me' : 'bot');
   if (role === 'user') { b.innerHTML = `<div class="jpline">${esc(data)}</div>`; }
@@ -3249,9 +3310,10 @@ function addBubble(role, data) {
   return b;
 }
 async function chatCall(userText) {
-  if (!sampleFn || !C.topic) return;
-  const first = !C.turns.length;
-  if (!first) { C.turns.push({ role: 'user', content: userText }); addBubble('user', userText); }
+  if (!sampleFn || !userText) return;
+  addBubble('user', userText);
+  if (!C.rules) C.rules = chatRules() + '\n\nПервое сообщение студента:\n' + userText;
+  else C.turns.push({ role: 'user', content: userText });
   if (C.turns.length - C.base > HISTORY_MAX) {
     C.base = C.turns.length - HISTORY_KEEP;
     if (C.turns[C.base].role !== 'assistant') C.base++;  // после правил (реплика студента) идёт ответ Claude
@@ -3271,12 +3333,6 @@ async function chatCall(userText) {
     else if (HIDE.has(e?.code)) claudeUnavailable();
     else { const n = document.createElement('div'); n.className = 'warn'; n.textContent = errText(e); $('#chatLog').append(n); }
   } finally { wait.remove(); $('#cSend').disabled = false; $('#cStop').hidden = true; C.ctl = null; }
-}
-function startChat(i) {
-  C.ctl?.abort(); C.topic = SCEN[i]; C.rules = chatRules(); C.turns = []; C.base = 0; $('#chatLog').innerHTML = '';
-  $$('#scen button').forEach((b, n) => b.setAttribute('aria-pressed', n === i ? 'true' : 'false'));
-  $('#chatState').textContent = `Тема: ${C.topic[1]}. Уроки ${S.from}–${S.to}.`;
-  chatCall('');
 }
 
 // ---------- карточки (встроенная колода Anki) ----------
@@ -3608,7 +3664,10 @@ const INIT = {
   cards() { renderDecks(); },
   forms() { buildGroupToggles(); nextForm(); },
   particles() { nextParticle(); }, speak() { nextSpeak(); }, listen() { nextListen(); }, read() { nextRead(); },
-  chat() { $('#scen').innerHTML = SCEN.map((s, i) => `<button type="button" data-i="${i}" aria-pressed="false">${esc(s[0])}</button>`).join(''); $$('#scen button').forEach(b => b.onclick = () => startChat(+b.dataset.i)); },
+  chat() {
+    $$('#scen button').forEach(b => b.onclick = () => { C.mode = b.dataset.cm; store.set('chatMode', C.mode); resetChat(); });
+    resetChat();
+  },
   map() { initMap(); },
 };
 const started = {};
@@ -3633,13 +3692,38 @@ function applyPlain() {
 }
 // Учебники: пока один. Выбор живёт до конца сеанса, сменить — кнопкой в шапке или START.
 const BOOKS = { shoho: '日本語初歩' };
+// Выбор уроков после учебника: первое касание — начало диапазона, второе — конец.
+const LP = { a: 1, b: 34, anchor: null };
+function showLessonPick() { LP.a = S.from; LP.b = S.to; LP.anchor = null; renderLessonPick(); $('#lessonPick').hidden = false; $('#lpGo').focus(); }
+function renderLessonPick() {
+  $('#lpGrid').innerHTML = Array.from({ length: 34 }, (_, i) => i + 1).map(l => {
+    const on = l >= LP.a && l <= LP.b, end = l === LP.a || l === LP.b;
+    return `<button type="button" class="lsn${end ? ' end' : ''}${l === LP.anchor ? ' anchor' : ''}" data-l="${l}" aria-pressed="${on}">${l}</button>`;
+  }).join('');
+  $$('#lpGrid .lsn').forEach(b => b.onclick = () => {
+    const l = +b.dataset.l;
+    if (LP.anchor === null) { LP.anchor = l; LP.a = LP.b = l; }
+    else { LP.a = Math.min(LP.anchor, l); LP.b = Math.max(LP.anchor, l); LP.anchor = null; }
+    renderLessonPick();
+  });
+  const cnt = d => DECKS[d].notes.filter(n => n.l >= LP.a && n.l <= LP.b).length;
+  $('#lpSum').textContent = (LP.a === LP.b ? `Урок ${LP.a}` : `Уроки ${LP.a}–${LP.b}`) + `: ${cnt('w')} слов, ${cnt('k')} кандзи, ${cnt('s')} фраз`
+    + (LP.anchor !== null ? ' · теперь нажмите последний урок (или «Открыть учебник»)' : '');
+  $('#lpGo').textContent = `Открыть учебник · ${LP.a === LP.b ? 'урок ' + LP.a : 'уроки ' + LP.a + '–' + LP.b}`;
+}
 function showPicker() { $('#picker').hidden = false; $('#picker .book')?.focus(); }
 function bindPicker() {
   $$('#picker .book').forEach(b => b.onclick = () => {
     try { sessionStorage.setItem('shoho.book', b.dataset.book); } catch { /* без памяти — спросим снова в следующий раз */ }
     $('#curBook b').textContent = BOOKS[b.dataset.book];
-    $('#picker').hidden = true;
+    $('#picker').hidden = true; showLessonPick();
   });
+  $('#lpAll').onclick = () => { LP.a = 1; LP.b = 34; LP.anchor = null; renderLessonPick(); };
+  $('#lpGo').onclick = () => {
+    S.from = LP.a; S.to = LP.b; store.set('from', LP.a); store.set('to', LP.b);
+    $('#lfrom').value = LP.a; $('#lto').value = LP.b; refreshAll();
+    $('#lessonPick').hidden = true;
+  };
   $('#designBtn').onclick = $('#styleBtn').onclick = () => { S.plain = !S.plain; store.set('plain', S.plain); applyPlain(); };
   $('#curBook').onclick = showPicker; $('#startBtn').onclick = showPicker;
 }
@@ -3648,15 +3732,25 @@ function applyKyo() {
   if (S.kyo && !$('#kyoFont')) document.head.insertAdjacentHTML('beforeend', '<link id="kyoFont" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap">');
 }
 
+// Упражнения — одна кнопка на панели задач; внутри подвкладки, открывается последняя.
+const EX = ['forms', 'particles', 'speak', 'listen', 'read'];
 function show(mode) {
+  if (mode === 'ex') { mode = store.get('exMode', 'forms'); history.replaceState(null, '', '#' + mode); }
   if (!MODES.includes(mode)) mode = 'cards';
+  const ex = EX.includes(mode), tab = ex ? 'ex' : mode;
+  if (ex) store.set('exMode', mode);
   $$('.mode').forEach(s => { s.hidden = s.id !== 'm-' + mode; });
-  $$('.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.mode === mode ? 'page' : 'false'));
-  $(`.tabs a[data-mode="${mode}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  $('#exNav').hidden = !ex;
+  $$('#exNav a').forEach(a => a.setAttribute('aria-current', a.dataset.sub === mode ? 'page' : 'false'));
+  $$('.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.mode === tab ? 'page' : 'false'));
+  $(`.tabs a[data-mode="${tab}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!started[mode]) { started[mode] = true; INIT[mode](); }
   store.set('mode', mode);
 }
-function refreshAll() { for (const m of Object.keys(started)) if (m !== 'map' && m !== 'chat') ({ cards: () => { if (!A.cur) renderDecks(); }, forms: nextForm, particles: nextParticle, speak: nextSpeak, listen: nextListen, read: nextRead })[m](); }
+function refreshAll() {
+  if (started.chat && !C.rules) chatState();
+  for (const m of Object.keys(started)) if (m !== 'map' && m !== 'chat') ({ cards: () => { if (!A.cur) renderDecks(); }, forms: nextForm, particles: nextParticle, speak: nextSpeak, listen: nextListen, read: nextRead })[m]();
+}
 
 // ---------- события ----------
 function initRange() {
@@ -3703,10 +3797,10 @@ function bind() {
   $$('[data-rate]').forEach(b => b.onclick = () => { tts.rate = +b.dataset.rate; store.set('rate', tts.rate); markRate(); if (L.cur) tts.speak(L.cur.j); });
   $('#lCheck').onclick = () => showListen(true); $('#lReveal').onclick = () => showListen(false); $('#lNext').onclick = nextListen;
   $('#rCheck').onclick = () => checkRead(false); $('#rSkip').onclick = () => checkRead(true); onEnter($('#rInput'), () => checkRead(false));
-  $('#cSend').onclick = () => { const t = $('#cInput').value.trim(); if (!t || !C.topic) return; $('#cInput').value = ''; chatCall(t); };
+  $('#cSend').onclick = () => { const t = $('#cInput').value.trim(); if (!t) return; $('#cInput').value = ''; chatCall(t); };
   onEnter($('#cInput'), () => $('#cSend').click());
   $('#cStop').onclick = () => C.ctl?.abort();
-  $('#cReset').onclick = () => { const i = SCEN.indexOf(C.topic); if (i >= 0) startChat(i); };
+  $('#cReset').onclick = resetChat;
   const opt = (id, key, after) => { const el = $(id); el.checked = !!S[key]; el.onchange = () => { S[key] = el.checked; store.set(key, S[key]); after?.(); }; };
   opt('#optRomaji', 'romaji', bindRomaji); opt('#optFuri', 'furi', refreshAll); opt('#optAuto', 'auto'); opt('#optKyo', 'kyo', applyKyo); opt('#optPlain', 'plain', applyPlain);
   bindPicker();
