@@ -3400,7 +3400,7 @@ function looseJSON(text) {
   throw { code: 'invalid_json', raw: t };
 }
 // Текст ошибки; при неразобранном ответе — его начало, чтобы было видно, что пришло.
-const errText = e => (ERR[e?.code] || ERR.upstream_error) + (e?.raw ? ` Пришло: «${e.raw.slice(0, 160)}${e.raw.length > 160 ? '…' : ''}»` : '');
+const errText = e => (ERR[e?.code] || ERR.upstream_error) + (e?.why ? ` Причина: ${String(e.why).slice(0, 300)}` : '') + (e?.raw ? ` Пришло: «${e.raw.slice(0, 160)}${e.raw.length > 160 ? '…' : ''}»` : '');
 async function keyJSON(input, o) {
   sdkPromise ||= import(SDK_URL);
   let mod;
@@ -3421,8 +3421,10 @@ async function keyJSON(input, o) {
     if (e instanceof mod.APIUserAbortError) throw { code: 'cancelled' };
     if (e instanceof mod.AuthenticationError || e instanceof mod.PermissionDeniedError) throw { code: viaProxy() ? 'bad_code' : 'bad_key' };
     if (e instanceof mod.RateLimitError) throw { code: 'rate_limited' };
-    if (e instanceof mod.BadRequestError) throw { code: 'bad_request' };
-    throw { code: 'upstream_error' };
+    // Посредник присылает причину (баланс, ключ, модель) — показываем её вместо общего «связь прервалась».
+    const why = e?.error?.error?.message || (e instanceof mod.APIConnectionError ? 'нет связи с посредником' : e?.message);
+    if (e instanceof mod.BadRequestError) throw { code: 'bad_request', why };
+    throw { code: 'upstream_error', why: why ? `${e?.status ? e.status + ': ' : ''}${why}` : '' };
   }
 }
 const ERR = { bad_key: 'Ключ API не подошёл — проверьте его в «Настройках» внизу страницы.', bad_code: 'Код доступа не подошёл — проверьте его в «Настройках» внизу страницы.', bad_request: 'API отклонил запрос — попробуйте ещё раз.', rate_limited: 'Слишком много запросов — попробуйте чуть позже.', session_expired: 'Нужно заново войти в Claude.', refused: 'Claude не стал отвечать на это сообщение — переформулируйте.', empty_completion: 'Пустой ответ — попробуйте ещё раз.', invalid_json: 'Ответ пришёл в неожиданном виде — попробуйте ещё раз.', upstream_error: 'Связь прервалась — попробуйте ещё раз.' };

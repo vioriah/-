@@ -234,7 +234,15 @@ export default {
       return fail(502, 'api_error', 'Посредник не смог связаться с API.');
     }
     // Отказ по ключу владельца — не вина посетителя: отдаём как сбой сервера, а не «неверный код».
-    if (res.status === 401 || res.status === 403) return fail(502, 'api_error', 'API не принял ключ посредника.');
+    if (!res.ok) {
+      // Текст ошибки сервиса (нет денег на балансе, ключ отозван, нет такой модели…) — в логи и на страницу.
+      const raw = await res.text();
+      let why = raw; try { const j = JSON.parse(raw); why = j.error?.message || j.message || raw; } catch {}
+      why = String(why).slice(0, 300);
+      console.log('upstream', res.status, why);
+      if (res.status === 401 || res.status === 403) return fail(502, 'api_error', `API не принял ключ посредника (${res.status}): ${why}`);
+      return fail(res.status >= 500 ? 502 : res.status, res.status === 429 ? 'rate_limit_error' : 'api_error', `API ответил ошибкой ${res.status}: ${why}`);
+    }
     const out = new Headers(cors);
     out.set('content-type', res.headers.get('content-type') || 'application/json');
     return new Response(res.body, { status: res.status, headers: out });
