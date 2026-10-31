@@ -1,9 +1,9 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Тренажёр 日本語初歩</title>
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>Тренажёр японского</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Pixelify+Sans:wght@400..700&family=Silkscreen:wght@400;700&display=swap">
-<style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Pixelify+Sans:wght@400..700&family=Silkscreen:wght@400;700&family=Golos+Text:wght@400;500;600;700&family=Klee+One:wght@400;600&display=swap">
+<style id="css-y2k">
 /* Layout: «рабочий стол» в духе Windows 95 и пиксельной Y2K-эстетики: каждый режим — системное окно с заголовком,
    вкладки — кнопки панели задач внизу, в трее счёт за день и часы. Японский — пиксельным DotGothic16,
    кириллица и латиница — Pixelify Sans, латинские надписи окон и часов — Silkscreen. */
@@ -246,13 +246,238 @@ details.settings .row { margin-top: 8px; }
   .boot-bar { animation: bootbar 1.1s steps(32) infinite; }
   @keyframes bootbar { to { background-position: 640px 0; } }
 }
+
+/* Иконка учебника: пиксельная книга, название — поверх обложки */
+.shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+.book { display: grid; justify-items: center; gap: 8px; padding: 10px; border: 0; background: transparent; color: var(--ink); cursor: pointer; font: inherit; }
+.book-icon { position: relative; width: 152px; height: 184px; }
+.book-icon svg { display: block; width: 100%; height: 100%; }
+.book-icon b { position: absolute; left: 26px; right: 26px; top: 24px; font: 400 16px/1 "DotGothic16", "Hiragino Sans", sans-serif; color: #161616; text-align: center; white-space: nowrap; }
+.book:active .book-icon { transform: translate(2px, 2px); }
+.book-sub { font-size: 13px; color: var(--muted); }
+.picker { position: fixed; inset: 0; z-index: 15; display: grid; grid-template-rows: 1fr auto; justify-items: center; align-items: center; gap: 16px; overflow-y: auto;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px)); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.picker-win { width: min(640px, 100%); }
+.picker-body { display: grid; gap: 20px; justify-items: center; text-align: center; }
+.design-btn { width: min(640px, 100%); padding: 16px 20px; cursor: pointer; border: 0; }
+.plain-only { display: none !important; }
+.bookchip { display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 10px; border: 0; background: var(--face); color: var(--ink); box-shadow: var(--out); cursor: pointer; font-size: 13px; }
+.bookchip b { font: 400 15px var(--f-jp); }
+.bookchip:active { box-shadow: var(--in); }
+button.start { border: 0; background: var(--face); color: var(--ink); cursor: pointer; }
+button.start:active { box-shadow: var(--in); }
+.picker { background-color: var(--desk); background-image: var(--sparkle), radial-gradient(var(--desk-dot) 1.5px, transparent 1.5px); background-size: 240px 240px, 12px 12px; }
+.picker-win { background: var(--face); box-shadow: var(--out), 6px 6px 0 var(--shadow); padding: 3px 3px 26px; display: grid; gap: 18px; }
+.picker-body { padding-inline: 16px; }
+.picker h1 { margin: 4px 0 0; font: 700 clamp(20px, 4.6vw, 28px)/1.25 var(--f-ui); text-wrap: balance; }
+.book-label { font: 400 18px var(--f-jp); padding: 2px 8px; border: 1px dotted transparent; }
+.book:hover .book-label, .book:focus-visible .book-label { background: var(--ai); color: var(--ai-ink); border-color: var(--ink); }
+.book:focus-visible { outline: none; }
+.design-btn { font: 700 18px var(--f-ui); background: var(--face); color: var(--ink); box-shadow: var(--out), 4px 4px 0 var(--shadow); }
+.design-btn:active { box-shadow: var(--in); transform: translate(1px, 1px); }
 </style>
 
+<style id="css-plain" media="not all">
+/* Layout: одна рабочая колонка-«тетрадь» под липкой шапкой; японский текст — учебным шрифтом (教科書体), поле ответа расчерчено как 原稿用紙. */
+:root {
+  --paper: #f3f5f8; --card: #ffffff; --ink: #1b2130; --muted: #5f6880; --line: #dde2ec;
+  --ai: #2b4a8e; --ai-soft: #e5ebf8; --ai-ink: #ffffff;
+  --shu: #bf3f28; --shu-soft: #fbe9e4; --matcha: #3b7536; --matcha-soft: #e3f1df;
+  --grid: #efc9bf; --chip: #eef1f6;
+  --f-ui: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-jp: "Klee One", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", "Noto Sans JP", serif;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #13161c; --card: #1b1f27; --ink: #e6e9f0; --muted: #9ba4b8; --line: #2b3140;
+  --ai: #9cb2f7; --ai-soft: #243050; --ai-ink: #10162a;
+  --shu: #ff8d74; --shu-soft: #3a231e; --matcha: #9fd48f; --matcha-soft: #1e331d;
+  --grid: #4b3530; --chip: #242a35; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #13161c; --card: #1b1f27; --ink: #e6e9f0; --muted: #9ba4b8; --line: #2b3140;
+  --ai: #9cb2f7; --ai-soft: #243050; --ai-ink: #10162a;
+  --shu: #ff8d74; --shu-soft: #3a231e; --matcha: #9fd48f; --matcha-soft: #1e331d;
+  --grid: #4b3530; --chip: #242a35; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 16px/1.5 var(--f-ui); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--card); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ai); outline-offset: 2px; }
+.jp { font-family: var(--f-jp); }
+ruby rt { font-size: .5em; font-family: var(--f-ui); color: var(--muted); }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--card); border-bottom: 1px solid var(--line);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 10px 0; }
+.top-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; max-width: 920px; margin: 0 auto; }
+.brand { display: flex; align-items: baseline; gap: 8px; margin-right: auto; }
+.brand b { font-family: var(--f-jp); font-size: 22px; font-weight: 600; letter-spacing: .04em; }
+.brand span { font-size: 13px; color: var(--muted); }
+.range { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.range select { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); padding: 3px 6px; font-variant-numeric: tabular-nums; }
+.stat { font-size: 14px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.stat .ok { color: var(--matcha); font-weight: 600; } .stat .bad { color: var(--shu); font-weight: 600; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; max-width: 920px; margin: 8px auto 0; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs a { flex: none; padding: 8px 12px 10px; color: var(--muted); text-decoration: none; font-weight: 500; font-size: 15px; border-bottom: 2px solid transparent; }
+.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--ai); }
+.tabs a span { font-family: var(--f-jp); margin-right: 4px; }
+
+main { max-width: 920px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 48px; }
+.mode { display: grid; gap: 16px; }
+.intro { color: var(--muted); font-size: 14px; max-width: 65ch; margin: 0; }
+.sheet { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px clamp(16px, 4vw, 32px); display: grid; gap: 14px; min-width: 0; }
+.task { font-size: 15px; color: var(--muted); }
+.task b { color: var(--ink); font-weight: 600; }
+.prompt { font-family: var(--f-jp); font-size: clamp(30px, 7vw, 46px); line-height: 1.6; text-align: center; overflow-wrap: anywhere; }
+.prompt.sentence { font-size: clamp(22px, 5vw, 30px); text-align: left; }
+.prompt-ru { font-size: clamp(19px, 4.4vw, 24px); font-weight: 500; text-wrap: balance; }
+.meta { font-size: 13px; color: var(--muted); }
+.chip { display: inline-block; font-size: 13px; padding: 2px 10px; border-radius: 999px; background: var(--ai-soft); color: var(--ai); font-family: var(--f-jp); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.answer { width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: 8px; background-color: var(--card);
+  font-family: var(--f-jp); font-size: 24px; line-height: 36px; letter-spacing: .5em; padding: 6px 6px; min-height: 50px;
+  background-image: linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 36px 100%; background-position: 0 0; }
+textarea.answer { resize: vertical; letter-spacing: .12em; background-image: none; font-size: 20px; line-height: 1.6; }
+.btn { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 500; }
+.btn:hover { border-color: var(--ai); }
+.btn.primary { background: var(--ai); color: var(--ai-ink); border-color: var(--ai); }
+.btn.ghost { background: transparent; }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.on { background: var(--ai); color: var(--ai-ink); border-color: var(--ai); }
+.btn.speak::before { content: "▶ "; font-size: 12px; }
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 8px; }
+.choice { font-family: var(--f-jp); font-size: 24px; padding: 10px 6px; border: 1px solid var(--line); background: var(--card); border-radius: 8px; cursor: pointer; }
+.choice:hover:not(:disabled) { border-color: var(--ai); }
+.choice.right { background: var(--matcha-soft); border-color: var(--matcha); color: var(--matcha); }
+.choice.wrong { background: var(--shu-soft); border-color: var(--shu); color: var(--shu); }
+.blank { display: inline-block; min-width: 1.6em; border-bottom: 2px solid var(--ai); text-align: center; color: var(--ai); }
+.fb { border-radius: 8px; padding: 12px 14px; display: grid; gap: 6px; }
+.fb.good { background: var(--matcha-soft); } .fb.bad { background: var(--shu-soft); } .fb.info { background: var(--chip); }
+.fb .verdict { font-weight: 600; } .fb.good .verdict { color: var(--matcha); } .fb.bad .verdict { color: var(--shu); }
+.fb .jpline { font-family: var(--f-jp); font-size: 22px; line-height: 1.7; }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.toggle select { border: 0; background: transparent; padding: 0; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); cursor: pointer; user-select: none; }
+.toggle input { accent-color: var(--ai); margin: 0; }
+details.settings { font-size: 14px; color: var(--muted); }
+details.settings summary { cursor: pointer; }
+details.settings .row { margin-top: 8px; }
+.note { font-size: 13px; color: var(--muted); }
+.warn { font-size: 13px; color: var(--shu); }
+.kbd { font-size: 12px; color: var(--muted); }
+
+.chat { display: grid; gap: 12px; }
+.bubble { max-width: 92%; border-radius: 12px; padding: 10px 14px; display: grid; gap: 6px; min-width: 0; }
+.bubble.me { justify-self: end; background: var(--ai-soft); }
+.bubble.bot { justify-self: start; background: var(--card); border: 1px solid var(--line); }
+.bubble .jpline { font-family: var(--f-jp); font-size: 21px; line-height: 1.6; overflow-wrap: anywhere; }
+.bubble .fix { background: var(--shu-soft); border-radius: 8px; padding: 6px 10px; font-size: 14px; }
+.bubble .sub { font-size: 14px; color: var(--muted); }
+.bubble .tools { display: flex; gap: 6px; flex-wrap: wrap; }
+.bubble .tools button { font-size: 12px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; cursor: pointer; }
+.scen { display: flex; flex-wrap: wrap; gap: 6px; }
+.scen button { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 5px 12px; font-size: 14px; cursor: pointer; }
+.scen button[aria-pressed="true"] { background: var(--ai); color: var(--ai-ink); border-color: var(--ai); }
+
+.map { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px clamp(16px, 4vw, 36px) 28px; min-width: 0; }
+.map h1 { font-size: 26px; text-wrap: balance; margin: 18px 0 8px; }
+.map h2 { font-size: 21px; margin: 32px 0 10px; padding-top: 12px; border-top: 1px solid var(--line); text-wrap: balance; }
+.map h3 { font-size: 17px; margin: 22px 0 8px; }
+.map p, .map li { max-width: 70ch; }
+.map code { font-family: var(--f-jp); background: var(--chip); padding: 1px 5px; border-radius: 4px; }
+.map pre { background: var(--chip); padding: 12px; border-radius: 8px; overflow-x: auto; font-family: var(--f-jp); font-size: 15px; line-height: 1.6; }
+.map pre code { background: none; padding: 0; }
+.tablewrap { overflow-x: auto; margin: 10px 0; }
+.map table { border-collapse: collapse; font-size: 14px; min-width: 100%; }
+.map th, .map td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.map th { background: var(--chip); font-weight: 600; }
+.map td:first-child { white-space: nowrap; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 4px; }
+.toc button { font-size: 13px; border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.decks { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.deck { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 10px; min-width: 0; align-content: start; }
+.deck-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.deck-head b { font-size: 17px; }
+.counts { font-variant-numeric: tabular-nums; font-size: 14px; display: flex; gap: 10px; color: var(--muted); }
+.counts b { font-weight: 600; } .counts .n { color: var(--ai); } .counts .lrn { color: var(--shu); } .counts .rev { color: var(--matcha); }
+.newlim { font-size: 13px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.newlim input { width: 4.2em; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); padding: 2px 6px; font-variant-numeric: tabular-nums; }
+.face { display: grid; gap: 10px; justify-items: center; text-align: center; min-width: 0; }
+.face.back { border-top: 1px dashed var(--line); padding-top: 14px; }
+.reading { font-family: var(--f-jp); font-size: 22px; color: var(--ai); }
+.meaning { font-size: 20px; font-weight: 500; text-wrap: balance; }
+.readings { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+.lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.yomi-on { font-family: var(--f-jp); font-size: 20px; color: var(--shu); } .yomi-kun { font-family: var(--f-jp); font-size: 20px; color: var(--matcha); } .yomi-kun i { font-style: normal; opacity: .55; }
+.ex { list-style: none; padding: 0; margin: 0 auto; display: grid; gap: 4px; text-align: left; max-width: 34em; }
+.ex .jp { font-size: 19px; } .ex .tb { font-size: 12px; color: var(--ai); }
+.strokes { width: 150px; height: 150px; max-width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+.strokes path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.strokes text { font-size: 8px; fill: var(--shu); font-family: var(--f-ui); }
+.grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.grade { border: 1px solid var(--line); border-radius: 8px; background: var(--card); padding: 8px 4px; cursor: pointer; display: grid; gap: 2px; font-weight: 600; }
+.grade:hover { border-color: var(--ai); }
+.grade small { font-weight: 400; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.grade.g1 { color: var(--shu); } .grade.g3 { color: var(--matcha); } .grade.g4 { color: var(--ai); }
+.badge { font-size: 12px; padding: 1px 8px; border-radius: 999px; background: var(--chip); color: var(--muted); }
+.keyfield { flex: 1 1 260px; min-width: 0; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; background: var(--card); font-family: ui-monospace, Menlo, monospace; font-size: 14px; }
+@media (prefers-reduced-motion: no-preference) { .fb, .bubble { animation: rise .18s ease-out; } @keyframes rise { from { transform: translateY(4px); opacity: .6; } to { transform: none; opacity: 1; } } }
+
+/* Иконка учебника: пиксельная книга, название — поверх обложки */
+.shelf { display: flex; flex-wrap: wrap; justify-content: center; gap: 24px; }
+.book { display: grid; justify-items: center; gap: 8px; padding: 10px; border: 0; background: transparent; color: var(--ink); cursor: pointer; font: inherit; }
+.book-icon { position: relative; width: 152px; height: 184px; }
+.book-icon svg { display: block; width: 100%; height: 100%; }
+.book-icon b { position: absolute; left: 26px; right: 26px; top: 24px; font: 400 16px/1 "DotGothic16", "Hiragino Sans", sans-serif; color: #161616; text-align: center; white-space: nowrap; }
+.book:active .book-icon { transform: translate(2px, 2px); }
+.book-sub { font-size: 13px; color: var(--muted); }
+.picker { position: fixed; inset: 0; z-index: 15; display: grid; grid-template-rows: 1fr auto; justify-items: center; align-items: center; gap: 16px; overflow-y: auto;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px)); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.picker-win { width: min(640px, 100%); }
+.picker-body { display: grid; gap: 20px; justify-items: center; text-align: center; }
+.design-btn { width: min(640px, 100%); padding: 16px 20px; cursor: pointer; border: 0; }
+/* Новая разметка (панель вкладок внизу, окна, выбор учебника) в упрощённом дизайне */
+.y2k-only, .titlebar, .start, .clock, .boot { display: none !important; }
+.tabs.taskbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; max-width: none; margin: 0; display: flex; align-items: center; gap: 8px;
+  background: var(--card); border-top: 1px solid var(--line); overflow: visible;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 env(safe-area-inset-bottom, 0px); }
+.tasks { flex: 1; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tasks::-webkit-scrollbar { display: none; }
+.tasks a { border-bottom: 0; border-top: 2px solid transparent; padding: 10px 12px; }
+.tasks a[aria-current="page"] { border-top-color: var(--ai); }
+.tray { flex: none; }
+.stat { display: flex; gap: 8px; }
+main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
+.bookchip { display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--ink); cursor: pointer; font-size: 13px; }
+.bookchip small { color: var(--muted); font-size: 13px; }
+.bookchip b { font: 600 15px var(--f-jp); }
+.bookchip:hover { border-color: var(--ai); }
+.picker { background: var(--paper); }
+.picker-win { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 16px 28px; }
+.picker h1 { margin: 0; font-size: clamp(20px, 4.6vw, 26px); font-weight: 600; line-height: 1.3; text-wrap: balance; }
+.book-label { font: 600 19px var(--f-jp); padding: 2px 10px; border-radius: 6px; }
+.book:hover .book-label, .book:focus-visible .book-label { background: var(--ai-soft); color: var(--ai); }
+.design-btn { font-size: 17px; font-weight: 600; background: var(--ai); color: var(--ai-ink); border-radius: var(--radius); }
+</style>
+<script>
+// Оформление выбирается до отрисовки страницы, чтобы она не мигала чужим стилем.
+(() => {
+  let plain = false;
+  try { plain = JSON.parse(localStorage.getItem('shoho.plain')) === true; } catch { /* по умолчанию — стиль Windows 95 */ }
+  if (!plain) return;
+  document.documentElement.classList.add('plain');
+  document.getElementById('css-y2k').media = 'not all';
+  document.getElementById('css-plain').media = 'all';
+})();
+</script>
 <!--BOOT-->
 <div class="boot" id="boot" aria-hidden="true">
   <div class="boot-center">
     <img class="boot-logo" src="data:image/png;base64,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" alt="" width="118" height="87">
-    <div class="boot-name"><b>日本語初歩</b><span>TRAINER<sup>95</sup></span></div>
+    <div class="boot-name"><b>日本語</b><span>TRAINER<sup>95</sup></span></div>
     <div class="boot-sub">Неофициальный учебный тренажёр студента МГИМО</div>
   </div>
   <div class="boot-bar"></div>
@@ -264,7 +489,7 @@ details.settings .row { margin-top: 8px; }
   const el = document.getElementById('boot');
   let seen = false;
   try { seen = sessionStorage.getItem('shoho.boot') === '1'; sessionStorage.setItem('shoho.boot', '1'); } catch { /* без памяти — показываем */ }
-  if (seen) { el.remove(); return; }
+  if (seen || document.documentElement.classList.contains('plain')) { el.remove(); return; }
   const done = () => { if (!el.isConnected || el.classList.contains('out')) return; el.classList.add('out'); setTimeout(() => el.remove(), 400); };
   setTimeout(done, matchMedia('(prefers-reduced-motion: reduce)').matches ? 900 : 2600);
   el.addEventListener('click', done);
@@ -272,16 +497,41 @@ details.settings .row { margin-top: 8px; }
 })();
 </script>
 <!--/BOOT-->
+<div class="picker" id="picker" role="dialog" aria-modal="true" aria-labelledby="pickerTitle" hidden>
+  <div class="picker-win">
+    <div class="titlebar" aria-hidden="true"><span class="ttl">Учебники — выбор</span><span class="wbtns"><i>_</i><i>□</i><i>×</i></span></div>
+    <div class="picker-body">
+      <h1 id="pickerTitle">Выберите изучаемый вами учебник</h1>
+      <div class="shelf">
+        <button class="book" type="button" data-book="shoho">
+          <span class="book-icon"><svg viewBox="0 0 38 46" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="5" width="33" height="41" fill="#000" fill-opacity=".28"/><rect x="3" y="3" width="33" height="41" fill="#4a2410"/><rect x="4" y="3" width="31" height="40" fill="#e8d9b0"/><path fill="#c9b282" d="M33 5h1v36h-1zM31 5h1v36h-1zM6 41h27v1H6z"/><rect x="1" y="1" width="32" height="40" fill="#5a2e14"/><rect x="2" y="2" width="4" height="38" fill="#7b4422"/><rect x="3" y="2" width="1" height="38" fill="#9a5a30"/><rect x="6" y="2" width="26" height="38" fill="#fbf8ef"/><rect x="6" y="2" width="26" height="1" fill="#ffffff"/><rect x="31" y="3" width="1" height="37" fill="#e6e0cf"/><rect x="6" y="39" width="26" height="1" fill="#e6e0cf"/><path fill="#2a2a2a" d="M11 34h3v3h-3zM13 34h3v3h-3zM15 34h3v3h-3z"/><path fill="#fbf8ef" d="M12 35h1v1h-1zM14 35h1v1h-1zM16 35h1v1h-1z"/><rect x="19" y="35" width="10" height="1" fill="#2a2a2a"/><rect x="11" y="38" width="17" height="1" fill="#8a8a8a"/></svg><b>日本語初歩</b></span>
+          <span class="book-label">日本語初歩</span>
+          <span class="book-sub">Сёхо · Japan Foundation · 34 урока</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <button class="design-btn" id="designBtn" type="button">Упрощённый дизайн</button>
+</div>
+<script>
+// Выбор учебника — один раз за сеанс (после заставки) или по кнопке в шапке и START.
+(() => {
+  let book = null;
+  try { book = sessionStorage.getItem('shoho.book'); } catch { /* без памяти — спрашиваем */ }
+  if (!book) document.getElementById('picker').hidden = false;
+})();
+</script>
 <header class="top">
   <div class="top-row">
-    <div class="brand"><b>日本語初歩</b><span>TRAINER.EXE</span></div>
+    <div class="brand"><b>日本語</b><span class="y2k-only">TRAINER.EXE</span><span class="plain-only">тренажёр</span></div>
+    <button class="bookchip" id="curBook" type="button" title="Сменить учебник"><small>учебник</small><b>日本語初歩</b></button>
     <label class="range" for="lfrom">Уроки
       <select id="lfrom" aria-label="С урока"></select>–<select id="lto" aria-label="По урок"></select>
     </label>
   </div>
 </header>
 <nav class="tabs taskbar" aria-label="Режимы">
-  <span class="start" aria-hidden="true"><b>初</b>START</span>
+  <button class="start" id="startBtn" type="button" title="Выбор учебника"><b>本</b>START</button>
   <div class="tasks">
     <a href="#cards" data-mode="cards"><span>暗記</span>Карточки</a>
     <a href="#forms" data-mode="forms"><span>活用</span>Формы</a>
@@ -2348,6 +2598,7 @@ Anki и раздел «Скажи по‑японски» в тренажёре)
       <label class="toggle" for="optRomaji"><input type="checkbox" id="optRomaji"> латиница → кана при вводе</label>
       <label class="toggle" for="optFuri"><input type="checkbox" id="optFuri"> фуригана над кандзи</label>
       <label class="toggle" for="optAuto"><input type="checkbox" id="optAuto"> озвучивать правильный ответ</label>
+      <label class="toggle" for="optPlain"><input type="checkbox" id="optPlain"> упрощённый дизайн (без стиля Windows 95)</label>
       <label class="toggle" for="optKyo"><input type="checkbox" id="optKyo"> рукописный шрифт для японского (вместо пиксельного)</label>
     </div>
     <div class="row" id="micBox" hidden>
@@ -2392,7 +2643,7 @@ const fine = matchMedia('(pointer: fine)').matches;
 const S = {
   from: store.get('from', 1), to: store.get('to', 34),
   romaji: store.get('romaji', fine), furi: store.get('furi', true), auto: store.get('auto', true),
-  kyo: store.get('kyo', false),
+  kyo: store.get('kyo', false), plain: store.get('plain', false),
   groups: store.get('groups', ['polite', 'plain', 'te', 'wish', 'cond', 'voice', 'adj']),
 };
 const inRange = l => l >= S.from && l <= S.to;
@@ -3164,6 +3415,26 @@ function winify() {
   }
 }
 function tick() { const d = new Date(); $('#clock').textContent = 'JP ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function applyPlain() {
+  const on = !!S.plain;
+  document.documentElement.classList.toggle('plain', on);
+  $('#css-y2k').media = on ? 'not all' : 'all';
+  $('#css-plain').media = on ? 'all' : 'not all';
+  $('#designBtn').textContent = on ? 'Вернуть стиль Windows 95' : 'Упрощённый дизайн';
+  $('#optPlain').checked = on;
+}
+// Учебники: пока один. Выбор живёт до конца сеанса, сменить — кнопкой в шапке или START.
+const BOOKS = { shoho: '日本語初歩' };
+function showPicker() { $('#picker').hidden = false; $('#picker .book')?.focus(); }
+function bindPicker() {
+  $$('#picker .book').forEach(b => b.onclick = () => {
+    try { sessionStorage.setItem('shoho.book', b.dataset.book); } catch { /* без памяти — спросим снова в следующий раз */ }
+    $('#curBook b').textContent = BOOKS[b.dataset.book];
+    $('#picker').hidden = true;
+  });
+  $('#designBtn').onclick = () => { S.plain = !S.plain; store.set('plain', S.plain); applyPlain(); };
+  $('#curBook').onclick = showPicker; $('#startBtn').onclick = showPicker;
+}
 function applyKyo() {
   document.documentElement.classList.toggle('kyo', !!S.kyo);
   if (S.kyo && !$('#kyoFont')) document.head.insertAdjacentHTML('beforeend', '<link id="kyoFont" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap">');
@@ -3227,7 +3498,8 @@ function bind() {
   $('#cStop').onclick = () => C.ctl?.abort();
   $('#cReset').onclick = () => { const i = SCEN.indexOf(C.topic); if (i >= 0) startChat(i); };
   const opt = (id, key, after) => { const el = $(id); el.checked = !!S[key]; el.onchange = () => { S[key] = el.checked; store.set(key, S[key]); after?.(); }; };
-  opt('#optRomaji', 'romaji', bindRomaji); opt('#optFuri', 'furi', refreshAll); opt('#optAuto', 'auto'); opt('#optKyo', 'kyo', applyKyo);
+  opt('#optRomaji', 'romaji', bindRomaji); opt('#optFuri', 'furi', refreshAll); opt('#optAuto', 'auto'); opt('#optKyo', 'kyo', applyKyo); opt('#optPlain', 'plain', applyPlain);
+  bindPicker();
   addEventListener('hashchange', () => show(location.hash.slice(1)));
   initSpeechRecognition();
 }
@@ -3333,7 +3605,7 @@ function micButton(btn, input, note) {
 // Ссылка вида ?code=… сразу сохраняет код доступа и убирает его из адресной строки.
 const linkCode = new URLSearchParams(location.search).get('code');
 if (linkCode) { store.set('code', linkCode.trim()); history.replaceState(null, '', location.pathname + location.hash); }
-winify(); tick(); setInterval(tick, 20000); applyKyo();
+winify(); tick(); setInterval(tick, 20000); applyKyo(); applyPlain();
 renderStats(); initRange(); bind(); bindRomaji(); tts.init(); markRate();
 Prog.load(); Prog.today();
 show(location.hash.slice(1) || store.get('mode', 'cards'));
