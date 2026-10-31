@@ -100,8 +100,11 @@ async function music(req, env, path, fail, ok) {
   const who = student(env, sentCode(req));
   if (!who) {
     const n = codeList(env).length;
-    console.log('music wrong code, length', norm(sentCode(req)).length, 'codes in list', n);
-    return fail(401, 'authentication_error', n ? `Неверный личный код. (Получено знаков: ${norm(sentCode(req)).length}; кодов в списке студентов: ${n}.)` : 'Неверный личный код. Список кодов студентов пуст — проверьте секрет STUDENT_CODES.');
+    // Показываем, как посредник понял введённый код, и длины кодов из списка (сами коды не раскрываются):
+    // так видно, опечатка это или лишние символы в секрете.
+    const got = norm(sentCode(req)), lens = codeList(env).map(p => norm(p.slice(p.lastIndexOf('=') + 1)).length).join(', ');
+    console.log('music wrong code', got.length, 'list lengths', lens);
+    return fail(401, 'authentication_error', n ? `Неверный личный код. Посредник понял его как «${got}» (${got.length} зн.). В списке студентов кодов: ${n}, их длина: ${lens} зн.` : 'Неверный личный код. Список кодов студентов пуст — проверьте секрет STUDENT_CODES.');
   }
   if (req.method === 'GET' && path === '/music/list') {
     const { keys } = await env.MUSIC.list({ prefix: 'song:' });
