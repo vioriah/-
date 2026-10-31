@@ -15,7 +15,7 @@
 //
 // Раздел «Музыка» (полные тексты песен — только для студентов курса):
 //   MUSIC            привязка KV-хранилища, где лежат песни (ключ song:<id>, значение — JSON песни)
-//   STUDENT_CODES    секрет, личные коды студентов: «Имя=код» через точку с запятой или с новой строки
+//   STUDENT_CODES    секрет, личные коды студентов: «Имя=код» (или просто «код») через ; , или с новой строки
 //   ADMIN_CODE       секрет, код преподавателя: загрузка песен и разметка времени строк
 // Каждый запрос к песне пишется в журнал воркера (Observability → Logs): кто и что открывал.
 
@@ -23,13 +23,19 @@ const MAX_BODY = 64 * 1024;
 const MAX_MESSAGES = 40;
 const MAX_SONG = 200 * 1024;
 
+// Коды сравниваются без пробелов, кавычек и без учёта регистра: на планшете легко ввести «k7p2q9» вместо «K7P2Q9».
+const norm = c => String(c || '').replace(/["'«»\s]/g, '').toUpperCase();
+const isAdmin = (env, code) => !!env.ADMIN_CODE && !!norm(code) && norm(code) === norm(env.ADMIN_CODE);
+
 // Имя студента по коду или null; код преподавателя тоже открывает раздел.
 function student(env, code) {
-  if (!code) return null;
-  if (env.ADMIN_CODE && code === env.ADMIN_CODE) return 'преподаватель';
-  for (const part of String(env.STUDENT_CODES || '').split(/[;\n]/)) {
+  const c = norm(code);
+  if (!c) return null;
+  if (isAdmin(env, code)) return 'преподаватель';
+  for (const part of String(env.STUDENT_CODES || '').split(/[;,\n]/)) {
     const i = part.lastIndexOf('=');
-    if (i > 0 && part.slice(i + 1).trim() === code) return part.slice(0, i).trim();
+    const name = i > 0 ? part.slice(0, i).replace(/["'«»]/g, '').trim() : 'студент';
+    if (norm(i >= 0 ? part.slice(i + 1) : part) === c) return name || 'студент';
   }
   return null;
 }
@@ -51,7 +57,7 @@ async function music(req, env, path, fail, ok) {
     return new Response(song, { headers: { 'content-type': 'application/json' } });
   }
   if (req.method === 'POST' && path === '/music/admin/song') {
-    if (!env.ADMIN_CODE || req.headers.get('x-student-code') !== env.ADMIN_CODE) return fail(403, 'permission_error', 'Нужен код преподавателя.');
+    if (!isAdmin(env, req.headers.get('x-student-code'))) return fail(403, 'permission_error', 'Нужен код преподавателя.');
     const text = await req.text();
     if (text.length > MAX_SONG) return fail(413, 'request_too_large', 'Слишком большая песня.');
     let song;
