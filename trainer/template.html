@@ -20,6 +20,7 @@
   --f-ui: "Pixelify Sans", "DotGothic16", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-jp: "DotGothic16", "Pixelify Sans", "Hiragino Sans", "Noto Sans JP", sans-serif;
   --f-sys: "Silkscreen", "Pixelify Sans", "DotGothic16", monospace;
+  --guide: var(--face-sh);
   --out: inset -1px -1px var(--edge), inset 1px 1px var(--face-hi), inset -2px -2px var(--face-sh);
   --in: inset 1px 1px var(--face-sh), inset -1px -1px var(--face-hi), inset 2px 2px var(--edge);
 }
@@ -208,7 +209,6 @@ details.settings .row { margin-top: 8px; }
 .yomi-on { font-family: var(--f-jp); font-size: 20px; color: var(--shu); } .yomi-kun { font-family: var(--f-jp); font-size: 20px; color: var(--matcha); } .yomi-kun i { font-style: normal; opacity: .55; }
 .ex { list-style: none; padding: 0; margin: 0 auto; display: grid; gap: 4px; text-align: left; max-width: 34em; }
 .ex .jp { font-size: 19px; } .ex .tb { font-size: 12px; color: var(--ai); }
-.strokes { width: 150px; height: 150px; max-width: 100%; background: var(--card); box-shadow: var(--in); }
 .strokes path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .strokes text { font-size: 8px; fill: var(--shu); font-family: var(--f-ui); }
 .grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -276,10 +276,75 @@ button.start:active { box-shadow: var(--in); }
 .book:focus-visible { outline: none; }
 .design-btn { font: 700 18px var(--f-ui); background: var(--face); color: var(--ink); box-shadow: var(--out), 4px 4px 0 var(--shadow); }
 .design-btn:active { box-shadow: var(--in); transform: translate(1px, 1px); }
+
+/* Карточки: плитки колод, быстрый старт, окно настроек */
+.home { display: grid; gap: 16px; }
+.decks { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.deck-tile { position: relative; display: grid; gap: 6px; justify-items: start; align-content: start; text-align: left; padding: 18px 20px; min-height: 168px; cursor: pointer; font: inherit; }
+.dt-icon { font: 400 40px/1.1 var(--f-jp); color: var(--ai); }
+.dt-name { font-size: 26px; font-weight: 700; line-height: 1.2; }
+.dt-total { font-size: 13px; color: var(--muted); }
+.dt-check { position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; display: grid; place-items: center; font-weight: 700; color: var(--ai); }
+.deck-tile[aria-pressed="true"] .dt-check::after { content: "✓"; }
+.btn.big { width: 100%; padding: 16px 20px; font-size: 19px; }
+.dlg { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; color: var(--ink); }
+.dlg::backdrop { background: rgba(15, 10, 35, .5); }
+.dlg-body { display: grid; gap: 12px; }
+.dlg h2 { margin: 0; font-size: 20px; } .dlg h3 { margin: 8px 0 0; font-size: 16px; }
+.dopt { margin: 0 0 10px; display: grid; gap: 8px; }
+.dopt legend { font-weight: 700; padding: 0 6px; }
+/* Знак как в таблице учебника */
+.kcard { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; width: min(100%, 560px); background: var(--card); color: var(--ink); text-align: left; }
+.kc-big { display: grid; place-items: center; padding: 8px 16px; font-size: clamp(56px, 14vw, 84px); line-height: 1.1; }
+.kc-mid { display: grid; align-content: start; min-width: 0; }
+.kc-on { padding: 6px 12px; font-size: 22px; color: var(--shu); }
+.kc-kun { display: flex; flex-wrap: wrap; gap: 4px 24px; align-items: baseline; padding: 6px 12px; }
+.kc-kun .jp { font-size: 20px; line-height: 1.5; color: var(--matcha); }
+.kc-ru { font-size: 17px; font-weight: 600; }
+.kc-side { display: grid; align-content: start; gap: 8px; padding: 8px 10px; text-align: center; }
+.kc-side b { display: block; font-size: 22px; font-weight: 600; line-height: 1.2; }
+.kc-side small { font-size: 11px; color: var(--muted); }
+.kc-exwrap { width: min(100%, 560px); overflow-x: auto; }
+.kc-ex { border-collapse: collapse; width: 100%; text-align: left; font-size: 15px; }
+.kc-ex td { padding: 3px 12px 3px 0; vertical-align: baseline; }
+.kc-ex .kc-w { font-size: 20px; white-space: nowrap; } .kc-ex .kc-r { color: var(--ai); white-space: nowrap; }
+.kc-ex .tb { font-size: 11px; color: var(--muted); }
+@media (max-width: 520px) {
+  .kc-ex tr { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; padding: 4px 0; }
+  .kc-ex tr td { padding: 0; border: 0; } .kc-ex tr td:last-child { grid-column: 1 / -1; }
+  .kc-ex tr { border-bottom: 1px solid var(--guide); }
+}
+/* Квадрат для рисования и порядок черт — одинаковые квадраты с разлиновкой 田 */
+.pad, .strokes { width: 200px; max-width: 100%; aspect-ratio: 1; height: auto; color: var(--ink);
+  background-color: var(--card);
+  background-image: repeating-linear-gradient(90deg, var(--guide) 0 5px, transparent 5px 10px), repeating-linear-gradient(0deg, var(--guide) 0 5px, transparent 5px 10px);
+  background-size: 100% 1px, 1px 100%; background-position: center, center; background-repeat: no-repeat; }
+.pad { position: relative; user-select: none; -webkit-user-select: none; }
+.pad.big { width: min(100%, 62vh, 520px); }
+.pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.pad-tools { position: absolute; top: 4px; right: 4px; z-index: 1; display: flex; align-items: center; gap: 4px; pointer-events: none; }
+.pad-hint { font-size: 10px; color: var(--muted); }
+.pad-tools button, .pad-clear { pointer-events: auto; font-size: 11px; line-height: 1; cursor: pointer; color: var(--ink); }
+.pad-tools button { width: 22px; height: 22px; padding: 0; }
+.pad-clear { position: absolute; top: 4px; left: 4px; z-index: 1; padding: 4px 6px; }
+.deck-tile { background: var(--face); color: var(--ink); border: 0; box-shadow: var(--out), 5px 5px 0 var(--shadow); }
+.deck-tile[aria-pressed="true"] { background: var(--ai-soft); }
+.deck-tile:active { box-shadow: var(--in); transform: translate(1px, 1px); }
+.dt-check { background: var(--card); box-shadow: var(--in); }
+.dlg { border: 0; padding: 3px 3px 18px; background: var(--face); box-shadow: var(--out), 6px 6px 0 var(--shadow); }
+.dlg-body { padding: 12px 16px 0; }
+.dlg .titlebar .dlg-x { width: 18px; height: 16px; margin-left: 2px; padding: 0; border: 0; display: grid; place-items: center; font: 700 11px/1 var(--f-sys); background: var(--shu); color: var(--ai-ink); box-shadow: var(--out); cursor: pointer; }
+.dopt { border: 0; box-shadow: var(--in); padding: 10px 12px; }
+.kcard { border: 2px solid var(--edge); }
+.kc-big { border-right: 2px solid var(--edge); } .kc-on { border-bottom: 2px solid var(--edge); } .kc-side { border-left: 2px solid var(--edge); }
+.kc-ex td { border-bottom: 1px dotted var(--face-sh); }
+.pad, .strokes { box-shadow: var(--in); }
+.pad-tools button, .pad-clear { border: 0; background: var(--face); box-shadow: var(--out); }
 </style>
 
 <style id="css-plain" media="not all">
 /* Layout: одна рабочая колонка-«тетрадь» под липкой шапкой; японский текст — учебным шрифтом (教科書体), поле ответа расчерчено как 原稿用紙. */
+:root { --guide: var(--line); }
 :root {
   --paper: #f3f5f8; --card: #ffffff; --ink: #1b2130; --muted: #5f6880; --line: #dde2ec;
   --ai: #2b4a8e; --ai-soft: #e5ebf8; --ai-ink: #ffffff;
@@ -413,7 +478,6 @@ details.settings .row { margin-top: 8px; }
 .yomi-on { font-family: var(--f-jp); font-size: 20px; color: var(--shu); } .yomi-kun { font-family: var(--f-jp); font-size: 20px; color: var(--matcha); } .yomi-kun i { font-style: normal; opacity: .55; }
 .ex { list-style: none; padding: 0; margin: 0 auto; display: grid; gap: 4px; text-align: left; max-width: 34em; }
 .ex .jp { font-size: 19px; } .ex .tb { font-size: 12px; color: var(--ai); }
-.strokes { width: 150px; height: 150px; max-width: 100%; background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
 .strokes path { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .strokes text { font-size: 8px; fill: var(--shu); font-family: var(--f-ui); }
 .grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -461,6 +525,68 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .book-label { font: 600 19px var(--f-jp); padding: 2px 10px; border-radius: 6px; }
 .book:hover .book-label, .book:focus-visible .book-label { background: var(--ai-soft); color: var(--ai); }
 .design-btn { font-size: 17px; font-weight: 600; background: var(--ai); color: var(--ai-ink); border-radius: var(--radius); }
+
+/* Карточки: плитки колод, быстрый старт, окно настроек */
+.home { display: grid; gap: 16px; }
+.decks { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.deck-tile { position: relative; display: grid; gap: 6px; justify-items: start; align-content: start; text-align: left; padding: 18px 20px; min-height: 168px; cursor: pointer; font: inherit; }
+.dt-icon { font: 400 40px/1.1 var(--f-jp); color: var(--ai); }
+.dt-name { font-size: 26px; font-weight: 700; line-height: 1.2; }
+.dt-total { font-size: 13px; color: var(--muted); }
+.dt-check { position: absolute; top: 14px; right: 14px; width: 24px; height: 24px; display: grid; place-items: center; font-weight: 700; color: var(--ai); }
+.deck-tile[aria-pressed="true"] .dt-check::after { content: "✓"; }
+.btn.big { width: 100%; padding: 16px 20px; font-size: 19px; }
+.dlg { width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; color: var(--ink); }
+.dlg::backdrop { background: rgba(15, 10, 35, .5); }
+.dlg-body { display: grid; gap: 12px; }
+.dlg h2 { margin: 0; font-size: 20px; } .dlg h3 { margin: 8px 0 0; font-size: 16px; }
+.dopt { margin: 0 0 10px; display: grid; gap: 8px; }
+.dopt legend { font-weight: 700; padding: 0 6px; }
+/* Знак как в таблице учебника */
+.kcard { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; width: min(100%, 560px); background: var(--card); color: var(--ink); text-align: left; }
+.kc-big { display: grid; place-items: center; padding: 8px 16px; font-size: clamp(56px, 14vw, 84px); line-height: 1.1; }
+.kc-mid { display: grid; align-content: start; min-width: 0; }
+.kc-on { padding: 6px 12px; font-size: 22px; color: var(--shu); }
+.kc-kun { display: flex; flex-wrap: wrap; gap: 4px 24px; align-items: baseline; padding: 6px 12px; }
+.kc-kun .jp { font-size: 20px; line-height: 1.5; color: var(--matcha); }
+.kc-ru { font-size: 17px; font-weight: 600; }
+.kc-side { display: grid; align-content: start; gap: 8px; padding: 8px 10px; text-align: center; }
+.kc-side b { display: block; font-size: 22px; font-weight: 600; line-height: 1.2; }
+.kc-side small { font-size: 11px; color: var(--muted); }
+.kc-exwrap { width: min(100%, 560px); overflow-x: auto; }
+.kc-ex { border-collapse: collapse; width: 100%; text-align: left; font-size: 15px; }
+.kc-ex td { padding: 3px 12px 3px 0; vertical-align: baseline; }
+.kc-ex .kc-w { font-size: 20px; white-space: nowrap; } .kc-ex .kc-r { color: var(--ai); white-space: nowrap; }
+.kc-ex .tb { font-size: 11px; color: var(--muted); }
+@media (max-width: 520px) {
+  .kc-ex tr { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 12px; padding: 4px 0; }
+  .kc-ex tr td { padding: 0; border: 0; } .kc-ex tr td:last-child { grid-column: 1 / -1; }
+  .kc-ex tr { border-bottom: 1px solid var(--guide); }
+}
+/* Квадрат для рисования и порядок черт — одинаковые квадраты с разлиновкой 田 */
+.pad, .strokes { width: 200px; max-width: 100%; aspect-ratio: 1; height: auto; color: var(--ink);
+  background-color: var(--card);
+  background-image: repeating-linear-gradient(90deg, var(--guide) 0 5px, transparent 5px 10px), repeating-linear-gradient(0deg, var(--guide) 0 5px, transparent 5px 10px);
+  background-size: 100% 1px, 1px 100%; background-position: center, center; background-repeat: no-repeat; }
+.pad { position: relative; user-select: none; -webkit-user-select: none; }
+.pad.big { width: min(100%, 62vh, 520px); }
+.pad canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.pad-tools { position: absolute; top: 4px; right: 4px; z-index: 1; display: flex; align-items: center; gap: 4px; pointer-events: none; }
+.pad-hint { font-size: 10px; color: var(--muted); }
+.pad-tools button, .pad-clear { pointer-events: auto; font-size: 11px; line-height: 1; cursor: pointer; color: var(--ink); }
+.pad-tools button { width: 22px; height: 22px; padding: 0; }
+.pad-clear { position: absolute; top: 4px; left: 4px; z-index: 1; padding: 4px 6px; }
+.deck-tile { background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: var(--radius); }
+.deck-tile:hover { border-color: var(--ai); }
+.deck-tile[aria-pressed="true"] { border-color: var(--ai); background: var(--ai-soft); }
+.dt-check { border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+.dlg { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; background: var(--card); }
+.dopt { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.kcard { border: 1.5px solid var(--ink); border-radius: 4px; }
+.kc-big { border-right: 1.5px solid var(--ink); } .kc-on { border-bottom: 1px solid var(--ink); } .kc-side { border-left: 1.5px solid var(--ink); }
+.kc-ex td { border-bottom: 1px solid var(--line); }
+.pad, .strokes { border: 1px solid var(--line); border-radius: 8px; }
+.pad-tools button, .pad-clear { border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
 </style>
 <script>
 // Оформление выбирается до отрисовки страницы, чтобы она не мигала чужим стилем.
@@ -525,6 +651,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
   <div class="top-row">
     <div class="brand"><b>日本語</b><span class="y2k-only">TRAINER.EXE</span><span class="plain-only">тренажёр</span></div>
     <button class="bookchip" id="curBook" type="button" title="Сменить учебник"><small>учебник</small><b>日本語初歩</b></button>
+    <button class="bookchip" id="styleBtn" type="button" title="Сменить оформление"></button>
     <label class="range" for="lfrom">Уроки
       <select id="lfrom" aria-label="С урока"></select>–<select id="lto" aria-label="По урок"></select>
     </label>
@@ -547,10 +674,6 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 
 <main>
   <section class="mode" id="m-cards" hidden>
-    <p class="intro">Колода Anki прямо здесь: слова, кандзи и фразы с интервальным повторением. Новые карточки идут по порядку уроков из выбранного диапазона; повторения приходят, когда вы начинаете забывать. Отвечайте честно: «Снова», если не вспомнили.</p>
-    <p class="note" id="apkgLink" hidden>Та же колода для приложения Anki (телефон, компьютер): <a href="nihongo_shoho.apkg" download>скачать nihongo_shoho.apkg</a>. Прогресс в Anki и здесь ведётся отдельно — выберите что‑то одно.</p>
-    <div class="decks" id="deckList"></div>
-    <div class="row"><button class="btn primary" id="aStart">Начать</button><span class="note" id="aSummary"></span></div>
     <div class="sheet" id="aStudy" hidden>
       <div class="task" id="aTask"></div>
       <div class="face" id="aFront"></div>
@@ -564,16 +687,30 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
       </div>
       <div class="row"><button class="btn ghost" id="aEnd">Закончить</button><span class="note" id="aLeft"></span><span class="kbd">клавиши 1–4 — оценка</span></div>
     </div>
-    <details class="settings">
-      <summary>Прогресс и резервная копия</summary>
-      <p class="note" id="aSync"></p>
-      <div class="row">
-        <button class="btn" id="aExport" type="button">Сохранить прогресс в файл</button>
-        <label class="btn" for="aImport">Загрузить из файла</label>
-        <input type="file" id="aImport" accept=".json,application/json" hidden>
+    <div class="home" id="aHome">
+      <p class="intro">Отметьте колоды и нажмите «Быстрый старт»: карточки выбранных уроков пойдут в случайном порядке. «Повторение по расписанию» работает как Anki: новые карточки по порядку уроков, повторения — когда вы начинаете забывать. Отвечайте честно: «Снова», если не вспомнили.</p>
+      <div class="decks" id="deckList" role="group" aria-label="Колоды для быстрого старта"></div>
+      <button class="btn primary big" id="aQuick" type="button">Быстрый старт по выбранным урокам</button>
+      <div class="row"><button class="btn" id="aStart" type="button">Повторение по расписанию</button><span class="note" id="aSummary"></span></div>
+      <p class="note" id="apkgLink" hidden>Та же колода для приложения Anki (телефон, компьютер): <a href="nihongo_shoho.apkg" download>скачать nihongo_shoho.apkg</a>. Прогресс в Anki и здесь ведётся отдельно — выберите что‑то одно.</p>
+      <button class="btn big" id="aOpts" type="button">Настройки колод и прогресс</button>
+    </div>
+    <dialog class="dlg" id="aDlg" aria-labelledby="aDlgTitle">
+      <div class="titlebar"><span class="ttl">Настройки колод</span><span class="wbtns"><i aria-hidden="true">_</i><i aria-hidden="true">□</i><button type="button" class="dlg-x" data-close aria-label="Закрыть">×</button></span></div>
+      <div class="dlg-body">
+        <h2 id="aDlgTitle">Настройки колод</h2>
+        <div id="deckOpts"></div>
+        <h3>Прогресс и резервная копия</h3>
+        <p class="note" id="aSync"></p>
+        <div class="row">
+          <button class="btn" id="aExport" type="button">Сохранить прогресс в файл</button>
+          <label class="btn" for="aImport">Загрузить из файла</label>
+          <input type="file" id="aImport" accept=".json,application/json" hidden>
+        </div>
+        <div class="fb info" id="aConfirm" hidden></div>
+        <button class="btn primary" type="button" data-close>Готово</button>
       </div>
-      <div class="fb info" id="aConfirm" hidden></div>
-    </details>
+    </dialog>
   </section>
 
   <section class="mode" id="m-forms" hidden>
@@ -1287,24 +1424,37 @@ function deckCounts(d) {
   const left = Math.max(0, CFG[d].n - (Prog.data.nd[d] || 0));
   return { rev, lrn, n: newQueue(d, left).length };
 }
+const DECK_ICON = { w: '言葉', k: '漢字', s: '文' };
+let QS = store.get('qsDecks', ['w', 'k']);  // колоды, отмеченные для быстрого старта
+const inLessons = d => DECKS[d].notes.filter(n => inRange(n.l)).length;
 function renderDecks() {
   let total = 0;
   $('#deckList').innerHTML = Object.entries(DECKS).map(([d, deck]) => {
     const c = deckCounts(d); total += c.rev + c.lrn + c.n;
-    return `<div class="deck">${winbar(deck.name + '.deck')}<div class="deck-head"><b>${deck.name}</b>
-      <span class="counts" title="новые · в изучении · к повторению"><span><b class="n">${c.n}</b> новых</span><span><b class="lrn">${c.lrn}</b> учу</span><span><b class="rev">${c.rev}</b> повторить</span></span></div>
-      <div class="toggles">${deck.tpl.map((name, i) => `<label class="toggle" for="t-${d}${i + 1}"><input type="checkbox" id="t-${d}${i + 1}" data-d="${d}" data-t="${i + 1}" ${enabled(d).includes(i + 1) ? 'checked' : ''}> ${name}</label>`).join('')}</div>
-      <label class="newlim" for="n-${d}">новых в день <input type="number" id="n-${d}" data-d="${d}" min="0" max="300" value="${CFG[d].n}"></label></div>`;
+    return `<button type="button" class="deck-tile" data-d="${d}" aria-pressed="${QS.includes(d)}">
+      <span class="dt-check" aria-hidden="true"></span><span class="dt-icon" aria-hidden="true">${DECK_ICON[d]}</span><span class="dt-name">${deck.name}</span>
+      <span class="dt-total">${inLessons(d)} в уроках ${S.from}–${S.to}</span>
+      <span class="counts" title="новые · в изучении · к повторению"><span><b class="n">${c.n}</b> новых</span><span><b class="lrn">${c.lrn}</b> учу</span><span><b class="rev">${c.rev}</b> повторить</span></span></button>`;
   }).join('');
-  $$('#deckList input[type=checkbox]').forEach(el => el.onchange = () => {
-    const d = el.dataset.d; CFG[d].t = $$(`#deckList input[type=checkbox][data-d="${d}"]:checked`).map(x => +x.dataset.t);
+  $$('#deckList .deck-tile').forEach(b => b.onclick = () => {
+    const d = b.dataset.d; QS = QS.includes(d) ? QS.filter(x => x !== d) : [...QS, d];
+    store.set('qsDecks', QS); renderDecks();
+  });
+  $('#deckOpts').innerHTML = Object.entries(DECKS).map(([d, deck]) => `<fieldset class="dopt"><legend>${deck.name}</legend>
+      <div class="toggles">${deck.tpl.map((name, i) => `<label class="toggle" for="t-${d}${i + 1}"><input type="checkbox" id="t-${d}${i + 1}" data-d="${d}" data-t="${i + 1}" ${enabled(d).includes(i + 1) ? 'checked' : ''}> ${name}</label>`).join('')}</div>
+      <label class="newlim" for="n-${d}">новых в день (для повторения по расписанию) <input type="number" id="n-${d}" data-d="${d}" min="0" max="300" value="${CFG[d].n}"></label></fieldset>`).join('');
+  $$('#deckOpts input[type=checkbox]').forEach(el => el.onchange = () => {
+    const d = el.dataset.d; CFG[d].t = $$(`#deckOpts input[type=checkbox][data-d="${d}"]:checked`).map(x => +x.dataset.t);
     store.set('srsCfg', CFG); renderDecks();
   });
-  $$('#deckList input[type=number]').forEach(el => el.onchange = () => {
+  $$('#deckOpts input[type=number]').forEach(el => el.onchange = () => {
     CFG[el.dataset.d].n = Math.max(0, Math.min(300, Math.round(+el.value || 0))); store.set('srsCfg', CFG); renderDecks();
   });
-  $('#aSummary').textContent = total ? `на сегодня: ${total} карточек · уроки ${S.from}–${S.to}` : 'На сегодня всё. Новые карточки появятся завтра — или расширьте диапазон уроков и лимит новых.';
+  $('#aSummary').textContent = total ? `на сегодня: ${total} карточек · уроки ${S.from}–${S.to}` : 'По расписанию на сегодня всё — можно учить быстрым стартом.';
   $('#aStart').disabled = !total;
+  const quickLeft = QS.reduce((sum, d) => sum + newQueue(d, Infinity).length, 0);
+  $('#aQuick').disabled = !QS.length;
+  $('#aQuick').title = QS.length ? `новых карточек в выбранных уроках: ${quickLeft}` : 'Отметьте хотя бы одну колоду';
   renderSync();
 }
 function schedule(st, g, now = Date.now()) {
@@ -1329,20 +1479,26 @@ function fmtIvl(st, now) {
   if (st[0] === 2) { const d = st[2]; return d < 30 ? `${d} дн` : d < 365 ? `${(d / 30).toFixed(1).replace('.0', '')} мес` : `${(d / 365).toFixed(1).replace('.0', '')} г`; }
   const m = Math.round((st[1] - now) / MIN); return m < 1 ? '<1 мин' : m < 60 ? `${m} мин` : `${Math.round(m / 60)} ч`;
 }
-const A = { cur: null, shown: false, sinceNew: 0, done: 0 };
+const A = { cur: null, shown: false, sinceNew: 0, done: 0, quick: null };
 function pickCard() {
   const now = Date.now(), end = dayStart(dayNum() + 1), c = Prog.data.c;
   let lrn = null, ahead = null, rev = [];
   for (const [id, st] of Object.entries(c)) {
     const d = id[0];
     if (!enabled(d).includes(+id.slice(-1)) || !NOTE.has(id.slice(0, -2))) continue;
+    if (A.quick && !A.quick.decks.has(d)) continue;
     if (st[0] === 2) { if (st[1] < end) rev.push([id, st[1]]); }
     else if (st[1] <= now) { if (!lrn || st[1] < c[lrn][1]) lrn = id; }
     else if (st[1] < now + 20 * MIN && (!ahead || st[1] < c[ahead][1])) ahead = id;
   }
   if (lrn) return lrn;
   let fresh = null, best = Infinity;
-  for (const d of Object.keys(DECKS)) { // новые карточки чередуются между колодами пропорционально лимитам
+  if (A.quick) { // быстрый старт: новые карточки выбранных уроков в случайном порядке, без дневного лимита
+    while (A.quick.pool.length && Prog.data.c[A.quick.pool[0]]) A.quick.pool.shift();
+    fresh = A.quick.pool[0] || null; best = -1;
+  }
+  for (const d of Object.keys(DECKS)) {
+    if (A.quick) break; // новые карточки чередуются между колодами пропорционально лимитам
     const done = Prog.data.nd[d] || 0;
     if (done >= CFG[d].n) continue;
     const share = done / CFG[d].n, cand = share < best ? newQueue(d, 1)[0] : null;
@@ -1353,6 +1509,50 @@ function pickCard() {
   return ahead;
 }
 function kunHTML(k) { const [stem, oku] = k.split('.'); return esc(stem) + (oku ? `<i>${esc(oku)}</i>` : ''); }
+// Знак как в таблице учебника: большой знак | он / кун и значение | черты и ключ; ниже — слова для запоминания.
+function kanjiCard(n) {
+  const strokes = D.strokes[n.c]?.[0].length;
+  return `<div class="kcard">
+    <div class="kc-big jp">${esc(n.c)}</div>
+    <div class="kc-mid"><div class="kc-on jp">${esc(n.on.join('、')) || '—'}</div>
+      <div class="kc-kun"><div class="jp">${n.kun.map(k => esc(k.replace('.', '・'))).join('<br>') || '—'}</div><div class="kc-ru">${esc(n.m)}</div></div></div>
+    <div class="kc-side">${strokes ? `<div><b>${strokes}</b><small>${strokes % 10 === 1 && strokes % 100 !== 11 ? 'черта' : [2, 3, 4].includes(strokes % 10) && ![12, 13, 14].includes(strokes % 100) ? 'черты' : 'черт'}</small></div>` : ''}${n.rad ? `<div><b class="jp">${esc(n.rad)}</b><small>ключ</small></div>` : ''}</div>
+  </div>`;
+}
+function kanjiExamples(n) {
+  if (!n.ex.length) return '';
+  return `<div class="kc-exwrap"><table class="kc-ex"><tbody>${n.ex.slice(0, 6).map(([w, r, ru, l]) =>
+    `<tr><td class="jp kc-w">${esc(w)}</td><td class="jp kc-r">${esc(r)}</td><td>${esc(ru)}${l ? ` <span class="tb">ур. ${l}</span>` : ''}</td></tr>`).join('')}</tbody></table></div>`;
+}
+// Квадрат для рисования знака пальцем, стилусом или мышью; штрихи хранятся в долях стороны и перерисовываются при увеличении.
+const PAD_HTML = `<div class="pad" data-pad><button type="button" class="pad-clear">стереть</button>
+  <span class="pad-tools"><span class="pad-hint">увеличить</span><button type="button" class="pad-zoom" aria-label="Увеличить квадрат">⤢</button></span>
+  <canvas aria-label="Квадрат для рисования иероглифа"></canvas></div>`;
+function makePad(el) {
+  const cv = $('canvas', el), ctx = cv.getContext('2d'), strokes = []; let cur = null;
+  const draw = () => {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.lineCap = ctx.lineJoin = 'round'; ctx.strokeStyle = getComputedStyle(el).color; ctx.lineWidth = cv.width / 24;
+    for (const st of strokes) {
+      ctx.beginPath(); st.forEach(([x, y], i) => ctx[i ? 'lineTo' : 'moveTo'](x * cv.width, y * cv.height));
+      if (st.length === 1) ctx.lineTo(st[0][0] * cv.width + .5, st[0][1] * cv.height);
+      ctx.stroke();
+    }
+  };
+  const fit = () => { const r = cv.getBoundingClientRect(), k = devicePixelRatio || 1; cv.width = Math.round(r.width * k); cv.height = Math.round(r.height * k); draw(); };
+  const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
+  cv.onpointerdown = e => { e.preventDefault(); cv.setPointerCapture(e.pointerId); cur = [pt(e)]; strokes.push(cur); draw(); };
+  cv.onpointermove = e => { if (cur) { cur.push(pt(e)); draw(); } };
+  cv.onpointerup = cv.onpointercancel = () => { cur = null; };
+  $('.pad-clear', el).onclick = () => { strokes.length = 0; draw(); };
+  $('.pad-zoom', el).onclick = () => {
+    const big = el.classList.toggle('big');
+    $('.pad-hint', el).textContent = big ? 'уменьшить' : 'увеличить';
+    $('.pad-zoom', el).setAttribute('aria-label', big ? 'Уменьшить квадрат' : 'Увеличить квадрат');
+    requestAnimationFrame(fit);
+  };
+  requestAnimationFrame(fit);
+}
 function strokeSVG(ch) {
   const s = D.strokes[ch]; if (!s) return '';
   return `<svg class="strokes" viewBox="0 0 109 109" role="img" aria-label="Порядок черт ${esc(ch)}">${s[0].map(d => `<path d="${d}"></path>`).join('')}${s[1].map(([x, y], i) => `<text x="${x}" y="${y}">${i + 1}</text>`).join('')}</svg>
@@ -1378,11 +1578,11 @@ function faces(id) {
   }
   if (d === 'k') {
     const rd = `<div class="readings"><div><div class="lbl">он</div><div class="yomi-on">${esc(n.on.join('、') || '—')}</div></div><div><div class="lbl">кун</div><div class="yomi-kun">${n.kun.map(kunHTML).join('、') || '—'}</div></div></div>`;
-    const ex = `<ul class="ex">${n.ex.map(([w, r, ru, l]) => `<li><span class="jp"><ruby>${esc(w)}<rt>${esc(r)}</rt></ruby></span> — ${esc(ru)}${l ? ` <span class="tb">учебник, ур. ${l}</span>` : ''}</li>`).join('')}</ul>`;
-    if (t === 1) return { front: `<div class="prompt">${esc(n.c)}</div>`, back: `<div class="meaning">${esc(n.m)}</div>${rd}${ex}${strokeSVG(n.c)}` };
+    const answer = `${kanjiCard(n)}${kanjiExamples(n)}${strokeSVG(n.c)}`;
+    if (t === 1) return { front: `<div class="prompt">${esc(n.c)}</div>`, back: answer };
     const cue = n.cue[0] ? `<div class="jpline jp">${esc(n.cue[0])}${n.cue[1] ? ` <span class="meta">(${esc(n.cue[1])})</span>` : ''}</div>` : '';
-    return { front: `<div class="meaning">${esc(n.m)}</div>${rd}${cue}<div class="meta">напишите иероглиф на бумаге или пальцем</div>`,
-      back: `<div class="prompt">${esc(n.c)}</div>${strokeSVG(n.c)}` };
+    return { front: `<div class="meaning">${esc(n.m)}</div>${rd}${cue}<div class="meta">нарисуйте знак в квадрате (или на бумаге), потом откройте ответ</div>${PAD_HTML}`,
+      back: answer };
   }
   const furi = `<div class="prompt sentence" style="text-align:center">${rubyAlways(n.f)}</div>`;
   if (t === 1) return { front: `<div class="meaning">${esc(n.r)}</div><span class="chip">${esc(n.p)}</span><div class="meta">скажите вслух, потом откройте ответ</div>`,
@@ -1392,6 +1592,7 @@ function faces(id) {
 function wireFace(el) {
   $$('[data-say]', el).forEach(b => b.onclick = () => tts.speak(b.dataset.say));
   $$('[data-anim]', el).forEach(b => b.onclick = () => animateStrokes(b.previousElementSibling));
+  $$('[data-pad]', el).forEach(makePad);
 }
 function nextCard() {
   Prog.today();
@@ -1405,7 +1606,9 @@ function nextCard() {
   $('#aFront').innerHTML = f.front; wireFace($('#aFront'));
   $('#aBack').hidden = true; $('#aGrades').hidden = true; $('#aShowRow').hidden = false;
   const c = { rev: 0, lrn: 0, n: 0 }; for (const k of Object.keys(DECKS)) { const x = deckCounts(k); c.rev += x.rev; c.lrn += x.lrn; c.n += x.n; }
-  $('#aLeft').textContent = `осталось: ${c.n} новых · ${c.lrn} в изучении · ${c.rev} повторить`;
+  $('#aLeft').textContent = A.quick
+    ? `быстрый старт · уроки ${S.from}–${S.to} · новых осталось: ${A.quick.pool.filter(x => !Prog.data.c[x]).length}`
+    : `осталось: ${c.n} новых · ${c.lrn} в изучении · ${c.rev} повторить`;
   if (f.frontSay) tts.speak(f.frontSay);
   if (fine) $('#aShow').focus();
 }
@@ -1426,9 +1629,13 @@ function grade(g) {
   Prog.save(); mark(g > 1); A.done++;
   nextCard();
 }
-function startStudy() { A.done = 0; A.sinceNew = 0; $('#aStudy').hidden = false; $('#deckList').hidden = true; $('#aStart').parentElement.hidden = true; nextCard(); }
+function startStudy(quick) {
+  A.done = 0; A.sinceNew = 0;
+  A.quick = quick ? { decks: new Set(QS), pool: shuffle(QS.flatMap(d => newQueue(d, Infinity))) } : null;
+  $('#aStudy').hidden = false; $('#aHome').hidden = true; scrollTo(0, 0); nextCard();
+}
 function endStudy(finished) {
-  $('#aStudy').hidden = true; $('#deckList').hidden = false; $('#aStart').parentElement.hidden = false; A.cur = null;
+  $('#aStudy').hidden = true; $('#aHome').hidden = false; A.cur = null; A.quick = null;
   renderDecks();
   if (finished && A.done) $('#aSummary').textContent = `Готово: ${A.done} ответов. ` + $('#aSummary').textContent;
 }
@@ -1489,6 +1696,7 @@ function applyPlain() {
   $('#css-y2k').media = on ? 'not all' : 'all';
   $('#css-plain').media = on ? 'all' : 'not all';
   $('#designBtn').textContent = on ? 'Вернуть стиль Windows 95' : 'Упрощённый дизайн';
+  $('#styleBtn').textContent = on ? 'Стиль Windows 95' : 'Простой дизайн';
   $('#optPlain').checked = on;
 }
 // Учебники: пока один. Выбор живёт до конца сеанса, сменить — кнопкой в шапке или START.
@@ -1500,7 +1708,7 @@ function bindPicker() {
     $('#curBook b').textContent = BOOKS[b.dataset.book];
     $('#picker').hidden = true;
   });
-  $('#designBtn').onclick = () => { S.plain = !S.plain; store.set('plain', S.plain); applyPlain(); };
+  $('#designBtn').onclick = $('#styleBtn').onclick = () => { S.plain = !S.plain; store.set('plain', S.plain); applyPlain(); };
   $('#curBook').onclick = showPicker; $('#startBtn').onclick = showPicker;
 }
 function applyKyo() {
@@ -1534,7 +1742,9 @@ function bind() {
   $('#fHint').onclick = () => { if (F.cur) { $('#fHint').textContent = POS_RU[F.cur.item.p] || ''; $('#fHint').disabled = true; } };
   onEnter($('#fInput'), () => checkForm(false));
   $('#pNext').onclick = nextParticle;
-  $('#aStart').onclick = startStudy; $('#aShow').onclick = showAnswer; $('#aEnd').onclick = () => endStudy(false);
+  $('#aStart').onclick = () => startStudy(false); $('#aQuick').onclick = () => startStudy(true);
+  $('#aOpts').onclick = () => $('#aDlg').showModal();
+  $$('#aDlg [data-close]').forEach(b => b.onclick = () => $('#aDlg').close()); $('#aShow').onclick = showAnswer; $('#aEnd').onclick = () => endStudy(false);
   $$('#aGrades .grade').forEach(b => b.onclick = () => grade(+b.dataset.g));
   $('#aExport').onclick = exportProgress;
   $('#aImport').onchange = e => { const f = e.target.files[0]; if (f) importProgress(f); e.target.value = ''; };

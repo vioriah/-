@@ -59,6 +59,15 @@ def stroke_data():
     return out
 
 
+def radical(ch):
+    """Ключ знака по разметке KanjiVG: традиционный, иначе общий, иначе по словарю Нельсона."""
+    svg = ROOT / "data" / "kanjivg" / f"{ord(ch):05x}.svg"
+    if not svg.exists():
+        return ""
+    found = dict((kind, el) for el, kind in re.findall(r'kvg:element="([^"]+)"[^>]*?kvg:radical="([^"]+)"', svg.read_text(encoding="utf-8")))
+    return next((found[k] for k in ("tradit", "general", "nelson") if k in found), "")
+
+
 def build_data():
     core = load_core()
     kanji_info = {r["kanji"]: r for r in core}
@@ -69,7 +78,7 @@ def build_data():
     kanji = []
     for row in core:
         examples, cue = kanji_examples(row, textbook_words)
-        kanji.append({"c": row["kanji"], "l": row["lesson"], "m": row["meaning"], "on": row["on"], "kun": row["kun"],
+        kanji.append({"c": row["kanji"], "l": row["lesson"], "m": row["meaning"], "on": row["on"], "kun": row["kun"], "rad": radical(row["kanji"]),
                       "ex": [list(e) for e in examples], "cue": list(cue)})
     sentences = [{"id": short_id(r["jp"]), "l": int(r["lesson"]), "p": r["pattern"], "j": r["jp"], "r": r["ru"],
                   "f": r["furigana"]} for r in read_tsv(ROOT / "grammar" / "sentences.tsv")]
