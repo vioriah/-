@@ -61,6 +61,29 @@
 }
 ```
 
+## Раздел «Кино»: фильмы из закрытого хранилища Backblaze B2
+
+Части фильма лежат в закрытом (private) хранилище B2. Студент входит своим личным кодом, посредник
+выдаёт подпись на 6 часов и сам отдаёт видео из B2 — с перемоткой. Без подписи части не отдаются.
+
+1. В B2 загрузите части фильма под **разными** именами латиницей: `spirited-away-1.mov`,
+   `spirited-away-2.mov`… (одинаковое имя B2 считает новой версией того же файла).
+2. B2 → **Application Keys → Add a New Application Key**: доступ только к хранилищу с фильмом,
+   **Read Only** → Create. Сразу скопируйте `keyID` и `applicationKey` (второй показывается один раз).
+3. Cloudflare → воркер → **Settings → Variables and Secrets**: секреты `B2_KEY_ID`, `B2_APP_KEY`
+   и `B2_BUCKET` (имя хранилища). Обновите код воркера (`worker.js`) → Deploy.
+4. Разбор фильма загружается так же, как песня, только вместо `yt` — список частей:
+
+```json
+{ "id": "spirited-away", "title": "千と千尋の神隠し", "artist": "宮崎駿", "year": 2001,
+  "parts": [{ "file": "spirited-away-1.mov" }, { "file": "spirited-away-2.mov" }, { "file": "spirited-away-3.mov" }],
+  "lines": [{ "sec": "Сцена 1" }, { "who": "千尋", "jp": "…", "furi": "…", "ru": "…", "note": "…", "t": 125.4 }] }
+```
+
+Время `t` — общее по всему фильму (части идут подряд). Дневной лимит скачивания B2 без карты — 1 ГБ;
+трафик B2 → Cloudflare по соглашению Bandwidth Alliance бесплатный — после первого просмотра проверьте
+в B2 **Caps & Alerts**, растёт ли «Today» у Daily Download Bandwidth.
+
 ## Защита баланса
 
 - Поставьте месячный лимит трат там, где куплен ключ (у Anthropic: platform.claude.com → Settings → Limits).

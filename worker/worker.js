@@ -18,10 +18,17 @@
 //   STUDENT_CODES    секрет, личные коды студентов: «Имя=код» (или просто «код») через ; , или с новой строки
 //   ADMIN_CODE       секрет, код преподавателя: загрузка песен и разметка времени строк
 // Каждый запрос к песне пишется в журнал воркера (Observability → Logs): кто и что открывал.
+//
+// Раздел «Кино» (фильмы из закрытого хранилища Backblaze B2; разбор фильма лежит в MUSIC, как песни):
+//   B2_KEY_ID, B2_APP_KEY  секреты, ключ приложения B2 только для чтения
+//   B2_BUCKET              имя хранилища B2 с частями фильмов
+// Студент по личному коду получает подпись на 6 часов; видео идёт через посредника (трафик B2 → Cloudflare),
+// а без подписи части фильма не отдаются.
 
 const MAX_BODY = 64 * 1024;
 const MAX_MESSAGES = 40;
-const MAX_SONG = 200 * 1024;
+const MAX_SONG = 3 * 1024 * 1024;  // разбор полного фильма — до нескольких мегабайт
+const FILM_TTL = 6 * 3600;          // сколько живёт подпись на просмотр фильма, с
 
 // Коды сравниваются без пробелов, кавычек, невидимых символов и без учёта регистра; русские буквы,
 // похожие на латинские (А, В, Е, К, М, Н, О, Р, С, Т, У, Х), считаются латинскими — на планшете
@@ -46,6 +53,45 @@ function student(env, code) {
   return null;
 }
 
+// Подпись ссылок на фильм: HMAC от «id.срок» на ключе, который знает только посредник.
+async function sign(env, msg) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode('film:' + (env.B2_APP_KEY || '')), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg)));
+  return btoa(String.fromCharCode(...sig)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+// Доступ к закрытому хранилищу B2: токен живёт сутки, держим его в памяти воркера.
+let B2 = null;
+async function b2auth(env, force) {
+  if (B2 && !force && B2.until > Date.now()) return B2;
+  const r = await fetch('https://api.backblazeb2.com/b2api/v2/b2_authorize_account', { headers: { authorization: 'Basic ' + btoa(env.B2_KEY_ID + ':' + env.B2_APP_KEY) } });
+  if (!r.ok) throw new Error('B2 не принял ключ: ' + r.status);
+  const j = await r.json();
+  B2 = { token: j.authorizationToken, url: j.downloadUrl, until: Date.now() + 20 * 3600e3 };
+  return B2;
+}
+
+// Часть фильма: проверяем подпись и что файл действительно из этого фильма, затем отдаём из B2 с поддержкой перемотки (Range).
+async function filmStream(req, env, id, file, url, fail) {
+  const exp = Number(url.searchParams.get('exp'));
+  if (!exp || exp < Date.now() / 1000 || url.searchParams.get('sig') !== await sign(env, id + '.' + exp)) return fail(403, 'permission_error', 'Ссылка на фильм устарела — откройте фильм заново.');
+  const film = JSON.parse(await env.MUSIC.get('song:' + id) || 'null');
+  if (!film?.parts?.some(p => p.file === file)) return fail(404, 'not_found_error', 'Нет такой части фильма.');
+  const get = async force => {
+    const b2 = await b2auth(env, force);
+    const headers = { authorization: b2.token };
+    if (req.headers.get('range')) headers.range = req.headers.get('range');
+    return fetch(`${b2.url}/file/${encodeURIComponent(env.B2_BUCKET)}/${encodeURIComponent(file)}`, { headers });
+  };
+  let res;
+  try { res = await get(false); if (res.status === 401) res = await get(true); }
+  catch (e) { return fail(502, 'api_error', String(e.message || e)); }
+  const out = new Headers();
+  for (const h of ['content-type', 'content-length', 'content-range', 'accept-ranges', 'etag', 'last-modified']) if (res.headers.get(h)) out.set(h, res.headers.get(h));
+  out.set('cache-control', 'private, max-age=3600');
+  return new Response(res.body, { status: res.status, headers: out });
+}
+
 async function music(req, env, path, fail, ok) {
   if (!env.MUSIC) return fail(500, 'api_error', 'В посреднике не подключено хранилище MUSIC.');
   const who = student(env, sentCode(req));
@@ -58,6 +104,13 @@ async function music(req, env, path, fail, ok) {
     const { keys } = await env.MUSIC.list({ prefix: 'song:' });
     console.log('music list', who);
     return ok({ who, songs: keys.map(k => ({ id: k.name.slice(5), ...(k.metadata || {}) })) });
+  }
+  const t = path.match(/^\/music\/ticket\/([a-z0-9-]{1,60})$/);
+  if (req.method === 'GET' && t) {
+    if (!env.B2_KEY_ID || !env.B2_APP_KEY || !env.B2_BUCKET) return fail(500, 'api_error', 'В посреднике не заданы секреты B2_KEY_ID, B2_APP_KEY и B2_BUCKET.');
+    const exp = Math.floor(Date.now() / 1000) + FILM_TTL;
+    console.log('film ticket', who, t[1]);
+    return ok({ exp, sig: await sign(env, t[1] + '.' + exp) });
   }
   const m = path.match(/^\/music\/song\/([a-z0-9-]{1,60})$/);
   if (req.method === 'GET' && m) {
@@ -72,9 +125,10 @@ async function music(req, env, path, fail, ok) {
     if (text.length > MAX_SONG) return fail(413, 'request_too_large', 'Слишком большая песня.');
     let song;
     try { song = JSON.parse(text); } catch { return fail(400, 'invalid_request_error', 'Это не JSON.'); }
-    if (!/^[a-z0-9-]{1,60}$/.test(song.id || '') || !song.title || !/^[\w-]{11}$/.test(song.yt || '') || !Array.isArray(song.lines) || !song.lines.length)
-      return fail(400, 'invalid_request_error', 'Нужны поля id (латиница, цифры, дефис), title, yt (11 знаков id ролика) и непустой lines.');
-    await env.MUSIC.put('song:' + song.id, JSON.stringify(song), { metadata: { title: song.title, artist: song.artist || '', year: song.year || '' } });
+    const film = Array.isArray(song.parts) && song.parts.length && song.parts.every(p => typeof p.file === 'string' && p.file);
+    if (!/^[a-z0-9-]{1,60}$/.test(song.id || '') || !song.title || !(film || /^[\w-]{11}$/.test(song.yt || '')) || !Array.isArray(song.lines) || !song.lines.length)
+      return fail(400, 'invalid_request_error', 'Нужны поля id (латиница, цифры, дефис), title, lines и либо yt (11 знаков id ролика), либо parts (части фильма в B2).');
+    await env.MUSIC.put('song:' + song.id, JSON.stringify(song), { metadata: { title: song.title, artist: song.artist || '', year: song.year || '', kind: film ? 'film' : 'song' } });
     console.log('music save', song.id, song.lines.length, 'строк');
     return ok({ saved: song.id, lines: song.lines.length });
   }
@@ -96,7 +150,13 @@ export default {
       Response.json({ type: 'error', error: { type, message } }, { status, headers: cors });
 
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    const path = new URL(req.url).pathname;
+    const url = new URL(req.url), path = url.pathname;
+    // Видео запрашивает сам тег <video> — без заголовка Origin, поэтому здесь доступ проверяется по подписи.
+    const fs = path.match(/^\/film\/([a-z0-9-]{1,60})\/([^/]{1,200})$/);
+    if (fs && (req.method === 'GET' || req.method === 'HEAD')) {
+      if (!env.MUSIC || !env.B2_BUCKET) return fail(500, 'api_error', 'Кино не настроено в посреднике.');
+      return filmStream(req, env, fs[1], decodeURIComponent(fs[2]), url, fail);
+    }
     if (path.startsWith('/music/')) {
       if (!allowed.includes(origin)) return fail(403, 'permission_error', 'Запросы принимаются только с сайта тренажёра.');
       const res = await music(req, env, path, fail, data => Response.json(data, { headers: cors }));

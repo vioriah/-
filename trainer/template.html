@@ -434,6 +434,12 @@ button.start:active { box-shadow: var(--in); }
 .tv-feet { display: flex; justify-content: space-between; padding: 0 12%; }
 .tv-feet::before, .tv-feet::after { content: ""; width: 16px; height: 14px; background: #3b1d0c; }
 @media (max-width: 640px) { .tv-body { gap: 8px; padding: 10px; } .tv-side { width: 34px; gap: 8px; } .tv-knob { width: 24px; height: 24px; } .tv-grille { width: 26px; height: 34px; } }
+
+.mu-reel { flex: none; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, #ede7f7 0 10%, #3a3550 11% 18%, transparent 19%), conic-gradient(#3a3550 0 20deg, #8f8aa3 20deg 70deg, #3a3550 70deg 140deg, #8f8aa3 140deg 190deg, #3a3550 190deg 260deg, #8f8aa3 260deg 310deg, #3a3550 310deg); box-shadow: inset 0 0 0 3px #3a3550; }
+.mf-who { display: inline-block; margin-right: 8px; padding: 0 6px; font-size: .55em; vertical-align: middle; color: var(--ai-ink); background: var(--ai); }
+.mu-speed { display: inline-flex; gap: 4px; }
+.tv-screen video { display: block; width: 100%; height: 100%; background: #000; }
+.tv-screen video { border-radius: 16px / 22px; }
 </style>
 
 <style id="css-plain" media="not all">
@@ -755,6 +761,11 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .tv-ant, .tv-side, .tv-feet { display: none; }
 .tv-screen { aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; background: #000; }
 .tv-screen #muPlayer, .tv-screen iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+.mu-reel { flex: none; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle, #ede7f7 0 10%, #3a3550 11% 18%, transparent 19%), conic-gradient(#3a3550 0 20deg, #8f8aa3 20deg 70deg, #3a3550 70deg 140deg, #8f8aa3 140deg 190deg, #3a3550 190deg 260deg, #8f8aa3 260deg 310deg, #3a3550 310deg); box-shadow: inset 0 0 0 3px #3a3550; }
+.mf-who { display: inline-block; margin-right: 8px; padding: 0 6px; border-radius: 4px; font-size: .55em; vertical-align: middle; color: var(--ai-ink); background: var(--ai); }
+.mu-speed { display: inline-flex; gap: 4px; }
+.tv-screen video { display: block; width: 100%; height: 100%; background: #000; }
 </style>
 <script>
 // Оформление выбирается до отрисовки страницы, чтобы она не мигала чужим стилем.
@@ -809,6 +820,11 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
           <span class="book-icon tt-icon"><svg viewBox="0 0 46 38" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" fill-opacity=".28" d="M43 7h3v1h-3zM43 8h3v1h-3zM43 9h3v1h-3zM43 10h3v1h-3zM43 11h3v1h-3zM43 12h3v1h-3zM43 13h3v1h-3zM43 14h3v1h-3zM43 15h3v1h-3zM43 16h3v1h-3zM43 17h3v1h-3zM43 18h3v1h-3zM43 19h3v1h-3zM43 20h3v1h-3zM43 21h3v1h-3zM43 22h3v1h-3zM43 23h3v1h-3zM43 24h3v1h-3zM43 25h3v1h-3zM43 26h3v1h-3zM43 27h3v1h-3zM43 28h3v1h-3zM43 29h3v1h-3zM43 30h3v1h-3zM43 31h3v1h-3zM43 32h3v1h-3zM43 33h3v1h-3zM43 34h3v1h-3zM43 35h3v1h-3zM3 36h43v1h-43zM3 37h43v1h-43z"/><path fill="#4a2410" d="M1 5h42v1h-42zM1 6h1v1h-1zM42 6h1v1h-1zM1 7h1v1h-1zM42 7h1v1h-1zM1 8h1v1h-1zM42 8h1v1h-1zM1 9h1v1h-1zM42 9h1v1h-1zM1 10h1v1h-1zM42 10h1v1h-1zM1 11h1v1h-1zM42 11h1v1h-1zM1 12h1v1h-1zM42 12h1v1h-1zM1 13h1v1h-1zM42 13h1v1h-1zM1 14h1v1h-1zM42 14h1v1h-1zM1 15h1v1h-1zM42 15h1v1h-1zM1 16h1v1h-1zM42 16h1v1h-1zM1 17h1v1h-1zM42 17h1v1h-1zM1 18h1v1h-1zM42 18h1v1h-1zM1 19h1v1h-1zM42 19h1v1h-1zM1 20h1v1h-1zM42 20h1v1h-1zM1 21h1v1h-1zM42 21h1v1h-1zM1 22h1v1h-1zM42 22h1v1h-1zM1 23h1v1h-1zM42 23h1v1h-1zM1 24h1v1h-1zM42 24h1v1h-1zM1 25h1v1h-1zM42 25h1v1h-1zM1 26h1v1h-1zM42 26h1v1h-1zM1 27h1v1h-1zM42 27h1v1h-1zM1 28h1v1h-1zM42 28h1v1h-1zM1 29h1v1h-1zM42 29h1v1h-1zM1 30h1v1h-1zM42 30h1v1h-1zM1 31h1v1h-1zM42 31h1v1h-1zM1 32h1v1h-1zM42 32h1v1h-1zM1 33h1v1h-1zM42 33h1v1h-1zM1 34h1v1h-1zM42 34h1v1h-1zM1 35h42v1h-42z"/><path fill="#a8673a" d="M2 6h40v1h-40z"/><path fill="#8a4f26" d="M2 7h12v1h-12zM22 7h20v1h-20zM2 8h10v1h-10zM24 8h10v1h-10zM38 8h4v1h-4zM2 9h8v1h-8zM26 9h7v1h-7zM39 9h3v1h-3zM2 10h7v1h-7zM27 10h6v1h-6zM39 10h3v1h-3zM2 11h6v1h-6zM28 11h5v1h-5zM39 11h3v1h-3zM2 12h5v1h-5zM29 12h4v1h-4zM39 12h3v1h-3zM2 13h5v1h-5zM29 13h5v1h-5zM38 13h4v1h-4zM2 14h4v1h-4zM30 14h5v1h-5zM36 14h6v1h-6zM2 15h4v1h-4zM30 15h5v1h-5zM36 15h6v1h-6zM2 16h3v1h-3zM31 16h3v1h-3zM36 16h6v1h-6zM2 17h3v1h-3zM31 17h3v1h-3zM35 17h7v1h-7zM2 18h3v1h-3zM31 18h3v1h-3zM35 18h7v1h-7zM2 19h3v1h-3zM31 19h3v1h-3zM35 19h7v1h-7zM2 20h3v1h-3zM31 20h2v1h-2zM35 20h7v1h-7zM2 21h3v1h-3zM31 21h2v1h-2zM34 21h8v1h-8zM2 22h3v1h-3zM31 22h1v1h-1zM34 22h8v1h-8zM2 23h3v1h-3zM33 23h9v1h-9zM2 24h4v1h-4zM31 24h11v1h-11zM2 25h4v1h-4zM30 25h12v1h-12zM2 26h5v1h-5zM29 26h13v1h-13zM2 27h5v1h-5zM29 27h13v1h-13zM2 28h6v1h-6zM28 28h14v1h-14zM2 29h7v1h-7zM27 29h7v1h-7zM37 29h1v1h-1zM41 29h1v1h-1zM2 30h8v1h-8zM26 30h8v1h-8zM37 30h1v1h-1zM41 30h1v1h-1zM2 31h10v1h-10zM24 31h18v1h-18zM2 32h12v1h-12zM22 32h20v1h-20z"/><path fill="#141218" d="M14 7h1v1h-1zM21 7h1v1h-1zM14 8h8v1h-8zM10 9h1v1h-1zM12 9h2v1h-2zM22 9h2v1h-2zM25 9h1v1h-1zM10 10h2v1h-2zM14 10h8v1h-8zM24 10h2v1h-2zM9 11h2v1h-2zM12 11h12v1h-12zM25 11h2v1h-2zM7 12h3v1h-3zM11 12h4v1h-4zM17 12h2v1h-2zM21 12h4v1h-4zM26 12h3v1h-3zM8 13h1v1h-1zM10 13h3v1h-3zM14 13h8v1h-8zM23 13h3v1h-3zM27 13h1v1h-1zM7 14h1v1h-1zM11 14h1v1h-1zM13 14h10v1h-10zM24 14h3v1h-3zM28 14h1v1h-1zM7 15h1v1h-1zM9 15h2v1h-2zM12 15h5v1h-5zM19 15h5v1h-5zM25 15h2v1h-2zM28 15h1v1h-1zM5 16h2v1h-2zM9 16h6v1h-6zM21 16h7v1h-7zM29 16h2v1h-2zM6 17h1v1h-1zM8 17h2v1h-2zM11 17h3v1h-3zM22 17h3v1h-3zM26 17h2v1h-2zM29 17h1v1h-1zM6 18h1v1h-1zM8 18h2v1h-2zM11 18h3v1h-3zM22 18h3v1h-3zM26 18h2v1h-2zM29 18h1v1h-1zM6 19h1v1h-1zM8 19h5v1h-5zM17 19h2v1h-2zM23 19h5v1h-5zM29 19h1v1h-1zM6 20h1v1h-1zM8 20h5v1h-5zM17 20h2v1h-2zM23 20h5v1h-5zM29 20h1v1h-1zM6 21h1v1h-1zM8 21h2v1h-2zM11 21h3v1h-3zM22 21h3v1h-3zM26 21h2v1h-2zM29 21h1v1h-1zM6 22h1v1h-1zM8 22h2v1h-2zM11 22h3v1h-3zM22 22h3v1h-3zM26 22h2v1h-2zM29 22h1v1h-1zM5 23h2v1h-2zM8 23h7v1h-7zM21 23h7v1h-7zM29 23h2v1h-2zM7 24h1v1h-1zM9 24h2v1h-2zM12 24h5v1h-5zM19 24h5v1h-5zM25 24h2v1h-2zM28 24h1v1h-1zM7 25h1v1h-1zM9 25h3v1h-3zM13 25h10v1h-10zM24 25h1v1h-1zM8 26h1v1h-1zM10 26h3v1h-3zM14 26h8v1h-8zM23 26h2v1h-2zM7 27h3v1h-3zM11 27h4v1h-4zM17 27h2v1h-2zM21 27h4v1h-4zM28 27h1v1h-1zM9 28h2v1h-2zM12 28h12v1h-12zM25 28h2v1h-2zM10 29h2v1h-2zM14 29h8v1h-8zM24 29h2v1h-2zM10 30h1v1h-1zM12 30h2v1h-2zM22 30h2v1h-2zM25 30h1v1h-1zM14 31h8v1h-8zM14 32h1v1h-1zM21 32h1v1h-1z"/><path fill="#2c2a36" d="M15 7h6v1h-6zM12 8h2v1h-2zM22 8h2v1h-2zM11 9h1v1h-1zM14 9h8v1h-8zM24 9h1v1h-1zM9 10h1v1h-1zM12 10h2v1h-2zM22 10h2v1h-2zM26 10h1v1h-1zM8 11h1v1h-1zM11 11h1v1h-1zM24 11h1v1h-1zM27 11h1v1h-1zM10 12h1v1h-1zM15 12h2v1h-2zM19 12h2v1h-2zM25 12h1v1h-1zM7 13h1v1h-1zM9 13h1v1h-1zM13 13h1v1h-1zM22 13h1v1h-1zM26 13h1v1h-1zM28 13h1v1h-1zM6 14h1v1h-1zM8 14h1v1h-1zM12 14h1v1h-1zM23 14h1v1h-1zM27 14h1v1h-1zM29 14h1v1h-1zM6 15h1v1h-1zM11 15h1v1h-1zM24 15h1v1h-1zM27 15h1v1h-1zM29 15h1v1h-1zM7 16h1v1h-1zM28 16h1v1h-1zM5 17h1v1h-1zM7 17h1v1h-1zM10 17h1v1h-1zM25 17h1v1h-1zM28 17h1v1h-1zM30 17h1v1h-1zM5 18h1v1h-1zM7 18h1v1h-1zM10 18h1v1h-1zM25 18h1v1h-1zM28 18h1v1h-1zM30 18h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM28 19h1v1h-1zM30 19h1v1h-1zM5 20h1v1h-1zM7 20h1v1h-1zM28 20h1v1h-1zM30 20h1v1h-1zM5 21h1v1h-1zM7 21h1v1h-1zM10 21h1v1h-1zM25 21h1v1h-1zM28 21h1v1h-1zM30 21h1v1h-1zM5 22h1v1h-1zM7 22h1v1h-1zM10 22h1v1h-1zM25 22h1v1h-1zM28 22h1v1h-1zM30 22h1v1h-1zM7 23h1v1h-1zM28 23h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM11 24h1v1h-1zM24 24h1v1h-1zM27 24h1v1h-1zM29 24h1v1h-1zM6 25h1v1h-1zM8 25h1v1h-1zM12 25h1v1h-1zM23 25h1v1h-1zM7 26h1v1h-1zM9 26h1v1h-1zM13 26h1v1h-1zM22 26h1v1h-1zM10 27h1v1h-1zM15 27h2v1h-2zM19 27h2v1h-2zM8 28h1v1h-1zM11 28h1v1h-1zM24 28h1v1h-1zM27 28h1v1h-1zM9 29h1v1h-1zM12 29h2v1h-2zM22 29h2v1h-2zM26 29h1v1h-1zM11 30h1v1h-1zM14 30h8v1h-8zM24 30h1v1h-1zM12 31h2v1h-2zM22 31h2v1h-2zM15 32h6v1h-6z"/><path fill="#c9c3d6" d="M34 8h4v1h-4zM33 9h2v1h-2zM37 9h2v1h-2zM33 10h1v1h-1zM38 10h1v1h-1zM33 11h1v1h-1zM38 11h1v1h-1zM33 12h2v1h-2zM37 12h2v1h-2zM34 13h1v1h-1zM36 13h2v1h-2z"/><path fill="#6e6880" d="M35 9h2v1h-2zM34 10h4v1h-4zM34 11h2v1h-2zM37 11h1v1h-1zM35 12h1v1h-1z"/><path fill="#e6e0f0" d="M36 11h1v1h-1zM36 12h1v1h-1zM35 13h1v1h-1zM35 14h1v1h-1zM35 15h1v1h-1zM34 16h2v1h-2zM34 17h1v1h-1zM34 18h1v1h-1zM34 19h1v1h-1zM33 20h2v1h-2zM33 21h1v1h-1zM32 22h2v1h-2zM31 23h2v1h-2zM30 24h1v1h-1zM28 25h2v1h-2zM28 26h1v1h-1z"/><path fill="#5d5a6e" d="M9 14h2v1h-2zM8 15h1v1h-1zM8 16h1v1h-1z"/><path fill="#ff7aa6" d="M17 15h2v1h-2zM15 16h6v1h-6zM14 17h8v1h-8zM14 18h2v1h-2zM20 18h2v1h-2zM13 19h3v1h-3zM20 19h3v1h-3zM13 20h3v1h-3zM20 20h3v1h-3zM14 21h2v1h-2zM20 21h2v1h-2zM14 22h8v1h-8zM15 23h6v1h-6zM17 24h2v1h-2zM38 29h3v1h-3zM38 30h3v1h-3z"/><path fill="#ffd1e0" d="M16 18h4v1h-4zM16 19h1v1h-1zM19 19h1v1h-1zM16 20h1v1h-1zM19 20h1v1h-1zM16 21h4v1h-4z"/><path fill="#3a3550" d="M25 25h3v1h-3zM25 26h3v1h-3zM25 27h3v1h-3z"/><path fill="#9be15d" d="M34 29h3v1h-3zM34 30h3v1h-3z"/><path fill="#6b3a1a" d="M2 33h40v1h-40zM2 34h40v1h-40z"/></svg></span>
           <span class="book-label">Музыка</span>
           <span class="book-sub">песни: полный текст, перевод, грамматика</span>
+        </button>
+        <button class="book fun" type="button" data-fun="film">
+          <span class="book-icon tt-icon"><svg viewBox="0 0 46 38" shape-rendering="crispEdges" aria-hidden="true"><path fill="#000" fill-opacity=".28" d="M42 15h3v1h-3zM42 16h3v1h-3zM42 17h3v1h-3zM42 18h3v1h-3zM42 19h3v1h-3zM42 20h3v1h-3zM42 21h3v1h-3zM42 22h3v1h-3zM42 23h3v1h-3zM42 24h3v1h-3zM42 25h3v1h-3zM42 26h3v1h-3zM42 27h3v1h-3zM42 28h3v1h-3zM42 29h3v1h-3zM42 30h3v1h-3zM42 31h3v1h-3zM42 32h3v1h-3zM42 33h3v1h-3zM42 34h3v1h-3zM42 35h3v1h-3zM5 36h40v1h-40zM5 37h40v1h-40z"/><path fill="#141218" d="M36 1h2v1h-2zM41 1h1v1h-1zM29 2h3v1h-3zM35 2h2v1h-2zM40 2h2v1h-2zM23 3h3v1h-3zM29 3h2v1h-2zM34 3h2v1h-2zM39 3h3v1h-3zM17 4h3v1h-3zM22 4h3v1h-3zM28 4h2v1h-2zM33 4h3v1h-3zM38 4h3v1h-3zM11 5h3v1h-3zM16 5h3v1h-3zM22 5h2v1h-2zM27 5h2v1h-2zM32 5h3v1h-3zM5 6h3v1h-3zM10 6h3v1h-3zM16 6h2v1h-2zM21 6h2v1h-2zM26 6h3v1h-3zM5 7h2v1h-2zM9 7h3v1h-3zM15 7h2v1h-2zM20 7h2v1h-2zM5 8h1v1h-1zM9 8h2v1h-2zM14 8h2v1h-2zM8 9h34v1h-34zM7 10h3v1h-3zM13 10h3v1h-3zM19 10h3v1h-3zM25 10h3v1h-3zM31 10h3v1h-3zM37 10h3v1h-3zM8 11h3v1h-3zM14 11h3v1h-3zM20 11h3v1h-3zM26 11h3v1h-3zM32 11h3v1h-3zM38 11h3v1h-3zM5 12h1v1h-1zM9 12h3v1h-3zM15 12h3v1h-3zM21 12h3v1h-3zM27 12h3v1h-3zM33 12h3v1h-3zM39 12h3v1h-3z"/><path fill="#f2eef8" d="M38 1h3v1h-3zM32 2h3v1h-3zM37 2h3v1h-3zM22 3h1v1h-1zM26 3h3v1h-3zM31 3h3v1h-3zM36 3h3v1h-3zM16 4h1v1h-1zM20 4h2v1h-2zM25 4h3v1h-3zM30 4h3v1h-3zM36 4h2v1h-2zM41 4h1v1h-1zM9 5h2v1h-2zM14 5h2v1h-2zM19 5h3v1h-3zM24 5h3v1h-3zM29 5h3v1h-3zM35 5h1v1h-1zM2 6h3v1h-3zM8 6h2v1h-2zM13 6h3v1h-3zM18 6h3v1h-3zM23 6h3v1h-3zM7 7h2v1h-2zM12 7h3v1h-3zM17 7h3v1h-3zM6 8h3v1h-3zM11 8h3v1h-3zM5 9h3v1h-3zM5 10h2v1h-2zM10 10h3v1h-3zM16 10h3v1h-3zM22 10h3v1h-3zM28 10h3v1h-3zM34 10h3v1h-3zM40 10h3v1h-3zM5 11h3v1h-3zM11 11h3v1h-3zM17 11h3v1h-3zM23 11h3v1h-3zM29 11h3v1h-3zM35 11h3v1h-3zM41 11h3v1h-3zM6 12h3v1h-3zM12 12h3v1h-3zM18 12h3v1h-3zM24 12h3v1h-3zM30 12h3v1h-3zM36 12h3v1h-3zM42 12h3v1h-3z"/><path fill="#6e6880" d="M2 7h3v1h-3zM2 8h3v1h-3zM2 9h1v1h-1zM4 9h1v1h-1zM2 10h3v1h-3zM2 11h3v1h-3zM2 12h3v1h-3z"/><path fill="#c9c3d6" d="M3 9h1v1h-1zM8 25h11v1h-11zM25 25h5v1h-5zM8 26h11v1h-11zM25 26h5v1h-5z"/><path fill="#1b1824" d="M3 13h39v1h-39zM3 14h1v1h-1zM41 14h1v1h-1zM3 15h1v1h-1zM41 15h1v1h-1zM3 16h1v1h-1zM41 16h1v1h-1zM3 17h1v1h-1zM41 17h1v1h-1zM3 18h1v1h-1zM41 18h1v1h-1zM3 19h1v1h-1zM41 19h1v1h-1zM3 20h1v1h-1zM41 20h1v1h-1zM3 21h1v1h-1zM41 21h1v1h-1zM3 22h1v1h-1zM41 22h1v1h-1zM3 23h1v1h-1zM41 23h1v1h-1zM3 24h1v1h-1zM41 24h1v1h-1zM3 25h1v1h-1zM41 25h1v1h-1zM3 26h1v1h-1zM41 26h1v1h-1zM3 27h1v1h-1zM41 27h1v1h-1zM3 28h1v1h-1zM41 28h1v1h-1zM3 29h1v1h-1zM41 29h1v1h-1zM3 30h1v1h-1zM41 30h1v1h-1zM3 31h1v1h-1zM41 31h1v1h-1zM3 32h1v1h-1zM41 32h1v1h-1zM3 33h1v1h-1zM41 33h1v1h-1zM3 34h1v1h-1zM41 34h1v1h-1zM3 35h39v1h-39z"/><path fill="#2c2838" d="M4 14h37v1h-37zM4 15h37v1h-37zM4 16h37v1h-37zM4 17h2v1h-2zM39 17h2v1h-2zM4 18h18v1h-18zM23 18h18v1h-18zM4 19h4v1h-4zM14 19h8v1h-8zM23 19h2v1h-2zM34 19h7v1h-7zM4 20h4v1h-4zM14 20h8v1h-8zM23 20h2v1h-2zM34 20h7v1h-7zM4 21h18v1h-18zM23 21h18v1h-18zM4 22h18v1h-18zM23 22h18v1h-18zM4 23h2v1h-2zM39 23h2v1h-2zM4 24h18v1h-18zM23 24h18v1h-18zM4 25h4v1h-4zM19 25h3v1h-3zM23 25h2v1h-2zM30 25h11v1h-11zM4 26h4v1h-4zM19 26h3v1h-3zM23 26h2v1h-2zM30 26h11v1h-11zM4 27h18v1h-18zM23 27h18v1h-18zM4 28h18v1h-18zM23 28h18v1h-18zM4 29h2v1h-2zM39 29h2v1h-2zM4 30h37v1h-37zM4 31h4v1h-4zM28 31h13v1h-13zM4 32h4v1h-4zM28 32h13v1h-13zM4 33h37v1h-37zM4 34h37v1h-37z"/><path fill="#e8e4f0" d="M6 17h33v1h-33zM22 18h1v1h-1zM22 19h1v1h-1zM22 20h1v1h-1zM22 21h1v1h-1zM22 22h1v1h-1zM6 23h33v1h-33zM22 24h1v1h-1zM22 25h1v1h-1zM22 26h1v1h-1zM22 27h1v1h-1zM22 28h1v1h-1zM6 29h33v1h-33z"/><path fill="#ff7aa6" d="M8 19h6v1h-6zM8 20h6v1h-6z"/><path fill="#9be15d" d="M25 19h9v1h-9zM25 20h9v1h-9z"/><path fill="#62aef0" d="M8 31h20v1h-20zM8 32h20v1h-20z"/></svg></span>
+          <span class="book-label">Кино</span>
+          <span class="book-sub">фильмы целиком: реплики, перевод, грамматика</span>
         </button>
       </div>
     </div>
@@ -985,7 +1001,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
   </section>
 
   <section class="mode" id="m-music" hidden>
-    <p class="intro">Песни целиком: клип с YouTube и строка за строкой — японский текст, перевод и грамматика. Текущая строка подсвечивается сама; нажмите на строку, чтобы перейти к ней. Раздел только для студентов курса — вход по личному коду.</p>
+    <p class="intro" id="muIntro">Песни целиком: клип с YouTube и строка за строкой — японский текст, перевод и грамматика. Текущая строка подсвечивается сама; нажмите на строку, чтобы перейти к ней. Раздел только для студентов курса — вход по личному коду.</p>
     <div class="sheet" id="muGate">
       <label class="mu-lbl" for="muCode">Личный код студента</label>
       <div class="row"><input class="keyfield" id="muCode" type="password" autocomplete="off" spellcheck="false" placeholder="код от преподавателя"><button class="btn primary" id="muEnter" type="button">Войти</button></div>
@@ -996,7 +1012,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
       <div class="mu-list" id="muList"></div>
     </div>
     <div class="sheet" id="muSong" hidden>
-      <div class="row"><button class="btn" id="muBack" type="button">← К списку песен</button><div class="mu-title" id="muTitle"></div></div>
+      <div class="row"><button class="btn" id="muBack" type="button">← К списку</button><div class="mu-title" id="muTitle"></div></div>
       <div class="tv">
         <div class="tv-ant" aria-hidden="true"></div>
         <div class="tv-body">
@@ -1009,7 +1025,9 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
         <div class="mu-flow" id="muFlow" aria-live="polite"></div>
         <div class="mu-expl" id="muExpl" aria-live="polite"></div>
       </div>
-      <div class="row mu-steps"><button class="btn" id="muPrev" type="button" aria-label="Предыдущая строка">◀ строка</button><button class="btn" id="muNext" type="button" aria-label="Следующая строка">строка ▶</button><button class="btn ghost" id="muMarkBtn" type="button" hidden>Разметить время строк</button><span class="mu-shift" id="muShift" hidden><button class="btn ghost" type="button" data-shift="-0.5" title="Все строки раньше на 0,5 с">−0,5 с</button><button class="btn ghost" type="button" data-shift="0.5" title="Все строки позже на 0,5 с">+0,5 с</button></span></div>
+      <div class="row mu-steps"><button class="btn" id="muPrev" type="button" aria-label="Предыдущая строка">◀ строка</button><button class="btn" id="muAgain" type="button">↺ ещё раз</button><button class="btn" id="muNext" type="button" aria-label="Следующая строка">строка ▶</button>
+        <span class="mu-speed" role="group" aria-label="Скорость"><button class="btn" type="button" data-mrate="0.75">0,75×</button><button class="btn on" type="button" data-mrate="1">1×</button></span>
+        <label class="toggle" for="muPause"><input type="checkbox" id="muPause"> пауза после каждой строки</label><button class="btn ghost" id="muMarkBtn" type="button" hidden>Разметить время строк</button><span class="mu-shift" id="muShift" hidden><button class="btn ghost" type="button" data-shift="-0.5" title="Все строки раньше на 0,5 с">−0,5 с</button><button class="btn ghost" type="button" data-shift="0.5" title="Все строки позже на 0,5 с">+0,5 с</button></span></div>
       <p class="note" id="muShiftNote" hidden></p>
       <div class="mu-mark" id="muMark" hidden>
         <p class="note">Включите клип и нажимайте кнопку (или пробел) в момент, когда начинается каждая строка.</p>
@@ -1018,7 +1036,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
         <div class="row"><button class="btn" id="muMarkUndo" type="button">Шаг назад</button><button class="btn primary" id="muMarkSave" type="button">Сохранить разметку</button><button class="btn ghost" id="muMarkCancel" type="button">Отмена</button></div>
         <p class="note" id="muMarkNote"></p>
       </div>
-      <details class="mu-all"><summary>Весь текст песни</summary><div class="mu-lines" id="muLines"></div></details>
+      <details class="mu-all"><summary>Весь текст</summary><div class="mu-lines" id="muLines"></div></details>
       <p class="note" id="muSource"></p>
     </div>
     <details class="settings" id="muAdmin">
@@ -1914,7 +1932,15 @@ function initMap() {
 
 
 // ---------- музыка: песни по личным кодам, клип YouTube, строки в такт ----------
-const MU = { code: store.get('mcode', ''), admin: store.get('madmin', ''), song: null, player: null, timer: null, cur: -1, mark: null };
+const MU = { code: store.get('mcode', ''), admin: store.get('madmin', ''), song: null, player: null, timer: null, cur: -1, mark: null, kind: 'song', held: null };
+// Один раздел на две полки: «Музыка» (клипы YouTube) и «Кино» (фильмы из закрытого хранилища B2).
+function muKind() {
+  const film = MU.kind === 'film';
+  $('#muIntro').textContent = film
+    ? 'Фильм целиком: видео из закрытого хранилища курса и реплика за репликой — японский текст, перевод и грамматика. Текущая реплика подсвечивается сама; включите «паузу после каждой строки», чтобы повторять вслух. Раздел только для студентов курса — вход по личному коду.'
+    : 'Песни целиком: клип с YouTube и строка за строкой — японский текст, перевод и грамматика. Текущая строка подсвечивается сама; нажмите на строку, чтобы перейти к ней. Раздел только для студентов курса — вход по личному коду.';
+  $$('#m-music .titlebar .ttl').forEach(t => { t.textContent = film ? '映画.exe — Кино' : WIN.music; });
+}
 async function muApi(path, opts = {}, code = MU.code) {
   const r = await fetch(PROXY_URL + path, { ...opts, headers: { 'x-student-code': encodeURIComponent(code.trim()), ...(opts.body ? { 'content-type': 'application/json' } : {}) } });
   const data = await r.json().catch(() => ({}));
@@ -1923,7 +1949,7 @@ async function muApi(path, opts = {}, code = MU.code) {
 }
 const muShow = which => ['muGate', 'muLib', 'muSong'].forEach(id => { $('#' + id).hidden = id !== which; });
 async function muEnter() {
-  if (inViewer || !PROXY_URL) { $('#muGateNote').textContent = 'Музыка работает только на сайте тренажёра.'; muShow('muGate'); return; }
+  if (inViewer || !PROXY_URL) { $('#muGateNote').textContent = 'Этот раздел работает только на сайте тренажёра.'; muShow('muGate'); return; }
   const code = $('#muCode').value.trim() || MU.code;
   if (!code) { muShow('muGate'); return; }
   $('#muGateNote').textContent = 'Проверяю код…';
@@ -1932,8 +1958,9 @@ async function muEnter() {
 }
 function muList(d) {
   $('#muWho').textContent = `Вы вошли как: ${d.who}`;
-  $('#muList').innerHTML = d.songs.length ? d.songs.map(x => `<button type="button" class="mu-item" data-id="${esc(x.id)}"><span class="mu-disc" aria-hidden="true"></span>
-    <span><b>${esc(x.title)}</b><small>${esc([x.artist, x.year].filter(Boolean).join(' · '))}</small></span></button>`).join('') : '<p class="note">Песен пока нет.</p>';
+  const items = d.songs.filter(x => (x.kind || 'song') === MU.kind);
+  $('#muList').innerHTML = items.length ? items.map(x => `<button type="button" class="mu-item" data-id="${esc(x.id)}"><span class="${MU.kind === 'film' ? 'mu-reel' : 'mu-disc'}" aria-hidden="true"></span>
+    <span><b>${esc(x.title)}</b><small>${esc([x.artist, x.year].filter(Boolean).join(' · '))}</small></span></button>`).join('') : `<p class="note">${MU.kind === 'film' ? 'Фильмов пока нет.' : 'Песен пока нет.'}</p>`;
   $$('#muList .mu-item').forEach(b => b.onclick = () => muOpen(b.dataset.id));
   muShow('muLib');
 }
@@ -1942,14 +1969,17 @@ async function muOpen(id) {
   catch (e) { $('#muWho').textContent = e.message; return; }
   const s = MU.song;
   $('#muTitle').innerHTML = `<b>${esc(s.title)}</b> <span class="meta">${esc([s.artist, s.year].filter(Boolean).join(' · '))}</span>`;
-  $('#muSource').innerHTML = `Источник: <a href="https://www.youtube.com/watch?v=${esc(s.yt)}" target="_blank" rel="noopener">клип на YouTube</a>${s.artist ? ' · ' + esc(s.artist) : ''}${s.year ? ', ' + esc(s.year) : ''}. Материал только для учебных целей курса — не распространяйте текст за его пределами.`;
+  $('#muSource').innerHTML = s.parts
+    ? `${esc(s.title)}${s.artist ? ' · ' + esc(s.artist) : ''}${s.year ? ', ' + esc(s.year) : ''}. Фильм и текст — только для учебных целей курса; не скачивайте и не распространяйте их за его пределами.`
+    : `Источник: <a href="https://www.youtube.com/watch?v=${esc(s.yt)}" target="_blank" rel="noopener">клип на YouTube</a>${s.artist ? ' · ' + esc(s.artist) : ''}${s.year ? ', ' + esc(s.year) : ''}. Материал только для учебных целей курса — не распространяйте текст за его пределами.`;
   $('#muMarkBtn').hidden = !MU.admin; $('#muShift').hidden = !MU.admin; $('#muShiftNote').hidden = true; $('#muMark').hidden = true; MU.mark = null;
-  muLines(); muShow('muSong'); scrollTo(0, 0); muPlayer(s.yt);
+  MU.held = null; muLines(); muShow('muSong'); scrollTo(0, 0);
+  if (s.parts) muFilm(s); else muPlayer(s.yt);
 }
 function muLines() {
   const lines = MU.song.lines, t = MU.mark ? MU.mark.t : lines.map(l => l.t);
   $('#muLines').innerHTML = lines.map((l, i) => l.sec && !l.jp ? `<div class="mu-sec">${esc(l.sec)}</div>` : `<div class="mu-row${t[i] == null ? ' no-t' : ''}" data-i="${i}" role="button" tabindex="0">
-    <div class="mu-jp jp">${l.furi ? rubyAlways(l.furi) : esc(l.jp)}</div>
+    <div class="mu-jp jp">${l.who ? `<span class="mf-who">${esc(l.who)}</span>` : ''}${l.furi ? rubyAlways(l.furi) : esc(l.jp)}</div>
     <div class="mu-tr">${l.ru ? `<div class="mu-ru">${esc(l.ru)}</div>` : ''}${l.note ? `<div class="mu-note">${esc(l.note)}</div>` : ''}${l.words?.length ? `<div class="mu-words">${l.words.map(([w, r, m, les]) =>
       `<span><b class="jp">${esc(w)}</b>${r ? ` <span class="jp">${esc(r)}</span>` : ''} — ${esc(m)}${les ? ` <span class="tb">ур. ${les}</span>` : ''}</span>`).join('')}</div>` : ''}</div></div>`).join('');
   $$('#muLines .mu-row').forEach(r => {
@@ -1966,9 +1996,10 @@ function muStage(i) {
   const pos = order.indexOf(i), cur = pos >= 0 ? i : -1;
   const prev = pos > 0 ? order[pos - 1] : null, next = pos >= 0 ? order[pos + 1] : order[0];
   let sec = ''; for (let k = 0; k <= Math.max(cur, 0); k++) if (L[k].sec) sec = L[k].sec;
-  $('#muFlow').innerHTML = `<div class="mf-sec">${esc(cur >= 0 ? sec : 'Включите клип — строки пойдут в такт музыке')}</div>
+  const who = l => l?.who ? `<span class="mf-who">${esc(l.who)}</span>` : '';
+  $('#muFlow').innerHTML = `<div class="mf-sec">${esc(cur >= 0 ? sec : MU.song.parts ? 'Включите фильм — реплики пойдут в такт' : 'Включите клип — строки пойдут в такт музыке')}</div>
     <div class="mf-prev jp">${prev != null ? muFuri(L[prev]) : ''}</div>
-    <div class="mf-cur jp">${cur >= 0 ? muFuri(L[cur]) : ''}</div>
+    <div class="mf-cur jp">${cur >= 0 ? who(L[cur]) + muFuri(L[cur]) : ''}</div>
     <div class="mf-next jp">${next != null ? muFuri(L[next]) : ''}</div>`;
   const l = L[cur];
   $('#muExpl').innerHTML = !l ? '<div class="mx-ru">Перевод и разбор появятся здесь вместе со строкой.</div>' :
@@ -1991,8 +2022,59 @@ function loadYT() {
     sc.onerror = () => { ytReady = null; reject(); }; document.head.append(sc);
   });
 }
+// Перед сменой вида плеера (YouTube ↔ фильм) экран телевизора очищается.
+function muScreen() {
+  try { MU.player?.pauseVideo?.(); MU.player?.destroy?.(); } catch { /* плеер уже закрыт */ }
+  MU.player = null; $('.tv-screen').innerHTML = '<div id="muPlayer"></div>'; return $('#muPlayer');
+}
+// Фильм из нескольких частей: один <video>, части идут подряд, время общее для всего фильма —
+// снаружи он выглядит как плеер YouTube (getCurrentTime, seekTo…), поэтому синхронизация строк та же.
+class FilmPlayer {
+  constructor(box, urls) {
+    this.urls = urls; this.dur = urls.map(() => null); this.part = 0; this.rate = 1; this.onError = null;
+    box.innerHTML = '<video playsinline controls preload="metadata"></video>';
+    this.v = $('video', box);
+    this.v.addEventListener('loadedmetadata', () => { this.dur[this.part] = this.v.duration; });
+    this.v.addEventListener('ended', () => { if (this.part < this.urls.length - 1) this.load(this.part + 1, 0, true); });
+    this.v.addEventListener('error', () => this.onError?.());
+    urls.forEach((u, i) => { if (!i) return; const m = document.createElement('video'); m.preload = 'metadata'; m.muted = true;
+      m.onloadedmetadata = () => { this.dur[i] = m.duration; m.removeAttribute('src'); m.load(); }; m.src = u; });
+    this.load(0, 0, false);
+  }
+  offset(i) { let s = 0; for (let k = 0; k < i; k++) s += this.dur[k] || 0; return s; }
+  load(i, at, play) {
+    this.part = i; this.v.src = this.urls[i];
+    this.v.addEventListener('loadedmetadata', () => { if (at) this.v.currentTime = at; this.v.playbackRate = this.rate; if (play) this.v.play().catch(() => {}); }, { once: true });
+  }
+  getCurrentTime() { return this.offset(this.part) + (this.v.currentTime || 0); }
+  getPlayerState() { return this.v.paused ? 2 : 1; }
+  seekTo(t) {
+    let i = 0; while (i < this.urls.length - 1 && this.dur[i] != null && t >= this.offset(i + 1)) i++;
+    const at = Math.max(0, t - this.offset(i));
+    if (i === this.part) this.v.currentTime = at; else this.load(i, at, !this.v.paused);
+  }
+  playVideo() { this.v.play().catch(() => {}); }
+  pauseVideo() { this.v.pause(); }
+  setPlaybackRate(r) { this.rate = r; this.v.playbackRate = r; }
+}
+// Ссылки на части фильма подписаны посредником на 6 часов; истекли во время просмотра — берём новые и продолжаем с того же места.
+async function muFilmUrls(s) {
+  const { exp, sig } = await muApi('/music/ticket/' + encodeURIComponent(s.id));
+  return s.parts.map(p => `${PROXY_URL}/film/${encodeURIComponent(s.id)}/${encodeURIComponent(p.file)}?exp=${exp}&sig=${encodeURIComponent(sig)}`);
+}
+async function muFilm(s) {
+  const box = muScreen();
+  let urls; try { urls = await muFilmUrls(s); } catch (e) { $('#muSource').textContent = e.message; return; }
+  const p = MU.player = new FilmPlayer(box, urls);
+  p.onError = async () => {
+    const at = p.v.currentTime, playing = !p.v.paused;
+    try { p.urls = await muFilmUrls(s); p.load(p.part, at, playing); } catch (e) { $('#muSource').textContent = e.message; }
+  };
+  clearInterval(MU.timer); MU.timer = setInterval(muTick, 250);
+}
 async function muPlayer(yt) {
   try { await loadYT(); } catch { $('#muSource').textContent = 'Не удалось загрузить плеер YouTube — проверьте интернет.'; return; }
+  if (!MU.player?.cueVideoById) muScreen();
   if (MU.player?.cueVideoById) MU.player.cueVideoById(yt);
   else MU.player = new YT.Player('muPlayer', { videoId: yt, playerVars: { playsinline: 1, rel: 0 } });
   clearInterval(MU.timer); MU.timer = setInterval(muTick, 250);
@@ -2002,6 +2084,9 @@ function muTick() {
   const now = p.getCurrentTime(), t = MU.mark ? MU.mark.t : MU.song.lines.map(l => l.t);
   let idx = -1; t.forEach((x, i) => { if (x != null && x <= now + 0.15) idx = i; });
   if (idx === MU.cur || (idx < 0 && p.getPlayerState?.() !== 1)) return;
+  // «Пауза после каждой строки»: на начале следующей строки останавливаемся, на экране остаётся только что прозвучавшая.
+  if ($('#muPause').checked && idx > MU.cur && MU.cur >= 0 && p.getPlayerState?.() === 1 && MU.held !== idx) { MU.held = idx; p.pauseVideo(); return; }
+  if (MU.held === idx && p.getPlayerState?.() !== 1) return;  // пока стоим на такой паузе, на экране прозвучавшая строка
   MU.cur = idx; muStage(idx);
 }
 function muStop() { clearInterval(MU.timer); MU.timer = null; try { MU.player?.pauseVideo?.(); } catch { /* плеера ещё нет */ } }
@@ -2018,6 +2103,8 @@ function bindMusic() {
   $('#muLogout').onclick = () => { MU.code = ''; store.set('mcode', ''); muStop(); muShow('muGate'); };
   $('#muBack').onclick = () => { muStop(); muEnter(); };
   $('#muPrev').onclick = () => muStep(-1); $('#muNext').onclick = () => muStep(1);
+  $('#muAgain').onclick = () => { const at = MU.song?.lines[MU.cur]?.t; if (at != null && MU.player?.seekTo) { MU.held = MU.cur; MU.player.seekTo(at, true); MU.player.playVideo(); } };
+  $$('[data-mrate]').forEach(b => b.onclick = () => { MU.player?.setPlaybackRate?.(+b.dataset.mrate); $$('[data-mrate]').forEach(x => x.classList.toggle('on', x === b)); });
   $('#muAdminCode').value = MU.admin;
   $('#muAdminSave').onclick = () => { MU.admin = $('#muAdminCode').value.trim(); store.set('madmin', MU.admin); $('#muAdminNote').textContent = MU.admin ? 'Код сохранён в этом браузере.' : 'Код удалён.'; $('#muMarkBtn').hidden = !MU.admin || !MU.song; };
   $('#muUpload').onclick = async () => {
@@ -2059,7 +2146,7 @@ const INIT = {
   cards() { renderDecks(); },
   forms() { buildGroupToggles(); nextForm(); },
   particles() { nextParticle(); }, speak() { nextSpeak(); }, listen() { nextListen(); }, read() { nextRead(); },
-  music() { bindMusic(); if (MU.code) muEnter(); else muShow('muGate'); },
+  music() { bindMusic(); muKind(); if (MU.code) muEnter(); else muShow('muGate'); },
   chat() {
     $$('#scen button').forEach(b => b.onclick = () => { C.mode = b.dataset.cm; store.set('chatMode', C.mode); resetChat(); });
     resetChat();
@@ -2087,7 +2174,7 @@ function applyPlain() {
   $('#optPlain').checked = on;
 }
 // Учебники: пока один. Выбор живёт до конца сеанса, сменить — кнопкой в шапке или START.
-const BOOKS = { shoho: '日本語初歩', music: 'Музыка' };
+const BOOKS = { shoho: '日本語初歩', music: 'Музыка', film: 'Кино' };
 // Выбор уроков после учебника: первое касание — начало диапазона, второе — конец.
 const LP = { a: 1, b: 34, anchor: null };
 function showLessonPick() { LP.a = S.from; LP.b = S.to; LP.anchor = null; renderLessonPick(); $('#lessonPick').hidden = false; $('#lpGo').focus(); }
@@ -2107,7 +2194,7 @@ function renderLessonPick() {
     + (LP.anchor !== null ? ' · теперь нажмите последний урок (или «Открыть учебник»)' : '');
   $('#lpGo').textContent = `Открыть учебник · ${LP.a === LP.b ? 'урок ' + LP.a : 'уроки ' + LP.a + '–' + LP.b}`;
 }
-function setBookChip(id) { $('#curBook b').textContent = BOOKS[id]; $('#curBook b').classList.toggle('ui', id === 'music'); $('#curBook small').textContent = id === 'music' ? 'раздел' : 'учебник'; }
+function setBookChip(id) { const fun = id === 'music' || id === 'film'; $('#curBook b').textContent = BOOKS[id]; $('#curBook b').classList.toggle('ui', fun); $('#curBook small').textContent = fun ? 'раздел' : 'учебник'; }
 function showPicker() { $('#picker').hidden = false; $('#picker .book')?.focus(); }
 function bindPicker() {
   $$('#picker .book').forEach(b => b.onclick = () => {
@@ -2117,7 +2204,7 @@ function bindPicker() {
   });
   $$('#picker .fun').forEach(b => b.onclick = () => {
     try { sessionStorage.setItem('shoho.book', b.dataset.fun); } catch { /* без памяти */ }
-    setBookChip(b.dataset.fun); $('#picker').hidden = true; location.hash = '#music';
+    setBookChip(b.dataset.fun); $('#picker').hidden = true; location.hash = '#' + b.dataset.fun;
   });
   try { const cur = sessionStorage.getItem('shoho.book'); if (BOOKS[cur]) setBookChip(cur); } catch { /* без памяти */ }
   $('#lpAll').onclick = () => { LP.a = 1; LP.b = 34; LP.anchor = null; renderLessonPick(); };
@@ -2138,6 +2225,11 @@ function applyKyo() {
 const EX = ['forms', 'particles', 'speak', 'listen', 'read'];
 function show(mode) {
   if (mode === 'ex') { mode = store.get('exMode', 'forms'); history.replaceState(null, '', '#' + mode); }
+  if (mode === 'film' || mode === 'music') {
+    const kind = mode === 'film' ? 'film' : 'song';
+    if (MU.kind !== kind) { MU.kind = kind; muKind(); if (started.music) { muStop(); muEnter(); } }
+    mode = 'music';
+  }
   if (!MODES.includes(mode)) mode = 'cards';
   const ex = EX.includes(mode), tab = ex ? 'ex' : mode;
   if (ex) store.set('exMode', mode);
