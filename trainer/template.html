@@ -1913,7 +1913,7 @@ function initMap() {
 // ---------- музыка: песни по личным кодам, клип YouTube, строки в такт ----------
 const MU = { code: store.get('mcode', ''), admin: store.get('madmin', ''), song: null, player: null, timer: null, cur: -1, mark: null };
 async function muApi(path, opts = {}, code = MU.code) {
-  const r = await fetch(PROXY_URL + path, { ...opts, headers: { 'x-student-code': code, ...(opts.body ? { 'content-type': 'application/json' } : {}) } });
+  const r = await fetch(PROXY_URL + path, { ...opts, headers: { 'x-student-code': encodeURIComponent(code.trim()), ...(opts.body ? { 'content-type': 'application/json' } : {}) } });
   const data = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(data?.error?.message || `Ошибка ${r.status}`);
   return data;

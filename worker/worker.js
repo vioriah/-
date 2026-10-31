@@ -23,8 +23,14 @@ const MAX_BODY = 64 * 1024;
 const MAX_MESSAGES = 40;
 const MAX_SONG = 200 * 1024;
 
-// Коды сравниваются без пробелов, кавычек и без учёта регистра: на планшете легко ввести «k7p2q9» вместо «K7P2Q9».
-const norm = c => String(c || '').replace(/["'«»\s]/g, '').toUpperCase();
+// Коды сравниваются без пробелов, кавычек, невидимых символов и без учёта регистра; русские буквы,
+// похожие на латинские (А, В, Е, К, М, Н, О, Р, С, Т, У, Х), считаются латинскими — на планшете
+// код легко набрать то на одной, то на другой раскладке.
+const LOOKALIKE = { А: 'A', В: 'B', Е: 'E', К: 'K', М: 'M', Н: 'H', О: 'O', Р: 'P', С: 'C', Т: 'T', У: 'Y', Х: 'X', Ё: 'E' };
+const norm = c => String(c || '').replace(/["'«»\s\u200B-\u200D\u2060\uFEFF]/g, '').toUpperCase().replace(/[АВЕКМНОРСТУХЁ]/g, ch => LOOKALIKE[ch]);
+// Сайт присылает код в кодировке URL, чтобы проходили и русские буквы; старые клиенты — как есть.
+const sentCode = req => { const raw = req.headers.get('x-student-code') || ''; try { return decodeURIComponent(raw); } catch { return raw; } };
+const codeList = env => String(env.STUDENT_CODES || '').split(/[;,\n]/).filter(p => norm(p.slice(p.lastIndexOf('=') + 1)));
 const isAdmin = (env, code) => !!env.ADMIN_CODE && !!norm(code) && norm(code) === norm(env.ADMIN_CODE);
 
 // Имя студента по коду или null; код преподавателя тоже открывает раздел.
@@ -32,7 +38,7 @@ function student(env, code) {
   const c = norm(code);
   if (!c) return null;
   if (isAdmin(env, code)) return 'преподаватель';
-  for (const part of String(env.STUDENT_CODES || '').split(/[;,\n]/)) {
+  for (const part of codeList(env)) {
     const i = part.lastIndexOf('=');
     const name = i > 0 ? part.slice(0, i).replace(/["'«»]/g, '').trim() : 'студент';
     if (norm(i >= 0 ? part.slice(i + 1) : part) === c) return name || 'студент';
@@ -42,8 +48,12 @@ function student(env, code) {
 
 async function music(req, env, path, fail, ok) {
   if (!env.MUSIC) return fail(500, 'api_error', 'В посреднике не подключено хранилище MUSIC.');
-  const who = student(env, req.headers.get('x-student-code'));
-  if (!who) return fail(401, 'authentication_error', 'Неверный личный код.');
+  const who = student(env, sentCode(req));
+  if (!who) {
+    const n = codeList(env).length;
+    console.log('music wrong code, length', norm(sentCode(req)).length, 'codes in list', n);
+    return fail(401, 'authentication_error', n ? `Неверный личный код. (Кодов в списке студентов: ${n}.)` : 'Неверный личный код. Список кодов студентов пуст — проверьте секрет STUDENT_CODES.');
+  }
   if (req.method === 'GET' && path === '/music/list') {
     const { keys } = await env.MUSIC.list({ prefix: 'song:' });
     console.log('music list', who);
@@ -57,7 +67,7 @@ async function music(req, env, path, fail, ok) {
     return new Response(song, { headers: { 'content-type': 'application/json' } });
   }
   if (req.method === 'POST' && path === '/music/admin/song') {
-    if (!isAdmin(env, req.headers.get('x-student-code'))) return fail(403, 'permission_error', 'Нужен код преподавателя.');
+    if (!isAdmin(env, sentCode(req))) return fail(403, 'permission_error', 'Нужен код преподавателя.');
     const text = await req.text();
     if (text.length > MAX_SONG) return fail(413, 'request_too_large', 'Слишком большая песня.');
     let song;
