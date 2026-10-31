@@ -4,6 +4,7 @@
 Нужен pandoc (для карты грамматики). Флаг --artifact дополнительно пишет версию
 без <!doctype>/<head> — в таком виде страница публикуется как артефакт claude.ai.
 """
+import base64
 import hashlib
 import json
 import re
@@ -77,16 +78,26 @@ def build_data():
             "topics": lesson_topics()}
 
 
+def boot_logo():
+    """Логотип МГИМО для заставки сайта (пиксельная версия, trainer/boot_logo.png)."""
+    png = base64.b64encode((ROOT / "trainer" / "boot_logo.png").read_bytes()).decode()
+    return f'<img class="boot-logo" src="data:image/png;base64,{png}" alt="" width="118" height="87">'
+
+
 def main():
     template = (ROOT / "trainer" / "template.html").read_text(encoding="utf-8")
     data = json.dumps(build_data(), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     page = template.replace("__DATA__", data).replace("<!--__GRAMMAR__-->", grammar_html())
     out = ROOT / "trainer" / "index.html"
-    out.write_text(SKELETON_HEAD + page + "</body></html>", encoding="utf-8")
+    site = page.replace("<!--__BOOTLOGO__-->", boot_logo()).replace(
+        "<!--__BOOTSUB__-->", '<div class="boot-sub">Неофициальный учебный тренажёр студента МГИМО</div>')
+    out.write_text(SKELETON_HEAD + site + "</body></html>", encoding="utf-8")
     print(f"{out.relative_to(ROOT)}: {out.stat().st_size // 1024} КБ")
     if "--artifact" in sys.argv:
+        # В артефакте на claude.ai заставки нет: без символики университета и без перекрытой миниатюры.
+        start, end = page.index("<!--BOOT-->"), page.index("<!--/BOOT-->") + len("<!--/BOOT-->")
         dst = Path(sys.argv[sys.argv.index("--artifact") + 1])
-        dst.write_text(page, encoding="utf-8")
+        dst.write_text(page[:start] + page[end:], encoding="utf-8")
         print(f"артефакт: {dst}")
 
 
