@@ -21,8 +21,7 @@ SKELETON_HEAD = ('<!doctype html><html lang="ru"><head><meta charset="utf-8">'
                  '</head><body>')
 
 
-def grammar_html():
-    md = ROOT / "grammar" / "grammar_system.md"
+def grammar_html(md):
     html = subprocess.run(["pandoc", "-f", "gfm", "-t", "html", str(md)],
                           check=True, capture_output=True, text=True).stdout
     html = re.sub(r"<table>", '<div class="tablewrap"><table>', html)
@@ -68,7 +67,7 @@ def radical(ch):
     return next((found[k] for k in ("tradit", "general", "nelson") if k in found), "")
 
 
-def build_data():
+def build_shoho():
     core = load_core()
     kanji_info = {r["kanji"]: r for r in core}
     words = [{"id": short_id(v["expr"], v["kana"]), "e": v["expr"], "k": v["kana"], "s": v["kanji"] if v["kanji"] != v["expr"] else "",
@@ -83,8 +82,16 @@ def build_data():
     sentences = [{"id": short_id(r["jp"]), "l": int(r["lesson"]), "p": r["pattern"], "j": r["jp"], "r": r["ru"],
                   "f": r["furigana"]} for r in read_tsv(ROOT / "grammar" / "sentences.tsv")]
     slots = json.loads((ROOT / "grammar" / "particle_slots.json").read_text(encoding="utf-8"))
-    return {"words": words, "kanji": kanji, "strokes": stroke_data(), "sentences": sentences, "slots": slots,
-            "topics": lesson_topics()}
+    return {
+        "title": "日本語初歩", "minLesson": 1, "maxLesson": 34, "anki": "nihongo_shoho.apkg",
+        "words": words, "kanji": kanji, "sentences": sentences, "slots": slots, "topics": lesson_topics(),
+    }
+
+
+def build_data():
+    kikitori = json.loads((ROOT / "data" / "kikitori" / "trainer.json").read_text(encoding="utf-8"))
+    kikitori["title"] = "毎日の聞きとり50日 下"
+    return {"strokes": stroke_data(), "books": {"shoho": build_shoho(), "kikitori": kikitori}}
 
 
 def boot_logo():
@@ -96,7 +103,11 @@ def boot_logo():
 def main():
     template = (ROOT / "trainer" / "template.html").read_text(encoding="utf-8")
     data = json.dumps(build_data(), ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    page = template.replace("__DATA__", data).replace("<!--__GRAMMAR__-->", grammar_html())
+    page = template.replace("__DATA__", data).replace(
+        "<!--__SHOHO_GRAMMAR__-->", grammar_html(ROOT / "grammar" / "grammar_system.md")
+    ).replace(
+        "<!--__KIKITORI_GRAMMAR__-->", grammar_html(ROOT / "grammar" / "kikitori.md")
+    )
     out = ROOT / "trainer" / "index.html"
     site = page.replace("<!--__BOOTLOGO__-->", boot_logo()).replace(
         "<!--__BOOTSUB__-->", '<div class="boot-sub">Неофициальный учебный тренажёр студента МГИМО</div>')

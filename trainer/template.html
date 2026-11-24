@@ -767,6 +767,15 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 .mu-speed { display: inline-flex; gap: 4px; }
 .tv-screen video { display: block; width: 100%; height: 100%; background: #000; }
 </style>
+<style>
+@media (max-width: 480px) {
+  .book-shelf { width: 100%; gap: 8px; }
+  .book-shelf .book { width: calc((100% - 8px) / 2); min-width: 0; padding-inline: 4px; }
+  .book-shelf .book-icon { width: 112px; height: 136px; }
+  .book-shelf .book-icon b { inset: 17px 18px auto; font-size: 13px; }
+  .book-shelf .book-label { font-size: 16px; overflow-wrap: anywhere; }
+}
+</style>
 <script>
 // Оформление выбирается до отрисовки страницы, чтобы она не мигала чужим стилем.
 (() => {
@@ -807,11 +816,31 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
     <div class="titlebar" aria-hidden="true"><span class="ttl">Учебники — выбор</span><span class="wbtns"><i>_</i><i>□</i><i>×</i></span></div>
     <div class="picker-body">
       <h1 id="pickerTitle">Выберите изучаемый вами учебник</h1>
-      <div class="shelf">
+      <div class="shelf book-shelf">
         <button class="book" type="button" data-book="shoho">
           <span class="book-icon"><svg viewBox="0 0 38 46" shape-rendering="crispEdges" aria-hidden="true"><rect x="5" y="5" width="33" height="41" fill="#000" fill-opacity=".28"/><rect x="3" y="3" width="33" height="41" fill="#4a2410"/><rect x="4" y="3" width="31" height="40" fill="#e8d9b0"/><path fill="#c9b282" d="M33 5h1v36h-1zM31 5h1v36h-1zM6 41h27v1H6z"/><rect x="1" y="1" width="32" height="40" fill="#5a2e14"/><rect x="2" y="2" width="4" height="38" fill="#7b4422"/><rect x="3" y="2" width="1" height="38" fill="#9a5a30"/><rect x="6" y="2" width="26" height="38" fill="#fbf8ef"/><rect x="6" y="2" width="26" height="1" fill="#ffffff"/><rect x="31" y="3" width="1" height="37" fill="#e6e0cf"/><rect x="6" y="39" width="26" height="1" fill="#e6e0cf"/><path fill="#2a2a2a" d="M11 34h3v3h-3zM13 34h3v3h-3zM15 34h3v3h-3z"/><path fill="#fbf8ef" d="M12 35h1v1h-1zM14 35h1v1h-1zM16 35h1v1h-1z"/><rect x="19" y="35" width="10" height="1" fill="#2a2a2a"/><rect x="11" y="38" width="17" height="1" fill="#8a8a8a"/></svg><b>日本語初歩</b></span>
           <span class="book-label">日本語初歩</span>
           <span class="book-sub">Сёхо · Japan Foundation · 34 урока</span>
+        </button>
+        <button class="book" type="button" data-book="kikitori">
+          <span class="book-icon">
+            <svg viewBox="0 0 38 46" shape-rendering="crispEdges" aria-hidden="true">
+              <path fill="#000" fill-opacity=".28" d="M5 5h33v41H5z"/>
+              <path fill="#322351" d="M3 3h33v41H3z"/>
+              <path fill="#e8d9b0" d="M4 3h31v40H4z"/>
+              <path fill="#c9b282" d="M33 5h1v36h-1zM31 5h1v36h-1zM6 41h27v1H6z"/>
+              <path fill="#4b3178" d="M1 1h32v40H1z"/>
+              <path fill="#7859a6" d="M2 2h4v38H2z"/>
+              <path fill="#a28acb" d="M3 2h1v38H3z"/>
+              <path fill="#f5eafa" d="M6 2h26v38H6z"/>
+              <path fill="#fff" d="M6 2h26v1H6z"/>
+              <path fill="#dfcaef" d="M31 3h1v36h-1zM6 39h26v1H6z"/>
+              <path fill="#7859a6" d="M11 25h3v7h-3zM16 22h3v13h-3zM21 25h3v7h-3zM26 27h2v3h-2z"/>
+              <path fill="#a28acb" d="M11 37h17v1H11z"/>
+            </svg><b>毎日の<br>聞きとり<br>50日 下</b>
+          </span>
+          <span class="book-label">毎日の聞きとり<wbr>50日 下</span>
+          <span class="book-sub">Кикитори · том 2 · уроки 26–50</span>
         </button>
       </div>
       <h2 class="shelf-title">Развлечения</h2>
@@ -839,7 +868,10 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
       <p class="lp-note">Их всегда можно изменить прямо во время обучения — в шапке сайта. Нажмите первый и последний урок диапазона.</p>
       <div class="lessons" id="lpGrid" role="group" aria-label="Уроки"></div>
       <p class="lp-sum" id="lpSum" aria-live="polite"></p>
-      <div class="row lp-row"><button class="btn" id="lpAll" type="button">Все уроки (1–34)</button></div>
+      <div class="row lp-row">
+        <button class="btn" id="lpBack" type="button">Учебники</button>
+        <button class="btn" id="lpAll" type="button">Все уроки</button>
+      </div>
     </div>
   </div>
   <button class="design-btn lp-go" id="lpGo" type="button">Открыть учебник</button>
@@ -1050,10 +1082,12 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
   </section>
 
   <section class="mode" id="m-map" hidden>
-    <p class="intro">Вся грамматика учебника в одной схеме. Каждая конструкция отвечает на один из восьми вопросов о сказуемом — так темы складываются в систему.</p>
+    <p class="intro" id="grammarIntro">Вся грамматика учебника в одной схеме. Каждая конструкция отвечает на один из восьми вопросов о сказуемом — так темы складываются в систему.</p>
     <div class="map">
       <div class="toc" id="toc"></div>
-      <div id="grammar"><!--__GRAMMAR__--></div>
+      <div id="grammar"></div>
+      <template id="grammar-shoho"><!--__SHOHO_GRAMMAR__--></template>
+      <template id="grammar-kikitori"><!--__KIKITORI_GRAMMAR__--></template>
     </div>
   </section>
 
@@ -1092,7 +1126,7 @@ main { padding-block: 20px calc(64px + env(safe-area-inset-bottom, 0px)); }
 <script>
 (() => {
 'use strict';
-const D = JSON.parse(document.getElementById('data').textContent);
+const { books, strokes } = JSON.parse(document.getElementById('data').textContent);
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1100,26 +1134,57 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 const shuffle = a => { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 // ---------- хранение настроек (только удобства этого браузера) ----------
+const FUN_BOOKS = { music: 'Музыка', film: 'Кино' };
+const session = {
+  get(k) { try { return sessionStorage.getItem('shoho.' + k); } catch { return null; } },
+  set(k, v) { try { sessionStorage.setItem('shoho.' + k, v); } catch { /* выбор действует в этой вкладке */ } },
+};
+const initialBook = session.get('book');
+const lastCourse = session.get('course');
+let bookId = Object.hasOwn(books, initialBook) ? initialBook : Object.hasOwn(books, lastCourse) ? lastCourse : 'shoho';
+let D = books[bookId];
+let bookRevision = 0;
 const store = {
   get(k, d) { try { const v = localStorage.getItem('shoho.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('shoho.' + k, JSON.stringify(v)); } catch { /* недоступно — работаем без памяти */ } },
 };
+const bookKey = (key, id = bookId) => id === 'shoho' ? key : id + '.' + key;
+const bookStore = {
+  get(k, d) { return store.get(bookKey(k), d); },
+  set(k, v) { store.set(bookKey(k), v); },
+};
+function savedRange(id) {
+  const { minLesson, maxLesson } = books[id];
+  const valid = (lesson, fallback) => Number.isInteger(lesson) && lesson >= minLesson && lesson <= maxLesson ? lesson : fallback;
+  const from = valid(store.get(bookKey('from', id), minLesson), minLesson);
+  const to = valid(store.get(bookKey('to', id), maxLesson), maxLesson);
+  return [Math.min(from, to), Math.max(from, to)];
+}
+const defaultGroups = ['polite', 'plain', 'te', 'wish', 'cond', 'voice', 'adj'];
+const [initialFrom, initialTo] = savedRange(bookId);
 const fine = matchMedia('(pointer: fine)').matches;
 const S = {
-  from: store.get('from', 1), to: store.get('to', 34),
+  from: initialFrom, to: initialTo,
   romaji: store.get('romaji', fine), furi: store.get('furi', true), auto: store.get('auto', true),
   kyo: store.get('kyo', false), plain: store.get('plain', false),
-  groups: store.get('groups', ['polite', 'plain', 'te', 'wish', 'cond', 'voice', 'adj']),
+  groups: bookStore.get('groups', defaultGroups),
 };
 const inRange = l => l >= S.from && l <= S.to;
-const today = new Date().toISOString().slice(0, 10);
-let stats = store.get('stats', { day: today, ok: 0, bad: 0 });
-if (stats.day !== today) stats = { day: today, ok: 0, bad: 0 };
+const lessonInRange = (note, from = S.from, to = S.to) =>
+  (note.ls || [note.l]).find(lesson => lesson >= from && lesson <= to);
+function dailyStats() {
+  const day = new Date().toISOString().slice(0, 10), previous = bookStore.get('stats', null);
+  return previous?.day === day ? previous : { day, ok: 0, bad: 0 };
+}
+let stats = dailyStats();
 function renderStats() { $('#stat').innerHTML = `<span class="ok">✓ ${stats.ok}</span><span class="bad">✗ ${stats.bad}</span>`; }
-function mark(ok) { ok ? stats.ok++ : stats.bad++; store.set('stats', stats); renderStats(); }
+function mark(ok) {
+  if (stats.day !== new Date().toISOString().slice(0, 10)) stats = dailyStats();
+  ok ? stats.ok++ : stats.bad++; bookStore.set('stats', stats); renderStats();
+}
 
 // ---------- японский текст ----------
-const KJ_RUBY = /\s?([一-鿿々]+)\[([^\]]+)\]/g;
+const KJ_RUBY = /\s?([0-9０-９]*[一-鿿々]+)\[([^\]]+)\]/g;
 const rubyHTML = f => esc(f).replace(KJ_RUBY, S.furi ? '<ruby>$1<rt>$2</rt></ruby>' : '$1');
 const rubyAlways = f => esc(f).replace(KJ_RUBY, '<ruby>$1<rt>$2</rt></ruby>');
 const readingOf = f => f.replace(KJ_RUBY, '$2');
@@ -1195,9 +1260,14 @@ const ADJ_FORMS = [
   ['na_nai', 6, 'отрицание', '静かだ → 静かではない'], ['na_datta', 10, 'прошедшее', '静かだった'], ['na_nakatta', 10, 'прошедшее отрицание', '静かではなかった'],
   ['na_de', 14, 'форма ‑で («и…»)', '静かで'], ['na_naru', 9, '«стать» ‑になる', '静かになる'], ['na_nara', 32, 'условие ‑なら', '静かなら'], ['na_sou', 20, '«на вид» ‑そうだ', '静かそうだ'],
 ].map(([id, l, name, ex]) => ({ id, g: 'adj', l, name, ex, kind: id.startsWith('i_') ? 'adj-i' : 'adj-na' }));
+const KIKITORI_FORM_START = {
+  tara: 28, temo: 28, ba: 29, i_ba: 29, imp: 30, pot: 31, na_nara: 31,
+  vol: 33, pass: 35, nagara: 36, caus: 37, i_sou: 45, na_sou: 45,
+};
 const GROUPS = [['polite', 'вежливые ‑ます'], ['plain', 'ない / た'], ['te', '‑て и её семья'], ['wish', 'желание, намерение'], ['cond', 'условие, уступка'], ['voice', 'залог, приказ'], ['adj', 'прилагательные']];
 const LIMITED = new Set(['ある', 'わかる', 'できる', 'みえる', 'きこえる', 'たりる']);
 const BASIC = new Set(['masu', 'masen', 'mashita', 'masendeshita', 'nai', 'nakatta', 'te', 'ta', 'ba', 'tara', 'temo']);
+const HONORIFIC = new Set(['いらっしゃる', 'おっしゃる', 'なさる', 'くださる', 'ござる']);
 
 function bases(w, p, kana) {
   if (p === 'v5') {
@@ -1216,29 +1286,31 @@ function conjVerb(w, p, kana, f) {
   }
   const b = bases(w, p, kana); if (!b) return null;
   const neg = b.a, aru = kana === 'ある';
+  const honorific = HONORIFIC.has(kana);
+  const polite = honorific ? w.slice(0, -1) + 'い' : b.i;
   switch (f) {
-    case 'masu': return b.i + 'ます'; case 'masen': return b.i + 'ません'; case 'mashita': return b.i + 'ました'; case 'masendeshita': return b.i + 'ませんでした';
+    case 'masu': return polite + 'ます'; case 'masen': return polite + 'ません'; case 'mashita': return polite + 'ました'; case 'masendeshita': return polite + 'ませんでした';
     case 'nai': return aru ? 'ない' : neg + 'ない'; case 'nakatta': return aru ? 'なかった' : neg + 'なかった';
     case 'te': return b.te; case 'ta': return b.ta; case 'teiru': return b.te + 'いる'; case 'tekudasai': return b.te + 'ください';
     case 'naide': return neg + 'ないでください'; case 'temoii': return b.te + 'もいいです'; case 'tewa': return b.te + 'はいけません';
     case 'nakereba': return neg + 'なければなりません'; case 'tai': return b.i + 'たい'; case 'vol': return b.v1 ? b.st + 'よう' : b.o + 'う';
-    case 'mashou': return b.i + 'ましょう'; case 'nagara': return b.i + 'ながら'; case 'takoto': return b.ta + 'ことがあります';
+    case 'mashou': return polite + 'ましょう'; case 'nagara': return b.i + 'ながら'; case 'takoto': return b.ta + 'ことがあります';
     case 'ba': return b.v1 ? b.st + 'れば' : b.e + 'ば'; case 'tara': return b.ta + 'ら'; case 'temo': return b.te + 'も'; case 'zu': return neg + 'ずに';
     case 'pot': return b.v1 ? b.st + 'られる' : b.e + 'る'; case 'pass': return b.v1 ? b.st + 'られる' : b.a + 'れる';
-    case 'caus': return b.v1 ? b.st + 'させる' : b.a + 'せる'; case 'imp': return b.v1 ? b.st + 'ろ' : b.e;
+    case 'caus': return b.v1 ? b.st + 'させる' : b.a + 'せる'; case 'imp': return honorific ? polite : b.v1 ? b.st + 'ろ' : b.e;
   }
   return null;
 }
-function conjAdj(w, p, f) {
+function conjAdj(w, p, f, kana) {
   if (p === 'adj-i') {
     if (!w.endsWith('い')) return null;
-    const good = w === 'いい', st = good ? 'よ' : w.slice(0, -1);
-    return { i_nai: st + 'くない', i_katta: st + 'かった', i_nakatta: st + 'くなかった', i_te: st + 'くて', i_naru: st + 'くなる', i_ba: st + 'ければ', i_sou: (good ? 'よさ' : st) + 'そうだ' }[f] ?? null;
+    const good = kana === 'いい' || kana === 'よい', st = w === 'いい' ? 'よ' : w.slice(0, -1);
+    return { i_nai: st + 'くない', i_katta: st + 'かった', i_nakatta: st + 'くなかった', i_te: st + 'くて', i_naru: st + 'くなる', i_ba: st + 'ければ', i_sou: st + (good ? 'さ' : '') + 'そうだ' }[f] ?? null;
   }
   const st = w.replace(/な$/, '');
   return { na_nai: st + 'ではない', na_datta: st + 'だった', na_nakatta: st + 'ではなかった', na_de: st + 'で', na_naru: st + 'になる', na_nara: st + 'なら', na_sou: st + 'そうだ' }[f] ?? null;
 }
-const conj = (w, item, f) => item.p.startsWith('adj') ? conjAdj(w, item.p, f.id) : conjVerb(w, item.p, item.base, f.id);
+const conj = (w, item, f) => item.p.startsWith('adj') ? conjAdj(w, item.p, f.id, item.base) : conjVerb(w, item.p, item.base, f.id);
 function variants(s) {
   const out = new Set([s]);
   const swaps = [['ではな', 'じゃな'], ['なりません', 'ならない'], ['いけません', 'いけない'], ['ことがあります', 'ことがある'], ['もいいです', 'もいい']];
@@ -1254,14 +1326,18 @@ function ruleHint(dict, ans, item) {
   if (item.base === 'いく' || /いく$/.test(item.base) && item.p === 'v5') extra = ' (行く — исключение: 行って / 行った)';
   if (item.base === 'ある') extra = ' (ある — отрицание просто ない)';
   if (item.base === 'いい') extra = ' (いい спрягается от よい)';
+  if (HONORIFIC.has(item.base) && /い(?:ます|ません(?:でした)?|ました|ましょう)?$/.test(ans)) extra = ' (у этого глагола особая основа на い)';
   if (item.p === 'v5' && /[いえ]る$/.test(item.base)) extra = ' (похож на II группу, но это I группа)';
   return `${POS_RU[item.p] || ''}: ${tail}${extra}`;
 }
 
-const words = D.words.map(w => {
-  const m = w.k.match(/^\((.*?)\)(.*)$/), me = w.e.match(/^\((.*?)\)(.*)$/);
-  return { ...w, ctx: m ? m[1] : '', base: m ? m[2] : w.k, ebase: me ? me[2] : w.e };
-});
+function bookWords() {
+  return D.words.map(w => {
+    const m = w.k.match(/^\((.*?)\)(.*)$/), me = w.e.match(/^\((.*?)\)(.*)$/);
+    return { ...w, ctx: m ? m[1] : '', base: m ? m[2] : w.k, ebase: me ? me[2] : w.e };
+  });
+}
+let words = bookWords();
 
 // ---------- режим «Формы» ----------
 const F = { cur: null, shown: false, done: false };
@@ -1269,12 +1345,15 @@ function buildGroupToggles() {
   $('#formGroups').innerHTML = GROUPS.map(([g, label]) =>
     `<label class="toggle" for="g-${g}"><input type="checkbox" id="g-${g}" data-g="${g}" ${S.groups.includes(g) ? 'checked' : ''}> ${label}</label>`).join('');
   $$('#formGroups input').forEach(el => el.addEventListener('change', () => {
-    S.groups = $$('#formGroups input:checked').map(x => x.dataset.g); store.set('groups', S.groups); nextForm();
+    S.groups = $$('#formGroups input:checked').map(x => x.dataset.g); bookStore.set('groups', S.groups); nextForm();
   }));
 }
 function nextForm() {
-  const forms = [...FORMS, ...ADJ_FORMS].filter(f => S.groups.includes(f.g) && f.l <= S.to);
-  const pool = words.filter(w => inRange(w.l) && w.t === 'word' && ['v5', 'v1', 'vs', 'vk', 'adj-i', 'adj-na'].includes(w.p) && w.base !== 'あいする');
+  const forms = [...FORMS, ...ADJ_FORMS].filter(f => {
+    const first = bookId === 'shoho' ? f.l : (KIKITORI_FORM_START[f.id] ?? D.minLesson);
+    return S.groups.includes(f.g) && first <= S.to;
+  });
+  const pool = words.filter(w => lessonInRange(w) && w.t === 'word' && ['v5', 'v1', 'vs', 'vk', 'adj-i', 'adj-na'].includes(w.p) && w.base !== 'あいする');
   F.done = false; F.shown = false; $('#fFb').hidden = true; $('#fInput').value = ''; $('#fInput').disabled = false;
   if (!forms.length || !pool.length) {
     $('#fTask').textContent = forms.length ? 'В выбранных уроках нет глаголов и прилагательных.' : 'Для выбранных уроков нет форм из отмеченных групп — расширьте диапазон уроков или включите другие группы.';
@@ -1285,6 +1364,7 @@ function nextForm() {
     const kinds = item.p.startsWith('adj') ? [item.p] : ['verb'];
     let fs = forms.filter(f => kinds.includes(f.kind));
     if (LIMITED.has(item.base)) fs = fs.filter(f => BASIC.has(f.id));
+    if (HONORIFIC.has(item.base)) fs = fs.filter(f => f.g !== 'voice' || (f.id === 'imp' && item.base !== 'ござる'));
     if (item.base === 'くれる') fs = fs.filter(f => f.id !== 'imp');
     if (!fs.length) continue;
     const f = pick(fs);
@@ -1294,7 +1374,7 @@ function nextForm() {
     $('#fTask').innerHTML = `Форма: <b>${esc(f.name)}</b> <span class="meta">· как ${esc(f.ex)}</span>`;
     const ctx = item.ctx ? `<span class="meta">(${esc(item.ctx)})</span> ` : '';
     $('#fWord').innerHTML = ctx + wordRuby(item.ebase, item.base);
-    $('#fMeta').textContent = `${item.r} · урок ${item.l}`;
+    $('#fMeta').textContent = `${item.r} · урок ${lessonInRange(item)}`;
     $('#fHint').disabled = false; $('#fHint').textContent = 'Подсказка: группа';
     if (fine) $('#fInput').focus();
     return;
@@ -1325,19 +1405,19 @@ const P = { cur: null, done: false };
 function nextParticle() {
   const pool = D.slots.filter(([i]) => inRange(D.sentences[i].l));
   P.done = false; $('#pFb').hidden = true; $('#pNext').hidden = true;
-  if (!pool.length) { $('#pTask').textContent = 'В выбранных уроках нет предложений.'; $('#pSent').textContent = ''; $('#pChoices').innerHTML = ''; return; }
+  if (!pool.length) { P.cur = null; $('#pTask').textContent = 'В выбранных уроках нет предложений.'; $('#pSent').textContent = ''; $('#pChoices').innerHTML = ''; return; }
   const [i, off, part] = pick(pool), s = D.sentences[i];
-  P.cur = { s, off, part };
+  const chars = [...s.j], before = chars.slice(0, off).join(''), after = chars.slice(off + [...part].length).join('');
+  P.cur = { s, part, after };
   $('#pTask').innerHTML = `${esc(s.r)} <span class="meta">· урок ${s.l}</span>`;
-  $('#pSent').innerHTML = `<span class="jp">${esc(s.j.slice(0, off))}<span class="blank">？</span>${esc(s.j.slice(off + part.length))}</span>`;
+  $('#pSent').innerHTML = `<span class="jp">${esc(before)}<span class="blank">？</span>${esc(after)}</span>`;
   const opts = shuffle([part, ...shuffle(CONF[part] || ['は', 'が', 'を']).slice(0, 3)]);
   $('#pChoices').innerHTML = opts.map((o, n) => `<button class="choice" type="button" data-p="${o}" aria-label="${n + 1}: ${o}">${o}</button>`).join('');
   $$('#pChoices .choice').forEach(b => b.onclick = () => answerParticle(b.dataset.p));
 }
 function answerParticle(choice) {
   const c = P.cur; if (!c || P.done) return;
-  const after = c.s.j.slice(c.off + c.part.length, c.off + c.part.length + 8);
-  const alt = ((c.part === 'へ' && choice === 'に') || (c.part === 'に' && choice === 'へ')) && /行|来|帰|もど|まいり|出かけ/.test(after);
+  const alt = ((c.part === 'へ' && choice === 'に') || (c.part === 'に' && choice === 'へ')) && /行|来|帰|もど|まいり|出かけ/.test(c.after.slice(0, 8));
   const ok = choice === c.part || alt;
   P.done = true; mark(ok);
   $$('#pChoices .choice').forEach(b => { b.disabled = true; if (b.dataset.p === c.part) b.classList.add('right'); else if (b.dataset.p === choice) b.classList.add('wrong'); });
@@ -1355,7 +1435,7 @@ const SP = { queue: [], cur: null, revealed: false };
 function nextSpeak() {
   const pool = D.sentences.filter(s => inRange(s.l));
   $('#sFb').hidden = true; $('#sClaudeFb').hidden = true; $('#sGrade').hidden = true; $('#sInput').value = ''; SP.revealed = false;
-  if (!pool.length) { $('#sTask').textContent = 'В выбранных уроках нет предложений.'; $('#sRu').textContent = ''; return; }
+  if (!pool.length) { SP.cur = null; $('#sTask').textContent = 'В выбранных уроках нет предложений.'; $('#sRu').textContent = ''; $('#sPattern').textContent = ''; return; }
   SP.queue = SP.queue.filter(q => inRange(q.s.l));
   SP.queue.forEach(q => q.wait--);
   const due = SP.queue.findIndex(q => q.wait <= 0);
@@ -1411,13 +1491,13 @@ function showListen(checked) {
 
 // ---------- режим «Чтение» ----------
 const R = { cur: null, done: false };
-const readPool = () => words.filter(w => inRange(w.l) && /[一-鿿]/.test(w.e) && w.t !== 'name');
+const readPool = () => words.filter(w => lessonInRange(w) && /[一-鿿]/.test(w.e) && w.t !== 'name');
 function nextRead() {
   const pool = readPool();
   R.done = false; $('#rFb').hidden = true; $('#rInput').value = '';
   if (!pool.length) { $('#rTask').textContent = 'В выбранных уроках нет слов с кандзи.'; $('#rWord').textContent = ''; R.cur = null; return; }
   R.cur = pick(pool);
-  $('#rTask').innerHTML = `Как читается? <span class="meta">· урок ${R.cur.l}</span>`;
+  $('#rTask').innerHTML = `Как читается? <span class="meta">· урок ${lessonInRange(R.cur)}</span>`;
   $('#rWord').textContent = R.cur.e;
   if (fine) $('#rInput').focus();
 }
@@ -1517,10 +1597,11 @@ async function initClaude() {
 }
 async function checkWithClaude() {
   const s = SP.cur, user = $('#sInput').value.trim(); if (!s || !sampleFn) return;
+  const revision = bookRevision;
   const box = $('#sClaudeFb'); box.hidden = false; box.className = 'fb info';
   if (!user) { box.innerHTML = '<div class="meta">Сначала напишите или надиктуйте свой вариант.</div>'; return; }
   box.innerHTML = '<div class="meta">Claude проверяет…</div>'; $('#sClaude').disabled = true;
-  const prompt = `Ты — преподаватель японского языка. Студент 1 курса (учебник «日本語初歩») переводил фразу с русского на японский. Оцени его ответ. Другой вариант тоже верен, если он грамматически правилен, передаёт смысл и сохраняет стиль эталона (вежливый или простой). Мелочи вроде записи каной вместо кандзи ошибкой не считай.
+  const prompt = `Ты — преподаватель японского языка. Студент 1 курса (учебник «${D.title}») переводил фразу с русского на японский. Оцени его ответ. Другой вариант тоже верен, если он грамматически правилен, передаёт смысл и сохраняет стиль эталона (вежливый или простой). Мелочи вроде записи каной вместо кандзи ошибкой не считай.
 Ответь только JSON, без markdown и без текста вокруг: {"verdict": "верно" | "почти" | "неверно", "comment": "1–2 коротких предложения по-русски: что не так и почему, или что всё хорошо", "fixed": "исправленный вариант ответа студента по-японски (если ошибок нет — сам ответ)"}
 Урок: ${s.l}
 Русская фраза: «${s.r}»
@@ -1529,13 +1610,15 @@ async function checkWithClaude() {
 Ответ студента: ${user}`;
   try {
     const r = await sampleFn.json(prompt, { tier: 'default', effort: 'low', schema: CHECK_SCHEMA });
+    if (revision !== bookRevision || s !== SP.cur) return;
     const v = String(r?.verdict || ''), good = v.startsWith('верн');
     box.className = 'fb ' + (good ? 'good' : v.startsWith('почти') ? 'info' : 'bad');
     box.innerHTML = `<div class="verdict">Claude: ${esc(v || 'оценка')}</div><div>${esc(r?.comment || '')}</div>${r?.fixed ? `<div class="jpline">${esc(r.fixed)}</div>` : ''}`;
   } catch (e) {
+    if (revision !== bookRevision || s !== SP.cur) return;
     if (HIDE.has(e?.code)) { claudeUnavailable(); box.innerHTML = '<div class="meta">Проверка Claude недоступна в этом окне.</div>'; }
     else box.innerHTML = `<div class="meta">${esc(errText(e))}</div>`;
-  } finally { $('#sClaude').disabled = false; }
+  } finally { if (revision === bookRevision) $('#sClaude').disabled = false; }
 }
 
 const C = { mode: store.get('chatMode', 'lessons'), rules: '', turns: [], base: 0, ctl: null };
@@ -1556,7 +1639,7 @@ function chatRules() {
 Уровень языка: не выше JLPT N4 — лексика, грамматика и кандзи уровней N5–N4. К урокам учебника не привязывайся.`;
   const topics = D.topics.filter(t => t.to >= S.from && t.from <= S.to).map(t => `${t.label}: ${t.text}`).join('\n');
   return base + `
-Студент учится по учебнику «日本語初歩» (Japan Foundation) и прошёл уроки ${S.from}–${S.to}. Используй только грамматику этих уроков (список ниже), простую лексику и простые кандзи. Чаще, чем в обычной речи, вставляй конструкции из списка, особенно из последних уроков диапазона, — но так, чтобы фраза звучала естественно, а не как упражнение.
+Студент учится по учебнику «${D.title}» и прошёл уроки ${S.from}–${S.to}. Используй только грамматику этих уроков (список ниже), простую лексику и простые кандзи. Чаще, чем в обычной речи, вставляй конструкции из списка, особенно из последних уроков диапазона, — но так, чтобы фраза звучала естественно, а не как упражнение.
 Грамматика уроков ${S.from}–${S.to}:
 ${topics}`;
 }
@@ -1567,7 +1650,10 @@ function chatState() {
   $$('#scen button').forEach(b => b.setAttribute('aria-pressed', b.dataset.cm === C.mode ? 'true' : 'false'));
 }
 // Новый разговор: правила фиксируются при первом сообщении и до конца разговора не меняются (так дешевле — см. кэш).
-function resetChat() { C.ctl?.abort(); C.rules = ''; C.turns = []; C.base = 0; $('#chatLog').innerHTML = ''; chatState(); }
+function resetChat() {
+  C.ctl?.abort(); C.ctl = null; C.rules = ''; C.turns = []; C.base = 0;
+  $('#chatLog').innerHTML = ''; $('#cSend').disabled = false; $('#cStop').hidden = true; chatState();
+}
 function addBubble(role, data) {
   const b = document.createElement('div'); b.className = 'bubble ' + (role === 'user' ? 'me' : 'bot');
   if (role === 'user') { b.innerHTML = `<div class="jpline">${esc(data)}</div>`; }
@@ -1593,19 +1679,24 @@ async function chatCall(userText) {
   }
   const input = [{ role: 'user', content: C.rules }, ...C.turns.slice(C.base)];
   const wait = document.createElement('div'); wait.className = 'note'; wait.textContent = 'Claude пишет…'; $('#chatLog').append(wait);
-  C.ctl = new AbortController(); $('#cSend').disabled = true; $('#cStop').hidden = false;
+  const ctl = new AbortController(); C.ctl = ctl; $('#cSend').disabled = true; $('#cStop').hidden = false;
   try {
-    const r = await sampleFn.json(input, { tier: 'quick', effort: 'low', cache: false, signal: C.ctl.signal, schema: CHAT_SCHEMA });
+    const r = await sampleFn.json(input, { tier: 'quick', effort: 'low', cache: false, signal: ctl.signal, schema: CHAT_SCHEMA });
+    if (C.ctl !== ctl) return;
     const reply = String(r?.reply || '').trim();
     if (!reply) throw { code: 'invalid_json', raw: JSON.stringify(r) };
     addBubble('bot', { fix: String(r.fix || '').trim(), reply, reading: r.reading, ru: r.ru });
     C.turns.push({ role: 'assistant', content: reply });
     if (S.auto) tts.speak(reply);
   } catch (e) {
+    if (C.ctl !== ctl) return;
     if (e?.code === 'cancelled') { /* остановлено пользователем */ }
     else if (HIDE.has(e?.code)) claudeUnavailable();
     else { const n = document.createElement('div'); n.className = 'warn'; n.textContent = errText(e); $('#chatLog').append(n); }
-  } finally { wait.remove(); $('#cSend').disabled = false; $('#cStop').hidden = true; C.ctl = null; }
+  } finally {
+    wait.remove();
+    if (C.ctl === ctl) { $('#cSend').disabled = false; $('#cStop').hidden = true; C.ctl = null; }
+  }
 }
 
 // ---------- карточки (встроенная колода Anki) ----------
@@ -1614,42 +1705,69 @@ const dayNum = (t = Date.now()) => Math.floor((t - new Date(t).getTimezoneOffset
 const dayStart = n => { const t = n * DAY + ROLLOVER; return t + new Date(t).getTimezoneOffset() * MIN; };
 const LEARN = [1, 10], RELEARN = [10];
 const DECKS = {
-  w: { name: 'Слова', tpl: ['Понимание (яп → рус)', 'Говорение (рус → яп)'], notes: words.filter(w => w.t !== 'name'), key: n => n.id },
-  k: { name: 'Кандзи', tpl: ['Узнавание', 'Написание'], notes: D.kanji, key: n => n.c },
-  s: { name: 'Фразы', tpl: ['Скажи по‑японски', 'Аудирование'], notes: D.sentences, key: n => n.id },
+  w: { name: 'Слова', tpl: ['Понимание (яп → рус)', 'Говорение (рус → яп)'], key: n => n.id },
+  k: { name: 'Кандзи', tpl: ['Узнавание', 'Написание'], key: n => n.c },
+  s: { name: 'Фразы', tpl: ['Скажи по‑японски', 'Аудирование'], key: n => n.id },
 };
 const NOTE = new Map();
-for (const [d, deck] of Object.entries(DECKS)) { deck.notes = [...deck.notes].sort((a, b) => a.l - b.l); deck.notes.forEach(n => NOTE.set(d + deck.key(n), { d, n })); }
-let CFG = store.get('srsCfg', { w: { t: [1], n: 20 }, k: { t: [1], n: 10 }, s: { t: [1, 2], n: 8 } });
+function initDeckNotes() {
+  const notes = { w: words.filter(w => w.t !== 'name'), k: D.kanji, s: D.sentences };
+  NOTE.clear();
+  for (const [d, deck] of Object.entries(DECKS)) {
+    deck.notes = [...notes[d]].sort((a, b) => a.l - b.l);
+    deck.notes.forEach(n => NOTE.set(d + deck.key(n), { d, n }));
+  }
+}
+const defaultDeckConfig = () => ({ w: { t: [1], n: 20 }, k: { t: [1], n: 10 }, s: { t: [1, 2], n: 8 } });
+let CFG = bookStore.get('srsCfg', defaultDeckConfig());
+const progress = new Map();
+let Prog;
 // Прогресс: c[id] = [тип 1 изучение / 2 повторение / 3 переучивание, срок (мс), интервал (дни), лёгкость, повторений, провалов, шаг]
-const Prog = {
-  data: null, docRef: null, timer: null, busy: false, again: false, status: 'local',
-  load() { const d = store.get('srs', null); this.data = d && d.v === 1 && d.c ? d : { v: 1, t: 0, c: {}, day: -1, nd: { w: 0, k: 0, s: 0 } }; },
-  today() { const t = dayNum(); if (this.data.day !== t) { this.data.day = t; this.data.nd = { w: 0, k: 0, s: 0 }; } return t; },
-  save() { this.data.t = Date.now(); store.set('srs', this.data); if (this.docRef) { clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), 3000); } },
-  async push() {
-    if (this.busy) { this.again = true; return; }
-    this.busy = true;
-    try { await this.docRef.set({ json: JSON.stringify(this.data) }); this.status = 'synced'; }
-    catch (e) { if (e?.code === 'invalid_argument' || e?.code === 'revoked' || e?.code === 'not_granted') { this.docRef = null; this.status = 'local'; } else this.status = 'pending'; }
-    finally { this.busy = false; renderSync(); if (this.again) { this.again = false; this.push(); } }
-  },
-  async connect() {
-    if (!window.claude?.use) return;
-    try {
-      const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
-      const id = db && user ? await user.id() : null;
-      if (!id) return;
-      this.docRef = db.doc('data/users/' + id + '/srs');
-      const snap = await this.docRef.get();
-      const remote = snap.exists ? JSON.parse(String(snap.data().json || 'null')) : null;
-      if (remote && remote.v === 1 && remote.t > this.data.t) { this.data = remote; store.set('srs', remote); renderDecks(); }
-      else if (this.data.t > (remote?.t || 0)) await this.push();
-      if (this.docRef) this.status = 'synced';
-    } catch { this.docRef = null; this.status = 'local'; }
-    renderSync();
-  },
-};
+function createProgress(id) {
+  const key = bookKey('srs', id), stored = store.get(key, null);
+  return {
+    data: stored && stored.v === 1 && stored.c ? stored : { v: 1, t: 0, c: {}, day: -1, nd: { w: 0, k: 0, s: 0 } },
+    docRef: null, timer: null, busy: false, again: false, status: 'local',
+    today() { const t = dayNum(); if (this.data.day !== t) { this.data.day = t; this.data.nd = { w: 0, k: 0, s: 0 }; } return t; },
+    save() {
+      this.data.t = Date.now(); store.set(key, this.data);
+      if (this.docRef) { clearTimeout(this.timer); this.timer = setTimeout(() => this.push(), 3000); }
+    },
+    async push() {
+      if (!this.docRef) return;
+      if (this.busy) { this.again = true; return; }
+      this.busy = true;
+      try { await this.docRef.set({ json: JSON.stringify(this.data) }); this.status = 'synced'; }
+      catch (e) { if (e?.code === 'invalid_argument' || e?.code === 'revoked' || e?.code === 'not_granted') { this.docRef = null; this.status = 'local'; } else this.status = 'pending'; }
+      finally { this.busy = false; if (this === Prog) renderSync(); if (this.again) { this.again = false; this.push(); } }
+    },
+    async connect() {
+      if (!window.claude?.use) return;
+      try {
+        const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+        const uid = db && user ? await user.id() : null;
+        if (!uid) return;
+        this.docRef = db.doc('data/users/' + uid + (id === 'shoho' ? '/srs' : '/srs-' + id));
+        const snap = await this.docRef.get();
+        const remote = snap.exists ? JSON.parse(String(snap.data().json || 'null')) : null;
+        if (remote && remote.v === 1 && remote.t > this.data.t) {
+          this.data = remote; store.set(key, remote);
+          if (this === Prog) renderDecks();
+        }
+        if (this.data.t > (remote?.t || 0)) await this.push();
+        else this.status = 'synced';
+      } catch { this.docRef = null; this.status = 'local'; }
+      if (this === Prog) renderSync();
+    },
+  };
+}
+function selectProgress() {
+  Prog = progress.get(bookId);
+  if (!Prog) {
+    Prog = createProgress(bookId); progress.set(bookId, Prog); Prog.connect();
+  }
+  Prog.today();
+}
 function renderSync() {
   const n = Object.keys(Prog.data.c).length;
   $('#aSync').textContent = (Prog.status === 'synced'
@@ -1663,7 +1781,7 @@ function newQueue(d, limit) {
   const out = [], deck = DECKS[d], c = Prog.data.c;
   for (const n of deck.notes) {
     if (out.length >= limit) break;
-    if (!inRange(n.l)) continue;
+    if (!lessonInRange(n)) continue;
     const id = d + deck.key(n);
     for (const t of enabled(d)) {
       if (c[id + '.' + t]) continue;
@@ -1686,8 +1804,8 @@ function deckCounts(d) {
   return { rev, lrn, n: newQueue(d, left).length };
 }
 const DECK_ICON = { w: '言葉', k: '漢字', s: '文' };
-let QS = store.get('qsDecks', ['w', 'k']);  // колоды, отмеченные для быстрого старта
-const inLessons = d => DECKS[d].notes.filter(n => inRange(n.l)).length;
+let QS = bookStore.get('qsDecks', ['w', 'k']);  // колоды, отмеченные для быстрого старта
+const inLessons = d => DECKS[d].notes.filter(n => lessonInRange(n)).length;
 function renderDecks() {
   let total = 0;
   $('#deckList').innerHTML = Object.entries(DECKS).map(([d, deck]) => {
@@ -1699,17 +1817,17 @@ function renderDecks() {
   }).join('');
   $$('#deckList .deck-tile').forEach(b => b.onclick = () => {
     const d = b.dataset.d; QS = QS.includes(d) ? QS.filter(x => x !== d) : [...QS, d];
-    store.set('qsDecks', QS); renderDecks();
+    bookStore.set('qsDecks', QS); renderDecks();
   });
   $('#deckOpts').innerHTML = Object.entries(DECKS).map(([d, deck]) => `<fieldset class="dopt"><legend>${deck.name}</legend>
       <div class="toggles">${deck.tpl.map((name, i) => `<label class="toggle" for="t-${d}${i + 1}"><input type="checkbox" id="t-${d}${i + 1}" data-d="${d}" data-t="${i + 1}" ${enabled(d).includes(i + 1) ? 'checked' : ''}> ${name}</label>`).join('')}</div>
       <label class="newlim" for="n-${d}">новых в день (для повторения по расписанию) <input type="number" id="n-${d}" data-d="${d}" min="0" max="300" value="${CFG[d].n}"></label></fieldset>`).join('');
   $$('#deckOpts input[type=checkbox]').forEach(el => el.onchange = () => {
     const d = el.dataset.d; CFG[d].t = $$(`#deckOpts input[type=checkbox][data-d="${d}"]:checked`).map(x => +x.dataset.t);
-    store.set('srsCfg', CFG); renderDecks();
+    bookStore.set('srsCfg', CFG); renderDecks();
   });
   $$('#deckOpts input[type=number]').forEach(el => el.onchange = () => {
-    CFG[el.dataset.d].n = Math.max(0, Math.min(300, Math.round(+el.value || 0))); store.set('srsCfg', CFG); renderDecks();
+    CFG[el.dataset.d].n = Math.max(0, Math.min(300, Math.round(+el.value || 0))); bookStore.set('srsCfg', CFG); renderDecks();
   });
   $('#aSummary').textContent = total ? `на сегодня: ${total} карточек · уроки ${S.from}–${S.to}` : 'По расписанию на сегодня всё — можно учить быстрым стартом.';
   $('#aStart').disabled = !total;
@@ -1772,12 +1890,12 @@ function pickCard() {
 function kunHTML(k) { const [stem, oku] = k.split('.'); return esc(stem) + (oku ? `<i>${esc(oku)}</i>` : ''); }
 // Знак как в таблице учебника: большой знак | он / кун и значение | черты и ключ; ниже — слова для запоминания.
 function kanjiCard(n) {
-  const strokes = D.strokes[n.c]?.[0].length;
+  const count = strokes[n.c]?.[0].length;
   return `<div class="kcard">
     <div class="kc-big jp">${esc(n.c)}</div>
     <div class="kc-mid"><div class="kc-on jp">${esc(n.on.join('、')) || '—'}</div>
       <div class="kc-kun"><div class="jp">${n.kun.map(k => esc(k.replace('.', '・'))).join('<br>') || '—'}</div><div class="kc-ru">${esc(n.m)}</div></div></div>
-    <div class="kc-side">${strokes ? `<div><b>${strokes}</b><small>${strokes % 10 === 1 && strokes % 100 !== 11 ? 'черта' : [2, 3, 4].includes(strokes % 10) && ![12, 13, 14].includes(strokes % 100) ? 'черты' : 'черт'}</small></div>` : ''}${n.rad ? `<div><b class="jp">${esc(n.rad)}</b><small>ключ</small></div>` : ''}</div>
+    <div class="kc-side">${count ? `<div><b>${count}</b><small>${count % 10 === 1 && count % 100 !== 11 ? 'черта' : [2, 3, 4].includes(count % 10) && ![12, 13, 14].includes(count % 100) ? 'черты' : 'черт'}</small></div>` : ''}${n.rad ? `<div><b class="jp">${esc(n.rad)}</b><small>ключ</small></div>` : ''}</div>
   </div>`;
 }
 function kanjiExamples(n) {
@@ -1815,7 +1933,7 @@ function makePad(el) {
   requestAnimationFrame(fit);
 }
 function strokeSVG(ch) {
-  const s = D.strokes[ch]; if (!s) return '';
+  const s = strokes[ch]; if (!s) return '';
   return `<svg class="strokes" viewBox="0 0 109 109" role="img" aria-label="Порядок черт ${esc(ch)}">${s[0].map(d => `<path d="${d}"></path>`).join('')}${s[1].map(([x, y], i) => `<text x="${x}" y="${y}">${i + 1}</text>`).join('')}</svg>
     <button class="btn ghost" type="button" data-anim>Нарисовать по чертам</button>`;
 }
@@ -1860,10 +1978,10 @@ function nextCard() {
   const id = pickCard();
   A.cur = id; A.shown = false;
   if (!id) { endStudy(true); return; }
-  const { d } = NOTE.get(id.slice(0, -2)), t = +id.slice(-1), st = Prog.data.c[id];
+  const { d, n } = NOTE.get(id.slice(0, -2)), t = +id.slice(-1), st = Prog.data.c[id];
   const f = faces(id); A.face = f;
   const kind = !st ? 'новая' : st[0] === 2 ? 'повторение' : 'изучение';
-  $('#aTask').innerHTML = `${DECKS[d].name} · ${DECKS[d].tpl[t - 1]} <span class="badge">${kind}</span> <span class="meta">· урок ${NOTE.get(id.slice(0, -2)).n.l}</span>`;
+  $('#aTask').innerHTML = `${DECKS[d].name} · ${DECKS[d].tpl[t - 1]} <span class="badge">${kind}</span> <span class="meta">· урок ${lessonInRange(n) ?? n.l}</span>`;
   $('#aFront').innerHTML = f.front; wireFace($('#aFront'));
   $('#aBack').hidden = true; $('#aGrades').hidden = true; $('#aShowRow').hidden = false;
   const c = { rev: 0, lrn: 0, n: 0 }; for (const k of Object.keys(DECKS)) { const x = deckCounts(k); c.rev += x.rev; c.lrn += x.lrn; c.n += x.n; }
@@ -1902,7 +2020,8 @@ function endStudy(finished) {
 }
 let downloadsCap = null;
 async function exportProgress() {
-  const name = `shoho-progress-${new Date().toISOString().slice(0, 10)}.json`, json = JSON.stringify(Prog.data);
+  const name = `${bookId}-progress-${new Date().toISOString().slice(0, 10)}.json`;
+  const json = JSON.stringify({ ...Prog.data, book: bookId });
   if (inViewer) {
     try { downloadsCap ||= await window.claude.use('downloads'); } catch { downloadsCap = null; }
     if (!downloadsCap) { $('#aSync').textContent = 'Сохранение файла недоступно в этом окне.'; return; }
@@ -1913,22 +2032,33 @@ async function exportProgress() {
   document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
 function importProgress(file) {
-  const box = $('#aConfirm');
+  const box = $('#aConfirm'), revision = bookRevision;
   file.text().then(txt => {
+    if (revision !== bookRevision) return;
     let data = null; try { data = JSON.parse(txt); } catch { }
-    if (!data || data.v !== 1 || typeof data.c !== 'object') { box.hidden = false; box.textContent = 'Это не файл прогресса тренажёра.'; return; }
+    if (!data || data.v !== 1 || !data.c || typeof data.c !== 'object') { box.hidden = false; box.textContent = 'Это не файл прогресса тренажёра.'; return; }
+    if ((data.book ?? 'shoho') !== bookId) { box.hidden = false; box.textContent = 'Этот файл прогресса относится к другому учебнику.'; return; }
     box.hidden = false;
     box.innerHTML = `<div>В файле ${Object.keys(data.c).length} карточек. Заменить ими текущий прогресс (${Object.keys(Prog.data.c).length})?</div>
       <div class="row"><button class="btn primary" type="button" id="aYes">Заменить</button><button class="btn ghost" type="button" id="aNo">Отмена</button></div>`;
-    $('#aYes').onclick = () => { Prog.data = data; Prog.save(); box.hidden = true; renderDecks(); };
+    $('#aYes').onclick = () => {
+      if (revision !== bookRevision) return;
+      Prog.data = data; Prog.save(); box.hidden = true; renderDecks();
+    };
     $('#aNo').onclick = () => { box.hidden = true; };
   });
 }
 
 // ---------- карта грамматики ----------
 function initMap() {
+  $('#grammar').replaceChildren($(`#grammar-${bookId}`).content.cloneNode(true));
+  $('#grammarIntro').hidden = bookId !== 'shoho';
   const heads = $$('#grammar h2');
-  $('#toc').innerHTML = heads.map((h, i) => `<button type="button" data-i="${i}">${esc(h.textContent.replace(/^\d+\.\s*/, (m) => m))}</button>`).join('');
+  $('#toc').innerHTML = heads.map((h, i) => {
+    const name = h.textContent;
+    const lesson = bookId === 'kikitori' ? name.match(/^Урок\s+(\d+)/i)?.[1] : null;
+    return `<button type="button" data-i="${i}" aria-label="${esc(name)}" title="${esc(name)}">${esc(lesson || name)}</button>`;
+  }).join('');
   $$('#toc button').forEach(b => b.onclick = () => heads[+b.dataset.i].scrollIntoView({ behavior: 'smooth', block: 'start' }));
 }
 
@@ -2191,13 +2321,20 @@ function applyPlain() {
   $('#styleBtn').textContent = on ? 'Стиль Windows 95' : 'Простой дизайн';
   $('#optPlain').checked = on;
 }
-// Учебники: пока один. Выбор живёт до конца сеанса, сменить — кнопкой в шапке или START.
-const BOOKS = { shoho: '日本語初歩', music: 'Музыка', film: 'Кино' };
-// Выбор уроков после учебника: первое касание — начало диапазона, второе — конец.
-const LP = { a: 1, b: 34, anchor: null };
-function showLessonPick() { LP.a = S.from; LP.b = S.to; LP.anchor = null; renderLessonPick(); $('#lessonPick').hidden = false; $('#lpGo').focus(); }
+// Выбор учебника живёт до конца сеанса. Диапазон хранится отдельно для каждого учебника.
+const LP = { book: null, a: null, b: null, anchor: null };
+function lessonNumbers(id) {
+  const { minLesson, maxLesson } = books[id];
+  return Array.from({ length: maxLesson - minLesson + 1 }, (_, i) => minLesson + i);
+}
+function showLessonPick(id) {
+  LP.book = id; [LP.a, LP.b] = id === bookId ? [S.from, S.to] : savedRange(id); LP.anchor = null;
+  renderLessonPick(); $('#picker').hidden = true; $('#lessonPick').hidden = false; $('#lpGo').focus();
+}
 function renderLessonPick() {
-  $('#lpGrid').innerHTML = Array.from({ length: 34 }, (_, i) => i + 1).map(l => {
+  const course = books[LP.book];
+  $('#lpAll').textContent = `Все уроки (${course.minLesson}–${course.maxLesson})`;
+  $('#lpGrid').innerHTML = lessonNumbers(LP.book).map(l => {
     const on = l >= LP.a && l <= LP.b, end = l === LP.a || l === LP.b;
     return `<button type="button" class="lsn${end ? ' end' : ''}${l === LP.anchor ? ' anchor' : ''}" data-l="${l}" aria-pressed="${on}">${l}</button>`;
   }).join('');
@@ -2207,29 +2344,68 @@ function renderLessonPick() {
     else { LP.a = Math.min(LP.anchor, l); LP.b = Math.max(LP.anchor, l); LP.anchor = null; }
     renderLessonPick();
   });
-  const cnt = d => DECKS[d].notes.filter(n => n.l >= LP.a && n.l <= LP.b).length;
-  $('#lpSum').textContent = (LP.a === LP.b ? `Урок ${LP.a}` : `Уроки ${LP.a}–${LP.b}`) + `: ${cnt('w')} слов, ${cnt('k')} кандзи, ${cnt('s')} фраз`
+  const count = notes => notes.filter(n => lessonInRange(n, LP.a, LP.b)).length;
+  const wordCount = count(course.words.filter(w => w.t !== 'name'));
+  $('#lpSum').textContent = (LP.a === LP.b ? `Урок ${LP.a}` : `Уроки ${LP.a}–${LP.b}`) + `: ${wordCount} слов, ${count(course.kanji)} кандзи, ${count(course.sentences)} фраз`
     + (LP.anchor !== null ? ' · теперь нажмите последний урок (или «Открыть учебник»)' : '');
   $('#lpGo').textContent = `Открыть учебник · ${LP.a === LP.b ? 'урок ' + LP.a : 'уроки ' + LP.a + '–' + LP.b}`;
 }
-function setBookChip(id) { const fun = id === 'music' || id === 'film'; $('#curBook b').textContent = BOOKS[id]; $('#curBook b').classList.toggle('ui', fun); $('#curBook small').textContent = fun ? 'раздел' : 'учебник'; }
+function setBookChip(id) {
+  const fun = Object.hasOwn(FUN_BOOKS, id);
+  $('#curBook b').textContent = fun ? FUN_BOOKS[id] : books[id].title;
+  $('#curBook b').classList.toggle('ui', fun); $('#curBook small').textContent = fun ? 'раздел' : 'учебник';
+}
 function showPicker() { $('#picker').hidden = false; $('#picker .book')?.focus(); }
+function updateAnkiLink() {
+  const row = $('#apkgLink');
+  row.hidden = !D.anki || inViewer || !location.protocol.startsWith('http');
+  if (D.anki) {
+    const a = $('a', row); a.href = D.anki; a.textContent = 'скачать ' + D.anki;
+  }
+}
+function switchCourse(id) {
+  bookId = id; D = books[id]; bookRevision++;
+  words = bookWords(); initDeckNotes();
+  S.groups = bookStore.get('groups', defaultGroups);
+  stats = dailyStats(); renderStats();
+  CFG = bookStore.get('srsCfg', defaultDeckConfig());
+  QS = bookStore.get('qsDecks', ['w', 'k']);
+  selectProgress(); updateAnkiLink();
+  $('#aConfirm').hidden = true; if (A.cur) endStudy(false);
+  if (tts.ok) speechSynthesis.cancel();
+  stopMics.forEach(stop => stop());
+  SP.queue = []; SP.cur = null; $('#sClaude').disabled = false;
+  $('#cInput').value = ''; resetChat();
+  if (started.forms) buildGroupToggles();
+  if (started.map) initMap();
+}
+function setRange(from, to) {
+  S.from = from; S.to = to;
+  bookStore.set('from', from); bookStore.set('to', to);
+  $('#lfrom').value = from; $('#lto').value = to;
+}
 function bindPicker() {
-  $$('#picker .book').forEach(b => b.onclick = () => {
-    try { sessionStorage.setItem('shoho.book', b.dataset.book); } catch { /* без памяти — спросим снова в следующий раз */ }
-    setBookChip(b.dataset.book);
-    $('#picker').hidden = true; showLessonPick();
-  });
+  $$('#picker [data-book]').forEach(b => b.onclick = () => showLessonPick(b.dataset.book));
   $$('#picker .fun').forEach(b => b.onclick = () => {
-    try { sessionStorage.setItem('shoho.book', b.dataset.fun); } catch { /* без памяти */ }
-    setBookChip(b.dataset.fun); $('#picker').hidden = true; location.hash = '#' + b.dataset.fun;
+    session.set('book', b.dataset.fun);
+    $('#picker').hidden = true; location.hash = '#' + b.dataset.fun;
   });
-  try { const cur = sessionStorage.getItem('shoho.book'); if (BOOKS[cur]) setBookChip(cur); } catch { /* без памяти */ }
-  $('#lpAll').onclick = () => { LP.a = 1; LP.b = 34; LP.anchor = null; renderLessonPick(); };
+  $('#lpBack').onclick = () => { $('#lessonPick').hidden = true; showPicker(); };
+  $('#lpAll').onclick = () => {
+    LP.a = books[LP.book].minLesson; LP.b = books[LP.book].maxLesson; LP.anchor = null; renderLessonPick();
+  };
   $('#lpGo').onclick = () => {
-    S.from = LP.a; S.to = LP.b; store.set('from', LP.a); store.set('to', LP.b);
-    $('#lfrom').value = LP.a; $('#lto').value = LP.b; refreshAll();
+    const changed = bookId !== LP.book;
+    S.from = LP.a; S.to = LP.b;
+    if (changed) { switchCourse(LP.book); initRange(); }
+    setRange(LP.a, LP.b);
+    session.set('book', bookId); session.set('course', bookId);
     $('#lessonPick').hidden = true;
+    refreshAll();
+    if (activeMode === 'music') {
+      const mode = savedMode();
+      history.replaceState(null, '', '#' + mode); show(mode);
+    } else setBookChip(bookId);
   };
   $('#designBtn').onclick = $('#styleBtn').onclick = () => { S.plain = !S.plain; store.set('plain', S.plain); applyPlain(); };
   $('#curBook').onclick = showPicker; $('#startBtn').onclick = showPicker;
@@ -2241,16 +2417,23 @@ function applyKyo() {
 
 // Упражнения — одна кнопка на панели задач; внутри подвкладки, открывается последняя.
 const EX = ['forms', 'particles', 'speak', 'listen', 'read'];
+let activeMode = 'cards';
+function savedMode() {
+  const mode = bookStore.get('mode', 'cards');
+  return MODES.includes(mode) && mode !== 'music' ? mode : 'cards';
+}
 function show(mode) {
-  if (mode === 'ex') { mode = store.get('exMode', 'forms'); history.replaceState(null, '', '#' + mode); }
+  if (mode === 'ex') { mode = bookStore.get('exMode', 'forms'); history.replaceState(null, '', '#' + mode); }
   if (mode === 'film' || mode === 'music') {
     const kind = mode === 'film' ? 'film' : 'song';
     if (MU.kind !== kind) { MU.kind = kind; muKind(); if (started.music) { muStop(); muEnter(); } }
     mode = 'music';
   }
   if (!MODES.includes(mode)) mode = 'cards';
+  activeMode = mode;
+  setBookChip(mode === 'music' ? (MU.kind === 'film' ? 'film' : 'music') : bookId);
   const ex = EX.includes(mode), tab = ex ? 'ex' : mode;
-  if (ex) store.set('exMode', mode);
+  if (ex) bookStore.set('exMode', mode);
   if (mode !== 'music' && started.music) muStop();
   $$('.mode').forEach(s => { s.hidden = s.id !== 'm-' + mode; });
   $('#exNav').hidden = !ex;
@@ -2258,20 +2441,21 @@ function show(mode) {
   $$('.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.mode === tab ? 'page' : 'false'));
   $(`.tabs a[data-mode="${tab}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   if (!started[mode]) { started[mode] = true; INIT[mode](); }
-  store.set('mode', mode);
+  if (mode !== 'music') bookStore.set('mode', mode);
 }
 function refreshAll() {
   if (started.chat && !C.rules) chatState();
-  for (const m of Object.keys(started)) if (m !== 'map' && m !== 'chat') ({ cards: () => { if (!A.cur) renderDecks(); }, forms: nextForm, particles: nextParticle, speak: nextSpeak, listen: nextListen, read: nextRead })[m]();
+  if (started.cards && !A.cur) renderDecks();
+  for (const m of EX) if (started[m]) ({ forms: nextForm, particles: nextParticle, speak: nextSpeak, listen: nextListen, read: nextRead })[m]();
 }
 
 // ---------- события ----------
 function initRange() {
-  const opts = Array.from({ length: 34 }, (_, i) => `<option value="${i + 1}">${i + 1}</option>`).join('');
+  const opts = lessonNumbers(bookId).map(lesson => `<option value="${lesson}">${lesson}</option>`).join('');
   $('#lfrom').innerHTML = opts; $('#lto').innerHTML = opts; $('#lfrom').value = S.from; $('#lto').value = S.to;
   const upd = () => {
-    let a = +$('#lfrom').value, b = +$('#lto').value; if (a > b) { [a, b] = [b, a]; $('#lfrom').value = a; $('#lto').value = b; }
-    S.from = a; S.to = b; store.set('from', a); store.set('to', b); refreshAll();
+    const a = +$('#lfrom').value, b = +$('#lto').value;
+    setRange(Math.min(a, b), Math.max(a, b)); refreshAll();
   };
   $('#lfrom').onchange = upd; $('#lto').onchange = upd;
 }
@@ -2288,19 +2472,19 @@ function bind() {
   $('#aExport').onclick = exportProgress;
   $('#aImport').onchange = e => { const f = e.target.files[0]; if (f) importProgress(f); e.target.value = ''; };
   document.addEventListener('keydown', e => {
-    if ($('#m-cards').hidden || $('#aStudy').hidden || e.target.closest('input, textarea, select') || e.ctrlKey || e.metaKey) return;
+    if (!$('#picker').hidden || !$('#lessonPick').hidden || $('#m-cards').hidden || $('#aStudy').hidden || e.target.closest('input, textarea, select') || e.ctrlKey || e.metaKey) return;
     if ((e.key === ' ' || e.key === 'Enter') && !A.shown) { e.preventDefault(); showAnswer(); }
     else if (/^[1-4]$/.test(e.key) && A.shown) { e.preventDefault(); grade(+e.key); }
   });
   $('#keyBox').hidden = inViewer || viaProxy(); $('#codeBox').hidden = !viaProxy();
   $('#optCode').value = accessCode();
   $('#codeSave').onclick = () => { const c = $('#optCode').value.trim(); store.set('code', c); $('#codeNote').textContent = c ? 'Код сохранён в этом браузере.' : ''; initClaude(); };
-  $('#apkgLink').hidden = inViewer || !location.protocol.startsWith('http');
+  updateAnkiLink();
   $('#optKey').value = apiKey();
   $('#keySave').onclick = () => { const k = $('#optKey').value.trim(); store.set('key', k); $('#keyNote').textContent = k ? 'Ключ сохранён в этом браузере.' : ''; initClaude(); };
   $('#keyDel').onclick = () => { store.set('key', ''); $('#optKey').value = ''; $('#keyNote').textContent = 'Ключ удалён.'; initClaude(); };
   document.addEventListener('keydown', e => {
-    if ($('#m-particles').hidden || e.target.closest('input, textarea, select')) return;
+    if (!$('#picker').hidden || !$('#lessonPick').hidden || $('#m-particles').hidden || e.target.closest('input, textarea, select')) return;
     if (/^[1-4]$/.test(e.key) && !P.done) { const b = $$('#pChoices .choice')[+e.key - 1]; if (b) answerParticle(b.dataset.p); }
     else if (e.key === 'Enter' && P.done) { e.preventDefault(); nextParticle(); }
   });
@@ -2361,6 +2545,7 @@ const Whisper = {
 };
 
 // Кнопка «Говорить»: распознаёт японскую речь и дописывает текст в поле. Повторное нажатие — стоп.
+const stopMics = [];
 function micButton(btn, input, note) {
   const errors = {
     'not-allowed': 'Браузер не дал доступ к микрофону. Разрешите его в настройках сайта (значок «аА» или замка у адреса).',
@@ -2373,39 +2558,48 @@ function micButton(btn, input, note) {
   const busy = t => { btn.textContent = t; btn.classList.add('on'); };
   const put = (before, text) => { input.value = (before ? before + ' ' : '') + text; };
   btn.hidden = false; let stop = null;
+  stopMics.push(() => { stop?.(); say(''); });
 
-  function browser(before) {
+  function browser(before, revision) {
     const rec = new SR(); rec.lang = 'ja-JP'; rec.interimResults = true;
-    rec.onresult = e => put(before, [...e.results].map(r => r[0].transcript).join(''));
+    rec.onresult = e => { if (revision === bookRevision) put(before, [...e.results].map(r => r[0].transcript).join('')); };
     rec.onerror = e => {
+      if (revision !== bookRevision) return;
       if (e.error === 'service-not-allowed' || e.error === 'language-not-supported') {
         if (!canRecord) { say('Распознавание речи здесь недоступно. Диктуйте через микрофон японской клавиатуры.'); btn.hidden = true; return; }
         useWhisper();
         say('Распознавание браузера выключено в системе (на iPhone/iPad его включают Siri и диктовка). Переключил на распознавание на устройстве — нажмите «Говорить» ещё раз.');
       } else say(errors[e.error] || (e.error === 'aborted' ? '' : 'Ошибка распознавания: ' + e.error));
     };
-    rec.onend = () => { stop = null; idle(); input.focus(); };
+    rec.onend = () => { stop = null; idle(); if (revision === bookRevision) input.focus(); };
     stop = () => rec.stop(); busy('Стоп');
     try { rec.start(); } catch { stop = null; idle(); }
   }
 
-  async function whisper(before) {
+  async function whisper(before, revision) {
     let stream;
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
-    catch (e) { say(e.name === 'NotAllowedError' ? errors['not-allowed'] : errors['audio-capture']); return; }
+    catch (e) {
+      if (revision === bookRevision) say(e.name === 'NotAllowedError' ? errors['not-allowed'] : errors['audio-capture']);
+      return;
+    }
+    if (revision !== bookRevision) { stream.getTracks().forEach(t => t.stop()); return; }
     Whisper.load().catch(() => {});  // модель грузится, пока человек говорит
     const chunks = [], mr = new MediaRecorder(stream);
     mr.ondataavailable = e => e.data.size && chunks.push(e.data);
     const timer = setTimeout(() => stop?.(), 30000);
     mr.onstop = async () => {
       clearTimeout(timer); stream.getTracks().forEach(t => t.stop()); stop = null;
+      if (revision !== bookRevision) { idle(); return; }
       btn.disabled = true; busy('Распознаю…');
-      Whisper.onProgress = n => say(`Загружаю модель распознавания (один раз): ${n}%`);
+      Whisper.onProgress = n => { if (revision === bookRevision) say(`Загружаю модель распознавания (один раз): ${n}%`); };
       try {
         const text = await Whisper.transcribe(new Blob(chunks, { type: mr.mimeType }));
-        say(text ? '' : errors['no-speech']); if (text) put(before, text);
-      } catch (e) { say('Не получилось распознать: ' + (e.message || e) + '. Проверьте интернет при первой загрузке модели.'); }
-      Whisper.onProgress = null; idle(); input.focus();
+        if (revision === bookRevision) { say(text ? '' : errors['no-speech']); if (text) put(before, text); }
+      } catch (e) {
+        if (revision === bookRevision) say('Не получилось распознать: ' + (e.message || e) + '. Проверьте интернет при первой загрузке модели.');
+      }
+      Whisper.onProgress = null; idle(); if (revision === bookRevision) input.focus();
     };
     stop = () => mr.state !== 'inactive' && mr.stop();
     mr.start(); busy('Стоп');
@@ -2415,7 +2609,7 @@ function micButton(btn, input, note) {
     if (stop) { stop(); return; }
     say('');
     const before = input.value.trim();
-    if (S.mic === 'browser' && SR) browser(before); else whisper(before);
+    if (S.mic === 'browser' && SR) browser(before, bookRevision); else whisper(before, bookRevision);
   };
 }
 
@@ -2425,11 +2619,10 @@ const linkQ = new URLSearchParams(location.search), linkCode = linkQ.get('code')
 if (linkCode) store.set('code', linkCode.trim());
 if (linkM) { MU.code = linkM.trim(); store.set('mcode', MU.code); }
 if (linkCode || linkM) history.replaceState(null, '', location.pathname + location.hash);
+initDeckNotes(); selectProgress();
 winify(); tick(); setInterval(tick, 20000); applyKyo(); applyPlain();
 renderStats(); initRange(); bind(); bindRomaji(); tts.init(); markRate();
-Prog.load(); Prog.today();
-show(location.hash.slice(1) || store.get('mode', 'cards'));
-Prog.connect();
+show(location.hash.slice(1) || (Object.hasOwn(FUN_BOOKS, initialBook) ? initialBook : savedMode()));
 initClaude();
 window.addEventListener('load', bindRomaji);
 })();
